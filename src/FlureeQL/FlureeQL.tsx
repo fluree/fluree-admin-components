@@ -265,8 +265,12 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
     <div className={classes.root}>
       <div className={classes.toolbar}>
         <div>
-          <Button color='inherit'>Generate Keys</Button>
-          <Button color='inherit'>Sign</Button>
+          <Button color='primary' variant='outlined'>
+            Generate Keys
+          </Button>
+          <Button color='primary' variant='outlined'>
+            Sign
+          </Button>
           {action === 'query' && (
             <FormControl color='primary'>
               <InputLabel id='query-type-label'>Query Type</InputLabel>
@@ -343,6 +347,7 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
           <div className={classes.editor}>
             <Editor
               title='Results'
+              readOnly
               width='100%'
               name='flureeQL-results'
               value={results}
