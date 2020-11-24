@@ -1,10 +1,22 @@
 import React from 'react'
 
-import { ExampleComponent } from 'fluree-admin-components'
+import { FlureeQL } from 'fluree-admin-components'
 import 'fluree-admin-components/dist/index.css'
 
 const App = () => {
-  return <ExampleComponent text="Create React Library Example 😄" />
+  return (
+    <FlureeQL
+      allowTransact
+      _db={{
+        db: 'example/mdm',
+        ip: 'http://localhost:8090',
+        openApi: true,
+        environment: 'downloaded',
+        account: 'F',
+        dbs: ['example/mdm']
+      }}
+    />
+  )
 }
 
 export default App
