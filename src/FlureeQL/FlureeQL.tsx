@@ -13,7 +13,9 @@ import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled'
 import SplitPane from 'react-split-pane'
 import { Editor } from '../Editor'
 import { makeStyles } from '@material-ui/core/styles'
-// import { flureeFetch } from '../utils/flureeFetch'
+import { flureeFetch } from '../utils/flureeFetch'
+// import { format } from 'path'
+// import get from 'lodash'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,7 +25,16 @@ const useStyles = makeStyles((theme) => ({
   toolbar: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    height: 75
+  },
+  queryActions: {
+    height: 'inherit',
+    display: 'inherit',
+    alignItems: 'center',
+    '& > button': {
+      marginRight: 10
+    }
   },
   defaultSelect: {
     minWidth: 150
@@ -49,6 +60,7 @@ interface DB {
   db: string
   dbs: Array<string>
   defaultPrivateKey?: any
+  displayError?: string
   environment: string
   ip: string // url for fluree instance
   loading?: boolean
@@ -87,9 +99,18 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
   // const theme = useTheme();
   const [queryParam, setQueryParam] = useState('')
   const [queryType, setQueryType] = useState('Query')
-  const [txParam, setTxParam] = useState('')
+  const [txParam, setTxParam] = useState(
+    '[{"_id":"_user","username":"newUser"}]'
+  )
   const [results, setResults] = useState('')
-
+  // const [loading, setLoading] = useState(false)
+  const [stats, setStats] = useState({
+    fuel: '',
+    status: '',
+    block: '',
+    time: ''
+  })
+  // console.log({ stats })
   useEffect(() => {
     setQueryParam(queryTypes[queryType][1])
   }, [queryType])
@@ -137,134 +158,166 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
   //   return newState;
   // }
 
-  // const handleResponse = (response: object, action: string, db: string, history, param, queryType) => {
-  // 	if (JSON.stringify(param).length > 100000) {
-  // 		this.setState({
-  // 			results: JSON.stringify(
-  // 				[
-  // 					"Large transactions may take some time to process.",
-  // 					"Either wait or check the latest block for results.",
-  // 				],
-  // 				null,
-  // 				2
-  // 			),
-  // 		});
-  // 	}
+  // const handleResponse = (
+  //   promise: any,
+  //   // action: string,
+  //   // db: string,
+  //   // history: null = null,
+  //   param: string
+  //   // queryType: string
+  // ) => {
+  //   if (JSON.stringify(param).length > 100000) {
+  //     setResults(
+  //       JSON.stringify(
+  //         [
+  //           'Large transactions may take some time to process.',
+  //           'Either wait or check the latest block for results.'
+  //         ],
+  //         null,
+  //         2
+  //       )
+  //     )
+  //   }
 
-  // 	if (promise.status >= 400) {
-  // 		const { displayError } = this.props._db;
-  // 		const result = promise.message || promise;
-  // 		var formattedResult = JSON.stringify(result, null, 2);
-  // 		this.setState({ loading: false, results: formattedResult });
-  // 		displayError(result);
-  // 		return;
-  // 	}
+  //   if (promise.status >= 400) {
+  //     // const { displayError } = props._db
+  //     const result = promise.message || promise
+  //     var formattedResult = JSON.stringify(result, null, 2)
+  //     // this.setState({ loading: false, results: formattedResult })
+  //     // setLoading(false)
+  //     // displayError(result)
+  //     setResults(formattedResult)
+  //     return
+  //   }
 
-  // 	promise
-  // 		.then((res) => {
-  // 			if (res.status >= 400 || res.status === undefined) {
-  // 				const { displayError } = this.props._db;
-  // 				const result = res.message || res;
-  // 				var formattedResult = JSON.stringify(result, null, 2);
-  // 				this.setState({ loading: false, results: formattedResult });
-  // 				displayError(result);
-  // 				return;
-  // 			}
+  //   promise
+  //     .then((res: any) => {
+  //       debugger
+  //       if (res.status >= 400 || res.status === undefined) {
+  //         // const { displayError } = this.props._db
+  //         const result = res.message || res
+  //         var formattedResult = JSON.stringify(result, null, 2)
+  //         // this.setState({ loading: false, results: formattedResult })
+  //         // setLoading(false)
+  //         setResults(formattedResult)
+  //         // displayError(result)
+  //         return
+  //       }
+  //       const results = res.json || res
+  //       const fuel = res.headers.get('x-fdb-fuel') || results.fuel
+  //       const block = res.headers.get('x-fdb-block') || results.block
+  //       const time = res.headers.get('x-fdb-time') || results.time
+  //       const status = res.headers.get('x-fdb-status') || results.status
+  //       console.log('get fuel', res.headers.get('x-fdb-fuel'))
 
-  // 			let results = res.json || res;
-  // 			let fuel = res.headers.get("x-fdb-fuel") || results.fuel;
-  // 			let block = res.headers.get("x-fdb-block") || results.block;
-  // 			let time = res.headers.get("x-fdb-time") || results.time;
-  // 			let status = res.headers.get("x-fdb-status") || results.status;
+  //       var formattedResult = JSON.stringify(results.result || results, null, 2)
+  //       // const newHistory = pushHistory(
+  //       //   db,
+  //       //   history,
+  //       //   action,
+  //       //   param,
+  //       //   results,
+  //       //   queryType,
+  //       //   'flureeQL'
+  //       // )
+  //       // const isBlockQuery = get(results, [0, 'flakes'], null) ? true : false
+  //       // if (action === 'transact' || isBlockQuery) {
+  //       //   // attempt to put all flakes on a single line for transaction results
+  //       //   formattedResult = formattedResult.replace(
+  //       //     /\s{4}\[\n[^\]]+\]/g,
+  //       //     function (a, b) {
+  //       //       return '    ' + a.replace(/[\s\n]+/g, ' ')
+  //       //     }
+  //       //   )
+  //       // }
+  //       // this.setState({
+  //       //   results: formattedResult,
+  //       //   history: newHistory,
+  //       //   loading: false,
+  //       //   fuel: fuel,
+  //       //   block: block,
+  //       //   time: time,
+  //       //   status: status
+  //       // })
+  //       setResults(formattedResult)
+  //       // setLoading(false)
+  //       // setStats({ fuel, block, time, status })
+  //     })
+  //     .catch((error: any) => {
+  //       // const { displayError } = this.props._db
+  //       const result = error.json || error
+  //       var formattedResult = JSON.stringify(result, null, 2)
+  //       // this.setState({ loading: false, results: formattedResult })
+  //       // setLoading(false)
+  //       setResults(formattedResult)
+  //       // displayError(result)
+  //     })
 
-  // 			var formattedResult = JSON.stringify(
-  // 				results.result || results,
-  // 				null,
-  // 				2
-  // 			);
-  // 			const newHistory = pushHistory(
-  // 				db,
-  // 				history,
-  // 				action,
-  // 				param,
-  // 				results,
-  // 				queryType,
-  // 				"flureeQL"
-  // 			);
-  // 			const isBlockQuery = get(results, [0, "flakes"], null) ? true : false;
-  // 			if (action === "transact" || isBlockQuery) {
-  // 				// attempt to put all flakes on a single line for transaction results
-  // 				formattedResult = formattedResult.replace(
-  // 					/\s{4}\[\n[^\]]+\]/g,
-  // 					function (a, b) {
-  // 						return "    " + a.replace(/[\s\n]+/g, " ");
-  // 					}
-  // 				);
-  // 			}
-  // 			this.setState({
-  // 				results: formattedResult,
-  // 				history: newHistory,
-  // 				loading: false,
-  // 				fuel: fuel,
-  // 				block: block,
-  // 				time: time,
-  // 				status: status,
-  // 			});
-  // 		})
-  // 		.catch((error) => {
-  // 			const { displayError } = this.props._db;
-  // 			const result = error.json || error;
-  // 			var formattedResult = JSON.stringify(result, null, 2);
-  // 			this.setState({ loading: false, results: formattedResult });
-  // 			displayError(result);
-  // 		});
+  //   // setLoading(true)
+  // }
 
-  // 	this.setState({ loading: true });
-  // };
+  const getStats = (res: any) => {
+    const fuel = res.headers.get('x-fdb-fuel')
+    const block = res.headers.get('x-fdb-block')
+    const time = res.headers.get('x-fdb-time')
+    const status = res.headers.get('x-fdb-status')
+    return {
+      fuel,
+      block,
+      time,
+      status
+    }
+  }
 
   const flureeHandler = async () => {
-    setResults(queryParam)
-    //   const param: string = action === 'query' ? queryParam : txParam
-    //   let endpoint: string
-    //   if (action === 'query') endpoint = queryTypes[queryType][0]
-    //   else endpoint = 'transact'
-    //   let parsedParam = JSON.parse(param)
-    //   const { ip, db, token } = props._db
-    //   const fullDb = db.split('/')
-    //   let queryParamStore =
-    //     JSON.stringify(queryParam).length > 5000
-    //       ? 'Values greater than 5k are not saved in the admin UI.'
-    //       : queryParam
-    //   let txParamStore =
-    //     JSON.stringify(txParam).length > 5000
-    //       ? 'Values greater than 5k are not saved in the admin UI.'
-    //       : txParam
-    //   localStorage.setItem(db.concat('_queryParam'), queryParamStore)
-    //   localStorage.setItem(db.concat('_txParam'), txParamStore)
-    //   localStorage.setItem(db.concat('_lastAction'), action)
-    //   localStorage.setItem(
-    //     db.concat('_lastType'),
-    //     action === 'query' ? queryType : 'transact'
-    //   )
-    //   let opts = {
-    //     ip,
-    //     body: parsedParam,
-    //     auth: token,
-    //     network: fullDb[0],
-    //     endpoint,
-    //     db: fullDb[1]
-    //   }
-    //   const response = await flureeFetch(opts)
-    //   // handleResponse(response, action, db, history, param, queryType);
-    //   const formattedResults = JSON.stringify(response.json)
-    //   setResults(JSON.stringify(JSON.parse(formattedResults)))
-    //   // setResults(JSON.stringify(JSON.parse(response.json)))
+    const param: string = action === 'query' ? queryParam : txParam
+    let endpoint: string
+    if (action === 'query') endpoint = queryTypes[queryType][0]
+    else endpoint = 'transact'
+    const parsedParam = JSON.parse(param)
+    const { ip, db, token } = props._db
+    const fullDb = db.split('/')
+    const queryParamStore =
+      JSON.stringify(queryParam).length > 5000
+        ? 'Values greater than 5k are not saved in the admin UI.'
+        : queryParam
+    const txParamStore =
+      JSON.stringify(txParam).length > 5000
+        ? 'Values greater than 5k are not saved in the admin UI.'
+        : txParam
+    localStorage.setItem(db.concat('_queryParam'), queryParamStore)
+    localStorage.setItem(db.concat('_txParam'), txParamStore)
+    localStorage.setItem(db.concat('_lastAction'), action)
+    localStorage.setItem(
+      db.concat('_lastType'),
+      action === 'query' ? queryType : 'transact'
+    )
+    const opts = {
+      ip,
+      body: parsedParam,
+      auth: token,
+      network: fullDb[0],
+      endpoint,
+      db: fullDb[1]
+    }
+    console.log({ opts })
+    try {
+      const results = await flureeFetch(opts)
+      console.log({ results })
+      setResults(JSON.stringify(results.data))
+      setStats(getStats(results))
+    } catch (err) {
+      console.log(err)
+    }
+    // const formattedResults = JSON.stringify(response.json)
+    // setResults(formattedResults)
+    // setResults(JSON.stringify(JSON.parse(response.json)))
   }
 
   return (
     <div className={classes.root}>
       <div className={classes.toolbar}>
-        <div>
+        <div className={classes.queryActions}>
           <Button color='primary' variant='outlined'>
             Generate Keys
           </Button>
@@ -272,7 +325,7 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
             Sign
           </Button>
           {action === 'query' && (
-            <FormControl color='primary'>
+            <FormControl color='primary' margin='none'>
               <InputLabel id='query-type-label'>Query Type</InputLabel>
               <Select
                 labelId='query-type-label'
@@ -351,6 +404,8 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
               width='100%'
               name='flureeQL-results'
               value={results}
+              stats={stats}
+              action='results'
             />
           </div>
         </SplitPane>

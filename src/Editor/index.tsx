@@ -35,6 +35,7 @@ interface EditorProps {
   queryLang?: string
   action?: string
   defaultValue?: string
+  stats?: object | undefined
   onChange?: (value: string) => void
 }
 
@@ -89,7 +90,9 @@ export const Editor: FunctionComponent<EditorProps> = (props) => {
               Beautify
             </Button>
           )}
-          {props.action === 'results' && <StatDisplay stats={{}} />}
+          {props.action === 'results' && typeof props.stats !== 'undefined' ? (
+            <StatDisplay stats={props.stats} />
+          ) : null}
         </div>
       </div>
       <AceEditor
