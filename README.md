@@ -10,21 +10,7 @@
 npm install --save fluree-admin-components
 ```
 
-## Usage
-
-```tsx
-import React, { Component } from 'react'
-
-import MyComponent from 'fluree-admin-components'
-import 'fluree-admin-components/dist/index.css'
-
-class Example extends Component {
-  render() {
-    return <MyComponent />
-  }
-}
-```
 
 ## License
 
- © [jdorety](https://github.com/jdorety)
+ © Fluree, PBC
