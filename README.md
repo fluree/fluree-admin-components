@@ -2,7 +2,7 @@
 
 > Made with create-react-library
 
-[![NPM](https://img.shields.io/npm/v/fluree-admin-components.svg)](https://www.npmjs.com/package/fluree-admin-components) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![NPM](https://img.shields.io/npm/v/@fluree/admin-react.svg)](https://www.npmjs.com/package/@fluree/admin-react) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-typescript-brightgreen.svg)](https://typescriptlang.com)
 
 ## Install
 
@@ -10,7 +10,6 @@
 npm install --save fluree-admin-components
 ```
 
-
 ## License
 
- © Fluree, PBC
+© Fluree, PBC
