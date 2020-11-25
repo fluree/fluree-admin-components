@@ -1,9 +1,9 @@
 {
-  "name": "fluree-admin-components",
-  "version": "1.0.0",
-  "description": "Made with create-react-library",
+  "name": "@fluree/admin-react",
+  "version": "1.0.3",
+  "description": "Fluree Admin UI component library",
   "author": "jdorety",
-  "license": "",
+  "license": "MIT",
   "repository": "fluree/fluree-admin-components",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
