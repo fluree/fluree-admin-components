@@ -87,7 +87,12 @@ export const Editor: FunctionComponent<EditorProps> = (props) => {
         <Typography variant='h4'>{props.title}</Typography>
         <div className={classes.optionBar}>
           {!props.readOnly && (
-            <Button color='primary' variant='contained' onClick={formatHandler}>
+            <Button
+              color='primary'
+              variant='contained'
+              onClick={formatHandler}
+              size='small'
+            >
               Beautify
             </Button>
           )}

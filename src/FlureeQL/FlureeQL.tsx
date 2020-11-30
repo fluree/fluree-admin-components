@@ -4,8 +4,8 @@ import {
   Button,
   ButtonGroup,
   IconButton,
-  FormControl,
-  InputLabel,
+  // FormControl,
+  // InputLabel,
   MenuItem,
   Select
 } from '@material-ui/core'
@@ -325,23 +325,27 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
             Sign
           </Button>
           {action === 'query' && (
-            <FormControl color='primary' margin='none'>
-              <InputLabel id='query-type-label'>Query Type</InputLabel>
+            <div>
+              {/* <FormControl color='primary' margin='none' variant='outlined'> */}
+              {/* <InputLabel id='query-type-label'>Query Type</InputLabel> */}
               <Select
-                labelId='query-type-label'
+                // labelId='query-type-label'
                 autoWidth
                 value={queryType}
                 onChange={(event: any) => setQueryType(event.target.value)}
                 className={classes.defaultSelect}
-                label='Query Type'
+                variant='outlined'
+                color='primary'
+                margin='dense'
               >
                 {Object.keys(queryTypes).map((item) => (
                   <MenuItem value={item} key={item}>
                     {item}
                   </MenuItem>
                 ))}
+                {/* </FormControl> */}
               </Select>
-            </FormControl>
+            </div>
           )}
         </div>
         <div>
