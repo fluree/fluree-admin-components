@@ -304,7 +304,7 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
     try {
       const results = await flureeFetch(opts)
       console.log({ results })
-      setResults(JSON.stringify(results.data))
+      setResults(JSON.stringify(results.data, null, 2))
       setStats(getStats(results))
     } catch (err) {
       console.log(err)
