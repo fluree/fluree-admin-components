@@ -1,14 +1,15 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useState, FunctionComponent } from 'react'
+import 'ace-builds'
 import AceEditor from 'react-ace'
 import { Box, Typography, Button } from '@material-ui/core'
 import StatDisplay from './StatDisplay'
 import { makeStyles } from '@material-ui/core/styles'
 
+import 'ace-builds/webpack-resolver'
 import 'ace-builds/src-noconflict/theme-xcode'
-import 'brace'
-import 'brace/mode/json'
-import 'brace/mode/sparql'
+import 'ace-builds/src-noconflict/mode-json'
+// import 'ace-builds/src-noconflict/ext-beautify'
 
 const useStyles = makeStyles((theme) => ({
   headerBar: {
