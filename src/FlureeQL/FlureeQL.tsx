@@ -68,7 +68,9 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative'
   },
   history: {
-    width: '30%'
+    width: '30%',
+    maxHeight: 600,
+    height: '100%'
   }
 }))
 
@@ -333,7 +335,12 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
       const results = await flureeFetch(opts)
       console.log({ results })
       if (results.status < 400) {
-        setHistory([{ action: action, param: parsedParam }, ...history])
+        if (history.length && history.length > 0) {
+          const latest = JSON.stringify({ action, param: parsedParam })
+          if (JSON.stringify(history[0]) !== latest) {
+            setHistory([{ action: action, param: parsedParam }, ...history])
+          }
+        } else setHistory([{ action: action, param: parsedParam }, ...history])
       }
       setResults(JSON.stringify(results.data, null, 2))
       setStats(getStats(results))
