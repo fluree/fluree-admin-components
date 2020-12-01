@@ -3,14 +3,16 @@ import React, { useEffect, useState, FunctionComponent } from 'react'
 import {
   Button,
   ButtonGroup,
+  Grid,
   IconButton,
   // FormControl,
   // InputLabel,
   MenuItem,
+  Paper,
   Select
 } from '@material-ui/core'
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled'
-import SplitPane from 'react-split-pane'
+// import SplitPane from 'react-split-pane'
 import { Editor } from '../Editor'
 import History from '../History'
 import { makeStyles } from '@material-ui/core/styles'
@@ -47,7 +49,10 @@ const useStyles = makeStyles((theme) => ({
   },
   editorPane: {
     display: 'flex',
-    marginLeft: '1%'
+    marginLeft: '1%',
+    alignItems: 'stretch',
+    maxHeight: 600,
+    height: '100%'
   },
   split: {
     width: '15px',
@@ -58,19 +63,15 @@ const useStyles = makeStyles((theme) => ({
   editors: {
     maxWidth: 'inherit',
     width: 'inherit',
-    maxHeight: 600
-    // position: 'relative'
-  },
-  editorsSquished: {
-    width: '100%',
-    // maxWidth: '100%',
-    maxHeight: 600,
-    position: 'relative'
+    maxHeight: 'inherit',
+    height: 'inherit',
+    position: 'static'
   },
   history: {
-    width: '30%',
-    maxHeight: 600,
-    height: '100%'
+    // width: '30%',
+    padding: theme.spacing(1)
+    // maxHeight: 600,
+    // height: '100%'
   }
 }))
 
@@ -114,7 +115,7 @@ const queryTypes: Dictionary = {
 const FlureeQL: FunctionComponent<Props> = (props) => {
   const classes = useStyles()
   const [action, setAction] = useState('query')
-  const [size, setSize] = useState('50%')
+  // const [size, setSize] = useState('50%')
   // const theme = useTheme();
   const [queryParam, setQueryParam] = useState('')
   const [queryType, setQueryType] = useState('Query')
@@ -137,11 +138,16 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
     setQueryParam(queryTypes[queryType][1])
   }, [queryType])
 
-  const setHistoryHandler = (action: string, param: object) => {
+  const setHistoryHandler = (
+    action: string,
+    param: object,
+    type?: string | null
+  ) => {
     setAction(action)
     if (action === 'transact') {
       setTxParam(JSON.stringify(param))
     } else {
+      type && setQueryType(type)
       setQueryParam(JSON.stringify(param))
     }
   }
@@ -336,11 +342,22 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
       console.log({ results })
       if (results.status < 400) {
         if (history.length && history.length > 0) {
-          const latest = JSON.stringify({ action, param: parsedParam })
+          const latest = JSON.stringify({
+            action,
+            param: parsedParam,
+            type: queryType
+          })
           if (JSON.stringify(history[0]) !== latest) {
-            setHistory([{ action: action, param: parsedParam }, ...history])
+            setHistory([
+              { action: action, param: parsedParam, type: queryType },
+              ...history
+            ])
           }
-        } else setHistory([{ action: action, param: parsedParam }, ...history])
+        } else
+          setHistory([
+            { action: action, param: parsedParam, type: queryType },
+            ...history
+          ])
       }
       setResults(JSON.stringify(results.data, null, 2))
       setStats(getStats(results))
@@ -423,20 +440,21 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
           </IconButton>
         </div>
       </div>
-      <div className={classes.editorPane}>
-        <div className={classes.history}>
-          <History
-            history={history}
-            loadHistoryItem={setHistoryHandler}
-            open={historyOpen}
-          />
-        </div>
+      <Grid container xs={12}>
+        {historyOpen && (
+          <Grid item xs={12} md={2}>
+            <Paper className={classes.history}>
+              <History
+                history={history}
+                loadHistoryItem={setHistoryHandler}
+                open={historyOpen}
+              />
+            </Paper>
+          </Grid>
+        )}
         {/* <div> */}
-        <div
-          className={historyOpen ? classes.editorsSquished : classes.editors}
-        >
-          <SplitPane
-            // className={classes.editors}
+        {/* <SplitPane
+            className={classes.editors}
             split='vertical'
             minSize={300}
             defaultSize={size}
@@ -445,34 +463,33 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
               setSize(`${size}%`)
             }}
             style={{ width: 'inherit' }}
-          >
-            <div>
-              <Editor
-                action={action}
-                title={action === 'query' ? 'Query' : 'Transact'}
-                width='100%'
-                name='flureeQL-editor'
-                value={action === 'query' ? queryParam : txParam}
-                onChange={(value) => {
-                  if (action === 'query') setQueryParam(value)
-                  else setTxParam(value)
-                }}
-              />
-            </div>
-            <div>
-              <Editor
-                title='Results'
-                readOnly
-                width='100%'
-                name='flureeQL-results'
-                value={results}
-                stats={stats}
-                action='results'
-              />
-            </div>
-          </SplitPane>
-        </div>
-      </div>
+          > */}
+        <Grid item xs={12} md={historyOpen ? 5 : 6}>
+          <Editor
+            action={action}
+            title={action === 'query' ? 'Query' : 'Transact'}
+            width='100%'
+            name='flureeQL-editor'
+            value={action === 'query' ? queryParam : txParam}
+            onChange={(value) => {
+              if (action === 'query') setQueryParam(value)
+              else setTxParam(value)
+            }}
+          />
+        </Grid>
+        <Grid item xs={12} md={historyOpen ? 5 : 6}>
+          <Editor
+            title='Results'
+            readOnly
+            width='100%'
+            name='flureeQL-results'
+            value={results}
+            stats={stats}
+            action='results'
+          />
+        </Grid>
+        {/* </SplitPane> */}
+      </Grid>
     </div>
   )
 }
