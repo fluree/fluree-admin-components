@@ -21,24 +21,31 @@ const useStyles = makeStyles(() => ({
   },
   itemClickable: {
     cursor: 'pointer'
-  }
+  },
+  item: {}
 }))
 
 interface HistoryProps {
   history: Array<object>
-  loadHistoryItem?: (action: string, param: object) => void | undefined
+  loadHistoryItem?: (
+    action: string,
+    param: object,
+    type?: string | null
+  ) => void | undefined
   open: boolean
 }
 
 interface HistoryObject {
   action: string
   param: object
+  type?: string
 }
 
-const History: FunctionComponent<HistoryProps> = (
-  { history, loadHistoryItem, open },
-  ...rest
-) => {
+const History: FunctionComponent<HistoryProps> = ({
+  history,
+  loadHistoryItem,
+  open
+}) => {
   const classes = useStyles()
   // const savedHistory: string | undefined | null = localStorage.getItem(
   //   `${dbName}_history`
@@ -50,11 +57,7 @@ const History: FunctionComponent<HistoryProps> = (
   const [active, setActive] = useState<number | null>(null)
 
   return (
-    <Box
-      {...rest}
-      maxWidth
-      className={open ? classes.root : classes.rootHidden}
-    >
+    <Box className={open ? classes.root : classes.rootHidden}>
       <List>
         <Typography variant='h5'>History</Typography>
         {history.map((item: HistoryObject, i: number) => (
@@ -64,7 +67,7 @@ const History: FunctionComponent<HistoryProps> = (
             onClick={
               loadHistoryItem
                 ? () => {
-                    loadHistoryItem(item.action, item.param)
+                    loadHistoryItem(item.action, item.param, item.type)
                     setActive(i)
                   }
                 : undefined
@@ -73,7 +76,12 @@ const History: FunctionComponent<HistoryProps> = (
             selected={active === i}
           >
             <ListItemText
-              primary={item.action}
+              className={classes.item}
+              primary={
+                item.type
+                  ? `${item.action}: ${item.type}`.toUpperCase()
+                  : `${item.action}`.toUpperCase()
+              }
               secondary={JSON.stringify(item.param)}
             />
           </ListItem>
