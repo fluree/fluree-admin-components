@@ -82,10 +82,10 @@ const useStyles = makeStyles((theme) => ({
 interface DB {
   account?: string
   db: string
-  dbs: Array<string>
+  dbs?: Array<string>
   defaultPrivateKey?: any
   displayError?: string
-  environment: string
+  environment?: string
   ip: string // url for fluree instance
   loading?: boolean
   logout?: boolean
@@ -97,8 +97,6 @@ interface DB {
 interface Props {
   _db: DB
   allowTransact?: boolean
-  defaultQuery?: string
-  defaultTransact?: string
 }
 
 type Dictionary = { [index: string]: Array<string> }
