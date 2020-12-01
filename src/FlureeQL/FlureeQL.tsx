@@ -440,7 +440,7 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
           </IconButton>
         </div>
       </div>
-      <Grid container xs={12}>
+      <Grid container spacing={2}>
         {historyOpen && (
           <Grid item xs={12} md={2}>
             <Paper className={classes.history}>
