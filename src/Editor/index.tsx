@@ -5,11 +5,14 @@ import AceEditor from 'react-ace'
 import { Box, Typography, Button } from '@material-ui/core'
 import StatDisplay from './StatDisplay'
 import { makeStyles } from '@material-ui/core/styles'
+import JSON5 from 'json5'
 
 import 'ace-builds/webpack-resolver'
 import 'ace-builds/src-noconflict/theme-xcode'
+import 'ace-builds/src-noconflict/theme-dracula'
 import 'ace-builds/src-noconflict/mode-json'
-// import 'ace-builds/src-noconflict/ext-beautify'
+import 'ace-builds/src-noconflict/mode-json5'
+import 'ace-builds/src-noconflict/ext-beautify'
 
 const useStyles = makeStyles((theme) => ({
   headerBar: {
@@ -28,24 +31,29 @@ const useStyles = makeStyles((theme) => ({
 interface EditorProps {
   name?: string
   value?: string
-  theme?: string
-  mode?: string
+  theme?: 'dracula' | 'xcode'
+  mode?: string | 'json5'
   title?: string
   readOnly?: boolean
   width?: number | string
-  queryLang?: string
   action?: string
-  defaultValue?: string
   stats?: object | undefined
   onChange?: (value: string) => void
 }
 
-export const Editor: FunctionComponent<EditorProps> = (props) => {
+export const Editor: FunctionComponent<EditorProps> = ({
+  name,
+  value,
+  theme = 'xcode',
+  mode = 'json5',
+  title,
+  readOnly,
+  width,
+  action,
+  stats,
+  onChange
+}) => {
   const classes = useStyles()
-  let mode = 'json'
-  if (props.mode) {
-    mode = props.mode
-  }
 
   const [contents, setContents] = useState('')
 
@@ -54,26 +62,22 @@ export const Editor: FunctionComponent<EditorProps> = (props) => {
   }
 
   let valueHandler = changeHandler
-  if (props.onChange) {
-    valueHandler = props.onChange
+  if (onChange) {
+    valueHandler = onChange
   }
 
   const formatHandler = () => {
-    const newValue = JSON.stringify(
-      JSON.parse(props.value ? props.value : contents),
-      null,
-      2
-    )
+    const newValue = JSON5.stringify(JSON5.parse(value || contents), null, 2)
 
     console.log(newValue)
 
-    if (props.onChange) {
-      props.onChange(newValue)
+    if (onChange) {
+      onChange(newValue)
     } else {
       setContents(newValue)
     }
-    // if (props.onChange) {
-    //   props.onChange(
+    // if (onChange) {
+    //   onChange(
     //     prettier.format(newValue, { parser: 'json', plugins: [babelParser] })
     //   );
     // } else {
@@ -82,11 +86,11 @@ export const Editor: FunctionComponent<EditorProps> = (props) => {
   }
 
   return (
-    <Box width={props.width || 500} p={2} boxSizing='border-box'>
+    <Box width={width || 500} p={2} boxSizing='border-box'>
       <div className={classes.headerBar}>
-        <Typography variant='h4'>{props.title}</Typography>
+        <Typography variant='h4'>{title}</Typography>
         <div className={classes.optionBar}>
-          {!props.readOnly && (
+          {!readOnly && (
             <Button
               color='primary'
               variant='contained'
@@ -96,21 +100,21 @@ export const Editor: FunctionComponent<EditorProps> = (props) => {
               Beautify
             </Button>
           )}
-          {props.action === 'results' && typeof props.stats !== 'undefined' ? (
-            <StatDisplay stats={props.stats} />
+          {action === 'results' && typeof stats !== 'undefined' ? (
+            <StatDisplay stats={stats} />
           ) : null}
         </div>
       </div>
       <AceEditor
-        name={props.name}
+        name={name}
         mode={mode}
-        theme='xcode'
+        theme={theme}
         highlightActiveLine
         tabSize={2}
         editorProps={{ $blockScrolling: true }}
-        value={props.value || contents}
+        value={value || contents}
         onChange={valueHandler}
-        readOnly={props.readOnly || false}
+        readOnly={readOnly || false}
         width='100%'
         showPrintMargin={false}
       />
