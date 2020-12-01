@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-import React, { FunctionComponent } from 'react'
+import React, { FunctionComponent, useState } from 'react'
 import {
   Box,
   List,
@@ -11,8 +11,7 @@ import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(() => ({
   root: {
-    maxWidth: 'inherit',
-    width: 'inherit'
+    width: '100%'
   },
   rootHidden: {
     display: 'none'
@@ -21,7 +20,7 @@ const useStyles = makeStyles(() => ({
 
 interface HistoryProps {
   history: Array<object>
-  loadHistoryItem: (item: HistoryObject) => void
+  loadHistoryItem?: (action: string, param: object) => void | undefined
   open: boolean
 }
 
@@ -30,11 +29,10 @@ interface HistoryObject {
   param: object
 }
 
-const History: FunctionComponent<HistoryProps> = ({
-  history,
-  loadHistoryItem,
-  open
-}) => {
+const History: FunctionComponent<HistoryProps> = (
+  { history, loadHistoryItem, open },
+  ...rest
+) => {
   const classes = useStyles()
   // const savedHistory: string | undefined | null = localStorage.getItem(
   //   `${dbName}_history`
@@ -43,18 +41,29 @@ const History: FunctionComponent<HistoryProps> = ({
   //   savedHistory ? JSON.parse(savedHistory) : []
   // )
 
+  const [active, setActive] = useState<number | null>(null)
+
   return (
-    <Box className={open ? classes.root : classes.rootHidden}>
+    <Box
+      {...rest}
+      maxWidth
+      className={open ? classes.root : classes.rootHidden}
+    >
       <List>
         <Typography variant='h5'>History</Typography>
         {history.map((item: HistoryObject, i: number) => (
           <ListItem
             key={i}
-            onClick={(e) => {
-              e.preventDefault()
-              loadHistoryItem(item)
-            }}
+            onClick={
+              loadHistoryItem
+                ? () => {
+                    loadHistoryItem(item.action, item.param)
+                    setActive(i)
+                  }
+                : undefined
+            }
             divider
+            selected={active === i}
           >
             <ListItemText
               primary={item.action}
