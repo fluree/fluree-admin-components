@@ -17,7 +17,6 @@ interface HistoryProps {
     param: object,
     type?: string | null
   ) => void | undefined
-  open: boolean
 }
 
 interface HistoryObject {
