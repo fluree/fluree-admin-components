@@ -47,6 +47,9 @@ const useStyles = makeStyles((theme) => ({
   actionButtons: {
     marginLeft: theme.spacing(1)
   },
+  grid: {
+    padding: theme.spacing(2)
+  },
   editorPane: {
     display: 'flex',
     marginLeft: '1%',
@@ -69,7 +72,8 @@ const useStyles = makeStyles((theme) => ({
   },
   history: {
     // width: '30%',
-    padding: theme.spacing(1)
+    // padding: theme.spacing(1),
+    // paddingBottom: 0
     // maxHeight: 600,
     // height: '100%'
   }
@@ -440,7 +444,7 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
           </IconButton>
         </div>
       </div>
-      <Grid container spacing={2}>
+      <Grid container spacing={2} className={classes.grid}>
         {historyOpen && (
           <Grid item xs={12} md={2}>
             <Paper className={classes.history}>

@@ -3,7 +3,10 @@ import React, { FunctionComponent, useState, useEffect } from 'react'
 import { List, ListItem, ListItemText, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
+  header: {
+    marginLeft: theme.spacing(2)
+  },
   itemClickable: {
     cursor: 'pointer'
   },
@@ -45,7 +48,9 @@ const History: FunctionComponent<HistoryProps> = ({
 
   return (
     <List>
-      <Typography variant='h5'>History</Typography>
+      <Typography variant='h5' className={classes.header}>
+        History
+      </Typography>
       {history.map((item: HistoryObject, i: number) => (
         <ListItem
           className={loadHistoryItem ? classes.itemClickable : ''}
@@ -58,7 +63,7 @@ const History: FunctionComponent<HistoryProps> = ({
                 }
               : undefined
           }
-          divider
+          divider={!(history.length - 1 === i)}
           selected={active === i}
         >
           <ListItemText
