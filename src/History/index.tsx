@@ -11,10 +11,16 @@ import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(() => ({
   root: {
-    width: '100%'
+    width: '100%',
+    maxHeight: 'inherit',
+    height: 'inherit',
+    overflowX: 'scroll'
   },
   rootHidden: {
     display: 'none'
+  },
+  itemClickable: {
+    cursor: 'pointer'
   }
 }))
 
@@ -53,6 +59,7 @@ const History: FunctionComponent<HistoryProps> = (
         <Typography variant='h5'>History</Typography>
         {history.map((item: HistoryObject, i: number) => (
           <ListItem
+            className={loadHistoryItem ? classes.itemClickable : ''}
             key={i}
             onClick={
               loadHistoryItem
