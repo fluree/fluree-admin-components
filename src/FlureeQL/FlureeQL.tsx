@@ -18,6 +18,7 @@ import History from '../History'
 import { makeStyles } from '@material-ui/core/styles'
 import { flureeFetch } from '../utils/flureeFetch'
 import { useLocal } from '../utils/hooks'
+import JSON5 from 'json5'
 // import { format } from 'path'
 // import get from 'lodash'
 
@@ -71,11 +72,8 @@ const useStyles = makeStyles((theme) => ({
     position: 'static'
   },
   history: {
-    // width: '30%',
-    // padding: theme.spacing(1),
-    // paddingBottom: 0
-    // maxHeight: 600,
-    // height: '100%'
+    maxHeight: 600,
+    overflowX: 'scroll'
   }
 }))
 
@@ -147,10 +145,10 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
   ) => {
     setAction(action)
     if (action === 'transact') {
-      setTxParam(JSON.stringify(param))
+      setTxParam(JSON5.stringify(param))
     } else {
       type && setQueryType(type)
-      setQueryParam(JSON.stringify(param))
+      setQueryParam(JSON5.stringify(param))
     }
   }
   // getParamsFromProps(props) {
@@ -204,9 +202,9 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
   //   param: string
   //   // queryType: string
   // ) => {
-  //   if (JSON.stringify(param).length > 100000) {
+  //   if (JSON5.stringify(param).length > 100000) {
   //     setResults(
-  //       JSON.stringify(
+  //       JSON5.stringify(
   //         [
   //           'Large transactions may take some time to process.',
   //           'Either wait or check the latest block for results.'
@@ -220,7 +218,7 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
   //   if (promise.status >= 400) {
   //     // const { displayError } = props._db
   //     const result = promise.message || promise
-  //     var formattedResult = JSON.stringify(result, null, 2)
+  //     var formattedResult = JSON5.stringify(result, null, 2)
   //     // this.setState({ loading: false, results: formattedResult })
   //     // setLoading(false)
   //     // displayError(result)
@@ -234,7 +232,7 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
   //       if (res.status >= 400 || res.status === undefined) {
   //         // const { displayError } = this.props._db
   //         const result = res.message || res
-  //         var formattedResult = JSON.stringify(result, null, 2)
+  //         var formattedResult = JSON5.stringify(result, null, 2)
   //         // this.setState({ loading: false, results: formattedResult })
   //         // setLoading(false)
   //         setResults(formattedResult)
@@ -248,7 +246,7 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
   //       const status = res.headers.get('x-fdb-status') || results.status
   //       console.log('get fuel', res.headers.get('x-fdb-fuel'))
 
-  //       var formattedResult = JSON.stringify(results.result || results, null, 2)
+  //       var formattedResult = JSON5.stringify(results.result || results, null, 2)
   //       // const newHistory = pushHistory(
   //       //   db,
   //       //   history,
@@ -284,7 +282,7 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
   //     .catch((error: any) => {
   //       // const { displayError } = this.props._db
   //       const result = error.json || error
-  //       var formattedResult = JSON.stringify(result, null, 2)
+  //       var formattedResult = JSON5.stringify(result, null, 2)
   //       // this.setState({ loading: false, results: formattedResult })
   //       // setLoading(false)
   //       setResults(formattedResult)
@@ -312,15 +310,15 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
     let endpoint: string
     if (action === 'query') endpoint = queryTypes[queryType][0]
     else endpoint = 'transact'
-    const parsedParam = JSON.parse(param)
+    const parsedParam = JSON5.parse(param)
     const { ip, db, token } = props._db
     const fullDb = db.split('/')
     const queryParamStore =
-      JSON.stringify(queryParam).length > 5000
+      JSON5.stringify(queryParam).length > 5000
         ? 'Values greater than 5k are not saved in the admin UI.'
         : queryParam
     const txParamStore =
-      JSON.stringify(txParam).length > 5000
+      JSON5.stringify(txParam).length > 5000
         ? 'Values greater than 5k are not saved in the admin UI.'
         : txParam
     localStorage.setItem(db.concat('_queryParam'), queryParamStore)
@@ -344,12 +342,12 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
       console.log({ results })
       if (results.status < 400) {
         if (history.length && history.length > 0) {
-          const latest = JSON.stringify({
+          const latest = JSON5.stringify({
             action,
             param: parsedParam,
             type: queryType
           })
-          if (JSON.stringify(history[0]) !== latest) {
+          if (JSON5.stringify(history[0]) !== latest) {
             setHistory([
               { action: action, param: parsedParam, type: queryType },
               ...history
@@ -361,14 +359,14 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
             ...history
           ])
       }
-      setResults(JSON.stringify(results.data, null, 2))
+      setResults(JSON5.stringify(results.data, null, 2))
       setStats(getStats(results))
     } catch (err) {
       console.log(err)
     }
-    // const formattedResults = JSON.stringify(response.json)
+    // const formattedResults = JSON5.stringify(response.json)
     // setResults(formattedResults)
-    // setResults(JSON.stringify(JSON.parse(response.json)))
+    // setResults(JSON5.stringify(JSON5.parse(response.json)))
   }
 
   return (
