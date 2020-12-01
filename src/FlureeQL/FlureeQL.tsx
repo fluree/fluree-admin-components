@@ -444,11 +444,7 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
         {historyOpen && (
           <Grid item xs={12} md={2}>
             <Paper className={classes.history}>
-              <History
-                history={history}
-                loadHistoryItem={setHistoryHandler}
-                open={historyOpen}
-              />
+              <History history={history} loadHistoryItem={setHistoryHandler} />
             </Paper>
           </Grid>
         )}
