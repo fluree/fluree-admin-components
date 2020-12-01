@@ -12,8 +12,10 @@ import {
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled'
 import SplitPane from 'react-split-pane'
 import { Editor } from '../Editor'
+import History from '../History'
 import { makeStyles } from '@material-ui/core/styles'
 import { flureeFetch } from '../utils/flureeFetch'
+import { useLocal } from '../utils/hooks'
 // import { format } from 'path'
 // import get from 'lodash'
 
@@ -29,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
     height: 75
   },
   queryActions: {
+    marginLeft: '1%',
     height: 'inherit',
     display: 'inherit',
     alignItems: 'center',
@@ -42,6 +45,10 @@ const useStyles = makeStyles((theme) => ({
   actionButtons: {
     marginLeft: theme.spacing(1)
   },
+  editorPane: {
+    display: 'flex',
+    marginLeft: '1%'
+  },
   split: {
     width: '15px',
     cursor: 'col-resize',
@@ -50,9 +57,19 @@ const useStyles = makeStyles((theme) => ({
   },
   editors: {
     maxWidth: 'inherit',
-    width: 'inherit'
+    width: 'inherit',
+    maxHeight: 600
+    // position: 'relative'
   },
-  editor: {}
+  editorsSquished: {
+    width: '100%',
+    // maxWidth: '100%',
+    maxHeight: 600,
+    position: 'relative'
+  },
+  history: {
+    width: '30%'
+  }
 }))
 
 interface DB {
@@ -110,11 +127,22 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
     block: '',
     time: ''
   })
+  const [historyOpen, setHistoryOpen] = useState(true)
+  const [history, setHistory] = useLocal(`${props._db.db}_history`)
+
   // console.log({ stats })
   useEffect(() => {
     setQueryParam(queryTypes[queryType][1])
   }, [queryType])
 
+  const setHistoryHandler = (action: string, param: object) => {
+    setAction(action)
+    if (action === 'transact') {
+      setTxParam(JSON.stringify(param))
+    } else {
+      setQueryParam(JSON.stringify(param))
+    }
+  }
   // getParamsFromProps(props) {
   //   //const sign = !props._db.openApi;
   //   let sign;
@@ -304,6 +332,9 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
     try {
       const results = await flureeFetch(opts)
       console.log({ results })
+      if (results.status < 400) {
+        setHistory([{ action: action, param: parsedParam }, ...history])
+      }
       setResults(JSON.stringify(results.data, null, 2))
       setStats(getStats(results))
     } catch (err) {
@@ -323,6 +354,15 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
           </Button>
           <Button color='primary' variant='outlined'>
             Sign
+          </Button>
+          <Button
+            color='primary'
+            variant={historyOpen ? 'contained' : 'outlined'}
+            onClick={() => {
+              setHistoryOpen(!historyOpen)
+            }}
+          >
+            History
           </Button>
           {action === 'query' && (
             <div>
@@ -376,43 +416,55 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
           </IconButton>
         </div>
       </div>
-      <div className={classes.editors}>
-        <SplitPane
-          // className={classes.editors}
-          split='vertical'
-          minSize={300}
-          defaultSize={size}
-          resizerClassName={classes.split}
-          onChange={(size) => {
-            setSize(`${size}%`)
-          }}
-          style={{ width: 'inherit' }}
+      <div className={classes.editorPane}>
+        <div className={classes.history}>
+          <History
+            history={history}
+            loadHistoryItem={setHistoryHandler}
+            open={historyOpen}
+          />
+        </div>
+        {/* <div> */}
+        <div
+          className={historyOpen ? classes.editorsSquished : classes.editors}
         >
-          <div className={classes.editor}>
-            <Editor
-              action={action}
-              title={action === 'query' ? 'Query' : 'Transact'}
-              width='100%'
-              name='flureeQL-editor'
-              value={action === 'query' ? queryParam : txParam}
-              onChange={(value) => {
-                if (action === 'query') setQueryParam(value)
-                else setTxParam(value)
-              }}
-            />
-          </div>
-          <div className={classes.editor}>
-            <Editor
-              title='Results'
-              readOnly
-              width='100%'
-              name='flureeQL-results'
-              value={results}
-              stats={stats}
-              action='results'
-            />
-          </div>
-        </SplitPane>
+          <SplitPane
+            // className={classes.editors}
+            split='vertical'
+            minSize={300}
+            defaultSize={size}
+            resizerClassName={classes.split}
+            onChange={(size) => {
+              setSize(`${size}%`)
+            }}
+            style={{ width: 'inherit' }}
+          >
+            <div>
+              <Editor
+                action={action}
+                title={action === 'query' ? 'Query' : 'Transact'}
+                width='100%'
+                name='flureeQL-editor'
+                value={action === 'query' ? queryParam : txParam}
+                onChange={(value) => {
+                  if (action === 'query') setQueryParam(value)
+                  else setTxParam(value)
+                }}
+              />
+            </div>
+            <div>
+              <Editor
+                title='Results'
+                readOnly
+                width='100%'
+                name='flureeQL-results'
+                value={results}
+                stats={stats}
+                action='results'
+              />
+            </div>
+          </SplitPane>
+        </div>
       </div>
     </div>
   )
