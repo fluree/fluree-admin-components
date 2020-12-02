@@ -4,6 +4,7 @@ import 'ace-builds'
 import AceEditor from 'react-ace'
 import { Box, Typography, Button } from '@material-ui/core'
 import StatDisplay from './StatDisplay'
+import BasicDialog from '../General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import JSON5 from 'json5'
 
@@ -32,7 +33,7 @@ interface EditorProps {
   name?: string
   value?: string
   theme?: 'dracula' | 'xcode'
-  mode?: string | 'json5'
+  mode?: 'json' | 'json5'
   title?: string
   readOnly?: boolean
   width?: number | string
@@ -56,6 +57,8 @@ export const Editor: FunctionComponent<EditorProps> = ({
   const classes = useStyles()
 
   const [contents, setContents] = useState('')
+  const [error, setError] = useState('')
+  const [openError, setOpenError] = useState(false)
 
   const changeHandler = (value: string) => {
     setContents(value)
@@ -67,8 +70,10 @@ export const Editor: FunctionComponent<EditorProps> = ({
   }
 
   const formatHandler = () => {
+    const parse = mode === 'json' ? JSON.parse : JSON5.parse
+    const stringify = mode === 'json' ? JSON.stringify : JSON5.stringify
     try {
-      const newValue = JSON5.stringify(JSON5.parse(value || contents), null, 2)
+      const newValue = stringify(parse(value || contents), null, 2)
 
       console.log(newValue)
 
@@ -79,13 +84,15 @@ export const Editor: FunctionComponent<EditorProps> = ({
       }
     } catch (err) {
       console.log(err.message)
-      const errMessage = `${value || contents} \n // ${err.message}`
-      console.log(errMessage)
-      if (onChange) {
-        onChange(errMessage)
-      } else {
-        setContents(errMessage)
-      }
+      setError(err.message)
+      setOpenError(true)
+      // const errMessage = `${value || contents} \n // ${err.message}`
+      // console.log(errMessage)
+      // if (onChange) {
+      //   onChange(errMessage)
+      // } else {
+      //   setContents(errMessage)
+      // }
     }
   }
 
@@ -121,6 +128,11 @@ export const Editor: FunctionComponent<EditorProps> = ({
         readOnly={readOnly || false}
         width='100%'
         showPrintMargin={false}
+      />
+      <BasicDialog
+        message={error}
+        open={openError}
+        onClose={() => setOpenError(false)}
       />
     </Box>
   )
