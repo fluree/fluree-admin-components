@@ -73,7 +73,10 @@ const useStyles = makeStyles((theme) => ({
   },
   history: {
     maxHeight: 600,
-    overflowX: 'scroll'
+    overflowX: 'scroll',
+    [theme.breakpoints.down('md')]: {
+      maxHeight: 200
+    }
   }
 }))
 
