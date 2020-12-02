@@ -5,12 +5,17 @@ import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles((theme) => ({
   header: {
-    marginLeft: theme.spacing(2)
+    marginLeft: theme.spacing(2),
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1)
   },
   itemClickable: {
     cursor: 'pointer'
   },
-  item: {}
+  item: {
+    overflow: 'hidden',
+    textOverflow: 'fade'
+  }
 }))
 
 interface HistoryProps {
@@ -47,7 +52,7 @@ const History: FunctionComponent<HistoryProps> = ({
   }, [history])
 
   return (
-    <List>
+    <List disablePadding>
       <Typography variant='h5' className={classes.header}>
         History
       </Typography>

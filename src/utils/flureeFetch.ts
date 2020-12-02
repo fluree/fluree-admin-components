@@ -1,4 +1,5 @@
 import fetch from 'isomorphic-fetch'
+// import JSON5 from 'json5'
 
 interface EndpointParams {
   endpoint: string
