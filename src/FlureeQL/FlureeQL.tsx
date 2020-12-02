@@ -15,6 +15,7 @@ import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled'
 // import SplitPane from 'react-split-pane'
 import { Editor } from '../Editor'
 import History from '../History'
+import BasicDialog from '../General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import { flureeFetch } from '../utils/flureeFetch'
 import { useLocal } from '../utils/hooks'
@@ -135,6 +136,8 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
   })
   const [historyOpen, setHistoryOpen] = useState(true)
   const [history, setHistory] = useLocal(`${props._db.db}_history`)
+  const [errorOpen, setErrorOpen] = useState(false)
+  const [error, setError] = useState('')
 
   // console.log({ stats })
   useEffect(() => {
@@ -154,146 +157,6 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
       setQueryParam(JSON5.stringify(param))
     }
   }
-  // getParamsFromProps(props) {
-  //   //const sign = !props._db.openApi;
-  //   let sign;
-  //   if (props._db.openApi === false) {
-  //     sign = !props._db.openApi;
-  //   } else if (props._db.openApiServer === false) {
-  //     sign = !props._db.openApiServer;
-  //   }
-  //   const privateKey = props._db.defaultPrivateKey || '';
-  //   const host = getHost(props._db.ip) || '';
-  //   const history = loadHistory(props._db.db, 'flureeQL') || [];
-
-  //   const lastItem = getLastHistory(history) || {};
-  //   const action = lastItem.action || 'query';
-
-  //   const newState = {
-  //     sign: sign,
-  //     host: host,
-  //     privateKey: privateKey,
-  //     history: history,
-  //     action: action
-  //   };
-
-  //   if (action === 'query') {
-  //     newState['queryParam'] =
-  //       lastItem.param || '{"select":["*"],"from":"_collection"}';
-  //     newState['queryType'] = lastItem.type || 'query';
-
-  //     const lastTransaction = getLastHistoryType(history, 'transact');
-  //     newState['txParam'] =
-  //       lastTransaction || '[{"_id":"_user","username":"newUser"}]';
-  //   } else {
-  //     newState['txParam'] =
-  //       lastItem.param || '[{"_id":"_user","username":"newUser"}]';
-  //     const lastQuery = getLastHistoryAction(history, 'query');
-  //     newState['queryParam'] =
-  //       lastQuery.param || '{"select":["*"],"from":"_collection"}';
-  //     newState['queryType'] = lastQuery.type || 'query';
-  //   }
-
-  //   return newState;
-  // }
-
-  // const handleResponse = (
-  //   promise: any,
-  //   // action: string,
-  //   // db: string,
-  //   // history: null = null,
-  //   param: string
-  //   // queryType: string
-  // ) => {
-  //   if (JSON5.stringify(param).length > 100000) {
-  //     setResults(
-  //       JSON5.stringify(
-  //         [
-  //           'Large transactions may take some time to process.',
-  //           'Either wait or check the latest block for results.'
-  //         ],
-  //         null,
-  //         2
-  //       )
-  //     )
-  //   }
-
-  //   if (promise.status >= 400) {
-  //     // const { displayError } = props._db
-  //     const result = promise.message || promise
-  //     var formattedResult = JSON5.stringify(result, null, 2)
-  //     // this.setState({ loading: false, results: formattedResult })
-  //     // setLoading(false)
-  //     // displayError(result)
-  //     setResults(formattedResult)
-  //     return
-  //   }
-
-  //   promise
-  //     .then((res: any) => {
-  //       debugger
-  //       if (res.status >= 400 || res.status === undefined) {
-  //         // const { displayError } = this.props._db
-  //         const result = res.message || res
-  //         var formattedResult = JSON5.stringify(result, null, 2)
-  //         // this.setState({ loading: false, results: formattedResult })
-  //         // setLoading(false)
-  //         setResults(formattedResult)
-  //         // displayError(result)
-  //         return
-  //       }
-  //       const results = res.json || res
-  //       const fuel = res.headers.get('x-fdb-fuel') || results.fuel
-  //       const block = res.headers.get('x-fdb-block') || results.block
-  //       const time = res.headers.get('x-fdb-time') || results.time
-  //       const status = res.headers.get('x-fdb-status') || results.status
-  //       console.log('get fuel', res.headers.get('x-fdb-fuel'))
-
-  //       var formattedResult = JSON5.stringify(results.result || results, null, 2)
-  //       // const newHistory = pushHistory(
-  //       //   db,
-  //       //   history,
-  //       //   action,
-  //       //   param,
-  //       //   results,
-  //       //   queryType,
-  //       //   'flureeQL'
-  //       // )
-  //       // const isBlockQuery = get(results, [0, 'flakes'], null) ? true : false
-  //       // if (action === 'transact' || isBlockQuery) {
-  //       //   // attempt to put all flakes on a single line for transaction results
-  //       //   formattedResult = formattedResult.replace(
-  //       //     /\s{4}\[\n[^\]]+\]/g,
-  //       //     function (a, b) {
-  //       //       return '    ' + a.replace(/[\s\n]+/g, ' ')
-  //       //     }
-  //       //   )
-  //       // }
-  //       // this.setState({
-  //       //   results: formattedResult,
-  //       //   history: newHistory,
-  //       //   loading: false,
-  //       //   fuel: fuel,
-  //       //   block: block,
-  //       //   time: time,
-  //       //   status: status
-  //       // })
-  //       setResults(formattedResult)
-  //       // setLoading(false)
-  //       // setStats({ fuel, block, time, status })
-  //     })
-  //     .catch((error: any) => {
-  //       // const { displayError } = this.props._db
-  //       const result = error.json || error
-  //       var formattedResult = JSON5.stringify(result, null, 2)
-  //       // this.setState({ loading: false, results: formattedResult })
-  //       // setLoading(false)
-  //       setResults(formattedResult)
-  //       // displayError(result)
-  //     })
-
-  //   // setLoading(true)
-  // }
 
   const getStats = (res: any) => {
     const fuel = res.headers.get('x-fdb-fuel')
@@ -313,7 +176,14 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
     let endpoint: string
     if (action === 'query') endpoint = queryTypes[queryType][0]
     else endpoint = 'transact'
-    const parsedParam = JSON5.parse(param)
+    let parsedParam: object
+    try {
+      parsedParam = JSON5.parse(param)
+    } catch (err) {
+      setError(err.message)
+      setErrorOpen(true)
+      return
+    }
     const { ip, db, token } = props._db
     const fullDb = db.split('/')
     const queryParamStore =
@@ -489,6 +359,11 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
         </Grid>
         {/* </SplitPane> */}
       </Grid>
+      <BasicDialog
+        message={error}
+        open={errorOpen}
+        onClose={() => setErrorOpen(false)}
+      />
     </div>
   )
 }
