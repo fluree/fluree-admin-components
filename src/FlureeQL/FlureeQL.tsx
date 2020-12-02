@@ -362,7 +362,10 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
       <BasicDialog
         message={error}
         open={errorOpen}
-        onClose={() => setErrorOpen(false)}
+        onClose={() => {
+          setErrorOpen(false)
+          setError('')
+        }}
       />
     </div>
   )

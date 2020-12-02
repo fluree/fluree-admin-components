@@ -132,7 +132,10 @@ export const Editor: FunctionComponent<EditorProps> = ({
       <BasicDialog
         message={error}
         open={openError}
-        onClose={() => setOpenError(false)}
+        onClose={() => {
+          setOpenError(false)
+          setError('')
+        }}
       />
     </Box>
   )
