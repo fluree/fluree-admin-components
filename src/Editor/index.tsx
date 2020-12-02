@@ -67,22 +67,26 @@ export const Editor: FunctionComponent<EditorProps> = ({
   }
 
   const formatHandler = () => {
-    const newValue = JSON5.stringify(JSON5.parse(value || contents), null, 2)
+    try {
+      const newValue = JSON5.stringify(JSON5.parse(value || contents), null, 2)
 
-    console.log(newValue)
+      console.log(newValue)
 
-    if (onChange) {
-      onChange(newValue)
-    } else {
-      setContents(newValue)
+      if (onChange) {
+        onChange(newValue)
+      } else {
+        setContents(newValue)
+      }
+    } catch (err) {
+      console.log(err.message)
+      const errMessage = `${value || contents} \n // ${err.message}`
+      console.log(errMessage)
+      if (onChange) {
+        onChange(errMessage)
+      } else {
+        setContents(errMessage)
+      }
     }
-    // if (onChange) {
-    //   onChange(
-    //     prettier.format(newValue, { parser: 'json', plugins: [babelParser] })
-    //   );
-    // } else {
-    //   setContents(prettier.format(newValue, { parser: 'json', plugins: [babelParser] }));
-    // }
   }
 
   return (
