@@ -12,7 +12,10 @@ const useStyles = makeStyles((theme) => ({
   itemClickable: {
     cursor: 'pointer'
   },
-  item: {}
+  item: {
+    overflow: 'hidden',
+    textOverflow: 'fade'
+  }
 }))
 
 interface HistoryProps {
