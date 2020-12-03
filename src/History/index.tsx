@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 interface HistoryProps {
-  history: Array<object>
+  history: Array<object> | null | undefined
   loadHistoryItem?: (
     action: string,
     param: object,
@@ -33,7 +33,7 @@ interface HistoryObject {
   type?: string
 }
 
-const History: FunctionComponent<HistoryProps> = ({
+export const History: FunctionComponent<HistoryProps> = ({
   history,
   loadHistoryItem
 }) => {
@@ -52,38 +52,39 @@ const History: FunctionComponent<HistoryProps> = ({
   }, [history])
 
   return (
-    <List disablePadding>
-      <Typography variant='h5' className={classes.header}>
+    <div>
+      <Typography variant='h4' className={classes.header}>
         History
       </Typography>
-      {history.map((item: HistoryObject, i: number) => (
-        <ListItem
-          className={loadHistoryItem ? classes.itemClickable : ''}
-          key={i}
-          onClick={
-            loadHistoryItem
-              ? () => {
-                  loadHistoryItem(item.action, item.param, item.type)
-                  setActive(i)
+      <List disablePadding>
+        {history &&
+          history.map((item: HistoryObject, i: number) => (
+            <ListItem
+              className={loadHistoryItem ? classes.itemClickable : ''}
+              key={i}
+              onClick={
+                loadHistoryItem
+                  ? () => {
+                      loadHistoryItem(item.action, item.param, item.type)
+                      setActive(i)
+                    }
+                  : undefined
+              }
+              divider={!(history.length - 1 === i)}
+              selected={active === i}
+            >
+              <ListItemText
+                className={classes.item}
+                primary={
+                  item.type
+                    ? `${item.action}: ${item.type}`.toUpperCase()
+                    : `${item.action}`.toUpperCase()
                 }
-              : undefined
-          }
-          divider={!(history.length - 1 === i)}
-          selected={active === i}
-        >
-          <ListItemText
-            className={classes.item}
-            primary={
-              item.type
-                ? `${item.action}: ${item.type}`.toUpperCase()
-                : `${item.action}`.toUpperCase()
-            }
-            secondary={JSON.stringify(item.param)}
-          />
-        </ListItem>
-      ))}
-    </List>
+                secondary={JSON.stringify(item.param)}
+              />
+            </ListItem>
+          ))}
+      </List>
+    </div>
   )
 }
-
-export default History

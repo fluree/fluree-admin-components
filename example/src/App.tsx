@@ -6,6 +6,8 @@ const App = () => {
   return (
     <FlureeQL
       allowTransact
+      withHistory
+      jsonMode='json5'
       _db={{
         db: 'example/mdm',
         ip: 'http://localhost:8090',
