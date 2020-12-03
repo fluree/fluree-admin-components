@@ -73,9 +73,9 @@ const useStyles = makeStyles((theme) => ({
     position: 'static'
   },
   history: {
-    maxHeight: 600,
+    maxHeight: 560,
     overflowX: 'scroll',
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       maxHeight: 200
     }
   }
@@ -141,8 +141,8 @@ const FlureeQL: FunctionComponent<Props> = ({
     block: '',
     time: ''
   })
-  const [historyOpen, setHistoryOpen] = useState(false)
   const [history, setHistory] = useLocal(`${_db.db}_history`)
+  const [historyOpen, setHistoryOpen] = useState(false)
   const [errorOpen, setErrorOpen] = useState(false)
   const [error, setError] = useState('')
 
