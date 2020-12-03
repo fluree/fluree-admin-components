@@ -16,6 +16,8 @@ npm install --save @fluree/admin-react
 
 #### Example
 
+![FlureeQL page shot](./docs/assets/FlureeQL-page.png)
+
 ```javascript
 import { FlureeQL } from 'fluree-admin-components'
 
@@ -37,10 +39,12 @@ Contains everything you need to get started querying and transacting against you
 
 #### Props
 
-| Prop          | Required ? | Type    | Default | Description                                            |
-| ------------- | ---------- | ------- | ------- | ------------------------------------------------------ |
-| \_db          | ✅         | object  |         | Object containing Fluree ledger data (detailed below)  |
-| allowTransact |            | boolean | false   | If set to `true`, user can make transactions to ledger |
+| Prop          | Required ? | Type            | Default | Description                                                  |
+| ------------- | ---------- | --------------- | ------- | ------------------------------------------------------------ |
+| \_db          | ✅         | object          |         | Object containing Fluree ledger data (detailed below)        |
+| allowTransact |            | boolean         | false   | If set to `true`, user can make transactions to ledger       |
+| withHistory   |            | boolean         | false   | If set to `true`, History component is available             |
+| jsonMode      |            | 'json', 'json5' | 'json'  | Determines Editor syntax features (linting / beautification) |
 
 ##### `_db` Object
 
