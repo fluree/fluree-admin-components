@@ -14,7 +14,7 @@ import {
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled'
 // import SplitPane from 'react-split-pane'
 import { Editor } from '../Editor'
-import History from '../History'
+import { History } from '../History'
 import BasicDialog from '../General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import { flureeFetch } from '../utils/flureeFetch'
@@ -100,6 +100,7 @@ interface Props {
   _db: DB
   allowTransact?: boolean
   withHistory?: boolean
+  jsonMode?: 'json' | 'json5'
 }
 
 type Dictionary = { [index: string]: Array<string> }
@@ -120,7 +121,8 @@ const queryTypes: Dictionary = {
 const FlureeQL: FunctionComponent<Props> = ({
   _db,
   allowTransact,
-  withHistory = false
+  withHistory = false,
+  jsonMode = 'json'
 }) => {
   const classes = useStyles()
   const [action, setAction] = useState('query')
@@ -144,6 +146,9 @@ const FlureeQL: FunctionComponent<Props> = ({
   const [errorOpen, setErrorOpen] = useState(false)
   const [error, setError] = useState('')
 
+  const parse = jsonMode === 'json' ? JSON.parse : JSON5.parse
+  const stringify = jsonMode === 'json' ? JSON.stringify : JSON5.stringify
+
   // console.log({ stats })
   useEffect(() => {
     setQueryParam(queryTypes[queryType][1])
@@ -156,10 +161,10 @@ const FlureeQL: FunctionComponent<Props> = ({
   ) => {
     setAction(action)
     if (action === 'transact') {
-      setTxParam(JSON5.stringify(param))
+      setTxParam(stringify(param))
     } else {
       type && setQueryType(type)
-      setQueryParam(JSON5.stringify(param))
+      setQueryParam(stringify(param))
     }
   }
 
@@ -183,7 +188,7 @@ const FlureeQL: FunctionComponent<Props> = ({
     else endpoint = 'transact'
     let parsedParam: object
     try {
-      parsedParam = JSON5.parse(param)
+      parsedParam = parse(param)
     } catch (err) {
       setError(err.message)
       setErrorOpen(true)
@@ -192,11 +197,11 @@ const FlureeQL: FunctionComponent<Props> = ({
     const { ip, db, token } = _db
     const fullDb = db.split('/')
     const queryParamStore =
-      JSON5.stringify(queryParam).length > 5000
+      stringify(queryParam).length > 5000
         ? 'Values greater than 5k are not saved in the admin UI.'
         : queryParam
     const txParamStore =
-      JSON5.stringify(txParam).length > 5000
+      stringify(txParam).length > 5000
         ? 'Values greater than 5k are not saved in the admin UI.'
         : txParam
     localStorage.setItem(db.concat('_queryParam'), queryParamStore)
@@ -220,12 +225,12 @@ const FlureeQL: FunctionComponent<Props> = ({
       console.log({ results })
       if (results.status < 400) {
         if (history.length && history.length > 0) {
-          const latest = JSON5.stringify({
+          const latest = stringify({
             action,
             param: parsedParam,
             type: queryType
           })
-          if (JSON5.stringify(history[0]) !== latest) {
+          if (stringify(history[0]) !== latest) {
             setHistory([
               { action: action, param: parsedParam, type: queryType },
               ...history
@@ -237,14 +242,14 @@ const FlureeQL: FunctionComponent<Props> = ({
             ...history
           ])
       }
-      setResults(JSON5.stringify(results.data, null, 2))
+      setResults(stringify(results.data, null, 2))
       setStats(getStats(results))
     } catch (err) {
       console.log(err)
     }
-    // const formattedResults = JSON5.stringify(response.json)
+    // const formattedResults = stringify(response.json)
     // setResults(formattedResults)
-    // setResults(JSON5.stringify(JSON5.parse(response.json)))
+    // setResults(stringify(parse(response.json)))
   }
 
   return (
@@ -351,6 +356,7 @@ const FlureeQL: FunctionComponent<Props> = ({
               if (action === 'query') setQueryParam(value)
               else setTxParam(value)
             }}
+            mode={jsonMode}
           />
         </Grid>
         <Grid item xs={12} md={historyOpen ? 5 : 6}>
@@ -362,6 +368,7 @@ const FlureeQL: FunctionComponent<Props> = ({
             value={results}
             stats={stats}
             action='results'
+            mode={jsonMode}
           />
         </Grid>
         {/* </SplitPane> */}

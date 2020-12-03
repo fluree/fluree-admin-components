@@ -33,7 +33,7 @@ interface HistoryObject {
   type?: string
 }
 
-const History: FunctionComponent<HistoryProps> = ({
+export const History: FunctionComponent<HistoryProps> = ({
   history,
   loadHistoryItem
 }) => {
@@ -85,5 +85,3 @@ const History: FunctionComponent<HistoryProps> = ({
     </List>
   )
 }
-
-export default History
