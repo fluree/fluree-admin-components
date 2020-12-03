@@ -99,6 +99,7 @@ interface DB {
 interface Props {
   _db: DB
   allowTransact?: boolean
+  withHistory?: boolean
 }
 
 type Dictionary = { [index: string]: Array<string> }
@@ -116,7 +117,11 @@ const queryTypes: Dictionary = {
   History: ['history', '{\n  "history": []\n}']
 }
 
-const FlureeQL: FunctionComponent<Props> = (props) => {
+const FlureeQL: FunctionComponent<Props> = ({
+  _db,
+  allowTransact,
+  withHistory = false
+}) => {
   const classes = useStyles()
   const [action, setAction] = useState('query')
   // const [size, setSize] = useState('50%')
@@ -134,8 +139,8 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
     block: '',
     time: ''
   })
-  const [historyOpen, setHistoryOpen] = useState(true)
-  const [history, setHistory] = useLocal(`${props._db.db}_history`)
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const [history, setHistory] = useLocal(`${_db.db}_history`)
   const [errorOpen, setErrorOpen] = useState(false)
   const [error, setError] = useState('')
 
@@ -184,7 +189,7 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
       setErrorOpen(true)
       return
     }
-    const { ip, db, token } = props._db
+    const { ip, db, token } = _db
     const fullDb = db.split('/')
     const queryParamStore =
       JSON5.stringify(queryParam).length > 5000
@@ -246,21 +251,23 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
     <div className={classes.root}>
       <div className={classes.toolbar}>
         <div className={classes.queryActions}>
-          <Button color='primary' variant='outlined'>
+          {/* <Button color='primary' variant='outlined'>
             Generate Keys
           </Button>
           <Button color='primary' variant='outlined'>
             Sign
-          </Button>
-          <Button
-            color='primary'
-            variant={historyOpen ? 'contained' : 'outlined'}
-            onClick={() => {
-              setHistoryOpen(!historyOpen)
-            }}
-          >
-            History
-          </Button>
+          </Button> */}
+          {withHistory && (
+            <Button
+              color='primary'
+              variant={historyOpen ? 'contained' : 'outlined'}
+              onClick={() => {
+                setHistoryOpen(!historyOpen)
+              }}
+            >
+              History
+            </Button>
+          )}{' '}
           {action === 'query' && (
             <div>
               {/* <FormControl color='primary' margin='none' variant='outlined'> */}
@@ -286,7 +293,7 @@ const FlureeQL: FunctionComponent<Props> = (props) => {
           )}
         </div>
         <div>
-          {props.allowTransact && (
+          {allowTransact && (
             <ButtonGroup>
               <Button
                 className={classes.actionButtons}
