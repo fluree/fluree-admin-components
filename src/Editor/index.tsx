@@ -20,7 +20,8 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10
+    marginBottom: 10,
+    minHeight: 50
   },
   optionBar: {
     display: 'flex',
@@ -38,7 +39,7 @@ interface EditorProps {
   readOnly?: boolean
   width?: number | string
   action?: string
-  stats?: object | undefined
+  stats?: object
   onChange?: (value: string) => void
 }
 
@@ -48,8 +49,8 @@ export const Editor: FunctionComponent<EditorProps> = ({
   theme = 'xcode',
   mode = 'json5',
   title,
-  readOnly,
-  width,
+  readOnly = false,
+  width = 500,
   action,
   stats,
   onChange
@@ -97,7 +98,7 @@ export const Editor: FunctionComponent<EditorProps> = ({
   }
 
   return (
-    <Box width={width || 500} p={2} boxSizing='border-box'>
+    <Box width={width} p={2} boxSizing='border-box'>
       <div className={classes.headerBar}>
         <Typography variant='h4'>{title}</Typography>
         <div className={classes.optionBar}>
@@ -111,9 +112,7 @@ export const Editor: FunctionComponent<EditorProps> = ({
               Beautify
             </Button>
           )}
-          {action === 'results' && typeof stats !== 'undefined' ? (
-            <StatDisplay stats={stats} />
-          ) : null}
+          {action === 'results' && stats && <StatDisplay stats={stats} />}
         </div>
       </div>
       <AceEditor
@@ -125,7 +124,7 @@ export const Editor: FunctionComponent<EditorProps> = ({
         editorProps={{ $blockScrolling: true }}
         value={value || contents}
         onChange={valueHandler}
-        readOnly={readOnly || false}
+        readOnly={readOnly}
         width='100%'
         showPrintMargin={false}
       />
