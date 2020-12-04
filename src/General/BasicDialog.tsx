@@ -14,7 +14,7 @@ interface DialogProps {
   message: string
 }
 
-const BasicDialog: FunctionComponent<DialogProps> = ({
+export const BasicDialog: FunctionComponent<DialogProps> = ({
   open,
   onClose,
   message
@@ -32,5 +32,3 @@ const BasicDialog: FunctionComponent<DialogProps> = ({
     </Dialog>
   )
 }
-
-export default BasicDialog

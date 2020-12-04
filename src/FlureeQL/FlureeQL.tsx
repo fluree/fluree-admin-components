@@ -15,7 +15,7 @@ import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled'
 // import SplitPane from 'react-split-pane'
 import { Editor } from '../Editor'
 import { History } from '../History'
-import BasicDialog from '../General/BasicDialog'
+import { BasicDialog } from '../General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import { flureeFetch } from '../utils/flureeFetch'
 import { useLocal } from '../utils/hooks'
@@ -299,7 +299,7 @@ const FlureeQL: FunctionComponent<Props> = ({
         </div>
         <div>
           {allowTransact && (
-            <ButtonGroup>
+            <ButtonGroup disableElevation>
               <Button
                 className={classes.actionButtons}
                 variant={action === 'query' ? 'contained' : 'outlined'}

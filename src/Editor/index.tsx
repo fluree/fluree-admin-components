@@ -4,7 +4,7 @@ import 'ace-builds'
 import AceEditor from 'react-ace'
 import { Box, Typography, Button } from '@material-ui/core'
 import StatDisplay from './StatDisplay'
-import BasicDialog from '../General/BasicDialog'
+import { BasicDialog } from '../General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import JSON5 from 'json5'
 
