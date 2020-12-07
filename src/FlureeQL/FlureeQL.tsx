@@ -21,6 +21,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { flureeFetch } from '../utils/flureeFetch'
 import { useLocal } from '../utils/hooks'
 import JSON5 from 'json5'
+import { signQuery } from '@fluree/crypto-utils'
 // import { format } from 'path'
 // import get from 'lodash'
 
@@ -40,8 +41,8 @@ const useStyles = makeStyles((theme) => ({
     height: 'inherit',
     display: 'inherit',
     alignItems: 'center',
-    '& > button': {
-      marginRight: 10
+    '& > :not(:last-child)': {
+      marginRight: theme.spacing(1)
     }
   },
   defaultSelect: {
@@ -149,7 +150,7 @@ const FlureeQL: FunctionComponent<Props> = ({
   const [error, setError] = useState('')
   const [signOpen, setSignOpen] = useState(false)
   const [key, setKey] = useState('')
-  const [host, setHost] = useState('')
+  const [host, setHost] = useState(_db.ip)
 
   const parse = jsonMode === 'json' ? JSON.parse : JSON5.parse
   const stringify = jsonMode === 'json' ? JSON.stringify : JSON5.stringify
@@ -186,7 +187,7 @@ const FlureeQL: FunctionComponent<Props> = ({
     }
   }
 
-  const flureeHandler = async () => {
+  const flureeHandler = async (sign = false) => {
     const param: string = action === 'query' ? queryParam : txParam
     let endpoint: string
     if (action === 'query') endpoint = queryTypes[queryType][0]
@@ -222,8 +223,12 @@ const FlureeQL: FunctionComponent<Props> = ({
       auth: token,
       network: fullDb[0],
       endpoint,
-      db: fullDb[1]
+      db: fullDb[1],
+      headers: sign
+        ? signQuery(key, stringify(parsedParam), endpoint, host, db).headers
+        : null
     }
+
     console.log({ opts })
     try {
       const results = await flureeFetch(opts)
@@ -264,13 +269,15 @@ const FlureeQL: FunctionComponent<Props> = ({
           {/* <Button color='primary' variant='outlined'>
             Generate Keys
              </Button> */}
-          <Button
-            color='primary'
-            variant={signOpen ? 'contained' : 'outlined'}
-            onClick={() => setSignOpen(!signOpen)}
-          >
-            Sign
-          </Button>
+          {_db.environment !== 'hosted' && (
+            <Button
+              color='primary'
+              variant={signOpen ? 'contained' : 'outlined'}
+              onClick={() => setSignOpen(!signOpen)}
+            >
+              Sign
+            </Button>
+          )}
           {withHistory && (
             <Button
               color='primary'
@@ -283,27 +290,22 @@ const FlureeQL: FunctionComponent<Props> = ({
             </Button>
           )}
           {action === 'query' && (
-            <div>
-              {/* <FormControl color='primary' margin='none' variant='outlined'> */}
-              {/* <InputLabel id='query-type-label'>Query Type</InputLabel> */}
-              <Select
-                // labelId='query-type-label'
-                autoWidth
-                value={queryType}
-                onChange={(event: any) => setQueryType(event.target.value)}
-                className={classes.defaultSelect}
-                variant='outlined'
-                color='primary'
-                margin='dense'
-              >
-                {Object.keys(queryTypes).map((item) => (
-                  <MenuItem value={item} key={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-                {/* </FormControl> */}
-              </Select>
-            </div>
+            <Select
+              // labelId='query-type-label'
+              autoWidth
+              value={queryType}
+              onChange={(event: any) => setQueryType(event.target.value)}
+              className={classes.defaultSelect}
+              variant='outlined'
+              color='primary'
+              margin='dense'
+            >
+              {Object.keys(queryTypes).map((item) => (
+                <MenuItem value={item} key={item}>
+                  {item}
+                </MenuItem>
+              ))}
+            </Select>
           )}
         </div>
         <div>
@@ -329,7 +331,11 @@ const FlureeQL: FunctionComponent<Props> = ({
               </Button>
             </ButtonGroup>
           )}
-          <IconButton size='medium' color='primary' onClick={flureeHandler}>
+          <IconButton
+            size='medium'
+            color='primary'
+            onClick={() => flureeHandler(signOpen)}
+          >
             {signOpen && <LockOutlinedIcon fontSize='small' />}
             <PlayCircleFilledIcon fontSize='large' />
           </IconButton>
