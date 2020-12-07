@@ -12,9 +12,10 @@ import {
   Select
 } from '@material-ui/core'
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled'
-// import SplitPane from 'react-split-pane'
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined' // import SplitPane from 'react-split-pane'
 import { Editor } from '../Editor'
 import { History } from '../History'
+import { SignQuery } from './SignQuery'
 import { BasicDialog } from '../General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import { flureeFetch } from '../utils/flureeFetch'
@@ -125,6 +126,7 @@ const FlureeQL: FunctionComponent<Props> = ({
   jsonMode = 'json'
 }) => {
   const classes = useStyles()
+
   const [action, setAction] = useState('query')
   // const [size, setSize] = useState('50%')
   // const theme = useTheme();
@@ -145,6 +147,9 @@ const FlureeQL: FunctionComponent<Props> = ({
   const [historyOpen, setHistoryOpen] = useState(false)
   const [errorOpen, setErrorOpen] = useState(false)
   const [error, setError] = useState('')
+  const [signOpen, setSignOpen] = useState(false)
+  const [key, setKey] = useState('')
+  const [host, setHost] = useState('')
 
   const parse = jsonMode === 'json' ? JSON.parse : JSON5.parse
   const stringify = jsonMode === 'json' ? JSON.stringify : JSON5.stringify
@@ -258,10 +263,14 @@ const FlureeQL: FunctionComponent<Props> = ({
         <div className={classes.queryActions}>
           {/* <Button color='primary' variant='outlined'>
             Generate Keys
-          </Button>
-          <Button color='primary' variant='outlined'>
+             </Button> */}
+          <Button
+            color='primary'
+            variant={signOpen ? 'contained' : 'outlined'}
+            onClick={() => setSignOpen(!signOpen)}
+          >
             Sign
-          </Button> */}
+          </Button>
           {withHistory && (
             <Button
               color='primary'
@@ -272,7 +281,7 @@ const FlureeQL: FunctionComponent<Props> = ({
             >
               History
             </Button>
-          )}{' '}
+          )}
           {action === 'query' && (
             <div>
               {/* <FormControl color='primary' margin='none' variant='outlined'> */}
@@ -321,11 +330,22 @@ const FlureeQL: FunctionComponent<Props> = ({
             </ButtonGroup>
           )}
           <IconButton size='medium' color='primary' onClick={flureeHandler}>
+            {signOpen && <LockOutlinedIcon fontSize='small' />}
             <PlayCircleFilledIcon fontSize='large' />
           </IconButton>
         </div>
       </div>
       <Grid container spacing={2} className={classes.grid}>
+        <Grid item xs={12}>
+          {signOpen && (
+            <SignQuery
+              hostValue={host}
+              keyValue={key}
+              hostChange={(e) => setHost(e.target.value)}
+              keyChange={(e) => setKey(e.target.value)}
+            />
+          )}
+        </Grid>
         {historyOpen && (
           <Grid item xs={12} md={2}>
             <Paper className={classes.history}>
