@@ -225,7 +225,8 @@ const FlureeQL: FunctionComponent<Props> = ({
       endpoint,
       db: fullDb[1],
       headers: sign
-        ? signQuery(key, stringify(parsedParam), endpoint, host, db).headers
+        ? signQuery(key, JSON.stringify(parsedParam), endpoint, host, db)
+            .headers
         : null
     }
 
@@ -309,7 +310,7 @@ const FlureeQL: FunctionComponent<Props> = ({
           )}
         </div>
         <div>
-          {allowTransact && (
+          {allowTransact && !signOpen && (
             <ButtonGroup disableElevation>
               <Button
                 className={classes.actionButtons}
