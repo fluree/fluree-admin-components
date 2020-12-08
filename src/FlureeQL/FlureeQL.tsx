@@ -207,8 +207,8 @@ const FlureeQL: FunctionComponent<Props> = ({
       return
     }
     const { ip, db, token } = _db
-    const fullDb =
-      typeof db === 'string' ? db.split('/') : db['db/id'].split('/')
+    const dbName = typeof db === 'string' ? db : db['db/id']
+    const fullDb = dbName.split('/')
     const queryParamStore =
       stringify(queryParam).length > 5000
         ? 'Values greater than 5k are not saved in the admin UI.'
@@ -217,28 +217,11 @@ const FlureeQL: FunctionComponent<Props> = ({
       stringify(txParam).length > 5000
         ? 'Values greater than 5k are not saved in the admin UI.'
         : txParam
+    localStorage.setItem(dbName.concat('_queryParam'), queryParamStore)
+    localStorage.setItem(dbName.concat('_txParam'), txParamStore)
+    localStorage.setItem(dbName.concat('_lastAction'), action)
     localStorage.setItem(
-      typeof db === 'string'
-        ? db.concat('_queryParam')
-        : db['db/id'].concat('_queryParam'),
-      queryParamStore
-    )
-    localStorage.setItem(
-      typeof db === 'string'
-        ? db.concat('_txParam')
-        : db['db/id'].concat('_txParam'),
-      txParamStore
-    )
-    localStorage.setItem(
-      typeof db === 'string'
-        ? db.concat('_lastAction')
-        : db['db/id'].concat('_lastAction'),
-      action
-    )
-    localStorage.setItem(
-      typeof db === 'string'
-        ? db.concat('_lastType')
-        : db['db/id'].concat('_lastType'),
+      dbName.concat('_lastType'),
       action === 'query' ? queryType : 'transact'
     )
     const opts = {
