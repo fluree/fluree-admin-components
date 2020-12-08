@@ -200,7 +200,7 @@ const FlureeQL: FunctionComponent<Props> = ({
       setErrorOpen(true)
       return
     }
-    const { ip, db, token, account } = _db
+    const { ip, db, token } = _db
     const fullDb = db.split('/')
     const queryParamStore =
       stringify(queryParam).length > 5000
@@ -221,7 +221,7 @@ const FlureeQL: FunctionComponent<Props> = ({
       ip,
       body: parsedParam,
       auth: token,
-      network: account || fullDb[0],
+      network: fullDb[0],
       endpoint,
       db: fullDb[1],
       headers: sign
