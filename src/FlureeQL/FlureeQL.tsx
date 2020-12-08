@@ -240,7 +240,7 @@ const FlureeQL: FunctionComponent<Props> = ({
               JSON.stringify(parsedParam),
               endpoint,
               host,
-              db
+              dbName
             ).headers
           : null
     }
