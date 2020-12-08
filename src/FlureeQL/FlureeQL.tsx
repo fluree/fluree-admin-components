@@ -233,16 +233,15 @@ const FlureeQL: FunctionComponent<Props> = ({
       network: fullDb[0],
       endpoint,
       db: fullDb[1],
-      headers:
-        sign || process.env.REACT_APP_ENVIRONMENT === 'hosted'
-          ? signQuery(
-              privateKey,
-              JSON.stringify(parsedParam),
-              endpoint,
-              host,
-              dbName
-            ).headers
-          : null
+      headers: sign
+        ? signQuery(
+            privateKey,
+            JSON.stringify(parsedParam),
+            endpoint,
+            host,
+            dbName
+          ).headers
+        : null
     }
 
     console.log({ opts })
