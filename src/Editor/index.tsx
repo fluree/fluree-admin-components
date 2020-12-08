@@ -128,6 +128,7 @@ export const Editor: FunctionComponent<EditorProps> = ({
         readOnly={readOnly}
         width='100%'
         showPrintMargin={false}
+        wrapEnabled
       />
       <BasicDialog
         message={error}
