@@ -233,10 +233,16 @@ const FlureeQL: FunctionComponent<Props> = ({
       network: fullDb[0],
       endpoint,
       db: fullDb[1],
-      headers: sign
-        ? signQuery(privateKey, JSON.stringify(parsedParam), endpoint, host, db)
-            .headers
-        : null
+      headers:
+        sign || process.env.REACT_APP_ENVIRONMENT === 'hosted'
+          ? signQuery(
+              privateKey,
+              JSON.stringify(parsedParam),
+              endpoint,
+              host,
+              db
+            ).headers
+          : null
     }
 
     console.log({ opts })
@@ -279,7 +285,8 @@ const FlureeQL: FunctionComponent<Props> = ({
           {/* <Button color='primary' variant='outlined'>
             Generate Keys
              </Button> */}
-          {_db.environment !== 'hosted' && (
+          {(_db.environment !== 'hosted' ||
+            process.env.REACT_APP_ENVIRONMENT !== 'hosted') && (
             <Button
               color='primary'
               variant={signOpen ? 'contained' : 'outlined'}
