@@ -19,7 +19,7 @@ import { SignQuery } from './SignQuery'
 import { BasicDialog } from '../General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import { flureeFetch } from '../utils/flureeFetch'
-import { useLocal } from '../utils/hooks'
+import { useLocalHistory } from '../utils/hooks'
 import JSON5 from 'json5'
 import { signQuery } from '@fluree/crypto-utils'
 // import { format } from 'path'
@@ -144,12 +144,12 @@ const FlureeQL: FunctionComponent<Props> = ({
     block: '',
     time: ''
   })
-  const [history, setHistory] = useLocal(`${_db.db}_history`)
+  const [history, setHistory] = useLocalHistory(`${_db.db}_history`)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [errorOpen, setErrorOpen] = useState(false)
   const [error, setError] = useState('')
   const [signOpen, setSignOpen] = useState(false)
-  const [key, setKey] = useState('')
+  const [privateKey, setPrivateKey] = useState(_db.defaultPrivateKey || '')
   const [host, setHost] = useState(_db.ip)
 
   const parse = jsonMode === 'json' ? JSON.parse : JSON5.parse
@@ -200,7 +200,7 @@ const FlureeQL: FunctionComponent<Props> = ({
       setErrorOpen(true)
       return
     }
-    const { ip, db, token } = _db
+    const { ip, db, token, account } = _db
     const fullDb = db.split('/')
     const queryParamStore =
       stringify(queryParam).length > 5000
@@ -221,11 +221,11 @@ const FlureeQL: FunctionComponent<Props> = ({
       ip,
       body: parsedParam,
       auth: token,
-      network: fullDb[0],
+      network: account || fullDb[0],
       endpoint,
       db: fullDb[1],
       headers: sign
-        ? signQuery(key, JSON.stringify(parsedParam), endpoint, host, db)
+        ? signQuery(privateKey, JSON.stringify(parsedParam), endpoint, host, db)
             .headers
         : null
     }
@@ -347,9 +347,9 @@ const FlureeQL: FunctionComponent<Props> = ({
           {signOpen && (
             <SignQuery
               hostValue={host}
-              keyValue={key}
+              keyValue={privateKey}
               hostChange={(e) => setHost(e.target.value)}
-              keyChange={(e) => setKey(e.target.value)}
+              keyChange={(e) => setPrivateKey(e.target.value)}
             />
           )}
         </Grid>

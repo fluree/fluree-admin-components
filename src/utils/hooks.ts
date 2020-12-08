@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 type localHook = (storageKey: string) => any
 
-const useLocal: localHook = (storageKey) => {
+const useLocalHistory: localHook = (storageKey) => {
   const storedState = localStorage.getItem(storageKey)
   const [state, setState] = useState(storedState ? JSON.parse(storedState) : [])
 
@@ -15,4 +15,4 @@ const useLocal: localHook = (storageKey) => {
   return [state, setState]
 }
 
-export { useLocal }
+export { useLocalHistory }
