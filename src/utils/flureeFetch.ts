@@ -36,7 +36,7 @@ function gateway() {
         window.location.port
       : window.location.protocol + '//' + window.location.hostname
   } else if (hosted) {
-    return 'http://localhost:8080'
+    return 'https://db.flur.ee'
   } else {
     return 'http://localhost:8090'
   }
