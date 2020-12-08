@@ -109,6 +109,7 @@ interface Props {
   allowTransact?: boolean
   withHistory?: boolean
   jsonMode?: 'json' | 'json5'
+  token?: string
 }
 
 type Dictionary = { [index: string]: Array<string> }
@@ -130,7 +131,8 @@ const FlureeQL: FunctionComponent<Props> = ({
   _db,
   allowTransact,
   withHistory = false,
-  jsonMode = 'json'
+  jsonMode = 'json',
+  token = undefined
 }) => {
   const classes = useStyles()
 
@@ -206,7 +208,7 @@ const FlureeQL: FunctionComponent<Props> = ({
       setErrorOpen(true)
       return
     }
-    const { ip, db, token } = _db
+    const { ip, db } = _db
     const dbName = typeof db === 'string' ? db : db['db/id']
     const fullDb = dbName.split('/')
     const queryParamStore =
