@@ -13,6 +13,7 @@ import 'ace-builds/src-noconflict/theme-xcode'
 import 'ace-builds/src-noconflict/theme-dracula'
 import 'ace-builds/src-noconflict/mode-json'
 import 'ace-builds/src-noconflict/mode-json5'
+import 'ace-builds/src-noconflict/mode-sparql'
 import 'ace-builds/src-noconflict/ext-beautify'
 
 const useStyles = makeStyles((theme) => ({
@@ -34,7 +35,7 @@ interface EditorProps {
   name?: string
   value?: string
   theme?: 'dracula' | 'xcode'
-  mode?: 'json' | 'json5'
+  mode?: 'json' | 'json5' | 'sparql'
   title?: string
   readOnly?: boolean
   width?: number | string
@@ -102,7 +103,7 @@ export const Editor: FunctionComponent<EditorProps> = ({
       <div className={classes.headerBar}>
         <Typography variant='h4'>{title}</Typography>
         <div className={classes.optionBar}>
-          {!readOnly && (
+          {!readOnly && (mode === 'json' || mode === 'json5') && (
             <Button
               color='primary'
               variant='contained'
