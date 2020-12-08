@@ -17,7 +17,7 @@
     "@types/node": "file:../node_modules/@types/node",
     "@types/react": "file:../node_modules/@types/react",
     "@types/react-dom": "file:../node_modules/@types/react-dom",
-    "fluree-admin-components": "file:..",
+    "@fluree/admin-react": "file:..",
     "fluree-mui-theme": "^1.0.9",
     "react": "file:../node_modules/react",
     "react-dom": "file:../node_modules/react-dom",

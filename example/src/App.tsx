@@ -10,7 +10,11 @@ const App = () => {
       withHistory
       jsonMode='json5'
       _db={{
-        db: 'example/mdm',
+        db: {
+          _id: 502895253423,
+          'db/id': 'example/mdm',
+          'db/active': true
+        },
         ip: 'http://localhost:8090',
         dbs: ['example/mdm'],
         environment

@@ -83,9 +83,15 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
+interface DBOject {
+  _id: number
+  'db/active': boolean
+  'db/id': string
+}
+
 interface DB {
   account?: string
-  db: string
+  db: string | DBOject
   dbs?: Array<string>
   defaultPrivateKey?: any
   displayError?: string
@@ -201,7 +207,8 @@ const FlureeQL: FunctionComponent<Props> = ({
       return
     }
     const { ip, db, token } = _db
-    const fullDb = db.split('/')
+    const fullDb =
+      typeof db === 'string' ? db.split('/') : db['db/id'].split('/')
     const queryParamStore =
       stringify(queryParam).length > 5000
         ? 'Values greater than 5k are not saved in the admin UI.'
@@ -210,11 +217,28 @@ const FlureeQL: FunctionComponent<Props> = ({
       stringify(txParam).length > 5000
         ? 'Values greater than 5k are not saved in the admin UI.'
         : txParam
-    localStorage.setItem(db.concat('_queryParam'), queryParamStore)
-    localStorage.setItem(db.concat('_txParam'), txParamStore)
-    localStorage.setItem(db.concat('_lastAction'), action)
     localStorage.setItem(
-      db.concat('_lastType'),
+      typeof db === 'string'
+        ? db.concat('_queryParam')
+        : db['db/id'].concat('_queryParam'),
+      queryParamStore
+    )
+    localStorage.setItem(
+      typeof db === 'string'
+        ? db.concat('_txParam')
+        : db['db/id'].concat('_txParam'),
+      txParamStore
+    )
+    localStorage.setItem(
+      typeof db === 'string'
+        ? db.concat('_lastAction')
+        : db['db/id'].concat('_lastAction'),
+      action
+    )
+    localStorage.setItem(
+      typeof db === 'string'
+        ? db.concat('_lastType')
+        : db['db/id'].concat('_lastType'),
       action === 'query' ? queryType : 'transact'
     )
     const opts = {
