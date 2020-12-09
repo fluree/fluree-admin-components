@@ -41,6 +41,7 @@ interface EditorProps {
   width?: number | string
   action?: string
   stats?: object
+  height?: string
   onChange?: (value: string) => void
 }
 
@@ -52,6 +53,7 @@ export const Editor: FunctionComponent<EditorProps> = ({
   title,
   readOnly = false,
   width = 500,
+  height,
   action,
   stats,
   onChange
@@ -129,6 +131,7 @@ export const Editor: FunctionComponent<EditorProps> = ({
         width='100%'
         showPrintMargin={false}
         wrapEnabled
+        height={height}
       />
       <BasicDialog
         message={error}
