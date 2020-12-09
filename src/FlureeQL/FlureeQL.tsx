@@ -16,6 +16,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined' // import SplitPa
 import { Editor } from '../Editor'
 import { History } from '../History'
 import { SignQuery } from './SignQuery'
+import { GenerateKeys } from '../GenerateKeys'
 import { BasicDialog } from '../General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import { flureeFetch } from '../utils/flureeFetch'
@@ -83,27 +84,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface DBOject {
-  _id: number
-  'db/active': boolean
-  'db/id': string
-}
-
-interface DB {
-  account?: string
-  db: string | DBOject
-  dbs?: Array<string>
-  defaultPrivateKey?: any
-  displayError?: string
-  environment?: string
-  ip: string // url for fluree instance
-  loading?: boolean
-  logout?: boolean
-  openApi?: boolean
-  openApiServer?: boolean
-  token?: string
-}
-
 interface Props {
   _db: DB
   allowTransact?: boolean
@@ -163,6 +143,7 @@ const FlureeQL: FunctionComponent<Props> = ({
   const [error, setError] = useState('')
   const [signOpen, setSignOpen] = useState(false)
   const [privateKey, setPrivateKey] = useState(_db.defaultPrivateKey || '')
+  const [genOpen, setGenOpen] = useState(true)
   const [host, setHost] = useState(_db.ip)
 
   const parse = jsonMode === 'json' ? JSON.parse : JSON5.parse
@@ -301,9 +282,13 @@ const FlureeQL: FunctionComponent<Props> = ({
     <div className={classes.root}>
       <div className={classes.toolbar}>
         <div className={classes.queryActions}>
-          {/* <Button color='primary' variant='outlined'>
+          <Button
+            color='primary'
+            variant='outlined'
+            onClick={() => setGenOpen(true)}
+          >
             Generate Keys
-             </Button> */}
+          </Button>
           {(_db.environment !== 'hosted' ||
             process.env.REACT_APP_ENVIRONMENT !== 'hosted') && (
             <Button
@@ -445,6 +430,7 @@ const FlureeQL: FunctionComponent<Props> = ({
           setError('')
         }}
       />
+      <GenerateKeys open={genOpen} onClose={() => setGenOpen(false)} db={_db} />
     </div>
   )
 }
