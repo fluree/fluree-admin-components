@@ -150,7 +150,8 @@ const FlureeQL: FunctionComponent<Props> = ({
     fuel: '',
     status: '',
     block: '',
-    time: ''
+    time: '',
+    remainingFuel: null
   })
   const [history, setHistory] = useLocalHistory(
     typeof _db.db === 'string'
@@ -191,11 +192,13 @@ const FlureeQL: FunctionComponent<Props> = ({
     const block = res.headers.get('x-fdb-block')
     const time = res.headers.get('x-fdb-time')
     const status = res.headers.get('x-fdb-status')
+    const remainingFuel = null
     return {
       fuel,
       block,
       time,
-      status
+      status,
+      remainingFuel
     }
   }
 
@@ -282,7 +285,8 @@ const FlureeQL: FunctionComponent<Props> = ({
               : results.data.block,
           fuel: results.data.fuel,
           status: results.data.status,
-          time: results.data.time
+          time: results.data.time,
+          remainingFuel: results.data['fuel-remaining'] || null
         })
       } else setStats(getStats(results))
     } catch (err) {
