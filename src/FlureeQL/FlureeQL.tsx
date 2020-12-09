@@ -272,7 +272,14 @@ const FlureeQL: FunctionComponent<Props> = ({
           ])
       }
       setResults(stringify(results.data, null, 2))
-      setStats(getStats(results))
+      if (_db.environment === 'hosted') {
+        setStats({
+          block: results.data.block,
+          fuel: results.data.fuel,
+          status: results.data.status,
+          time: results.data.time
+        })
+      } else setStats(getStats(results))
     } catch (err) {
       console.log(err)
     }
