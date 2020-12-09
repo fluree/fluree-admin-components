@@ -152,7 +152,11 @@ const FlureeQL: FunctionComponent<Props> = ({
     block: '',
     time: ''
   })
-  const [history, setHistory] = useLocalHistory(`${_db.db}_history`)
+  const [history, setHistory] = useLocalHistory(
+    typeof _db.db === 'string'
+      ? `${_db.db}_history`
+      : `${_db.db['db/id']}_history`
+  )
   const [historyOpen, setHistoryOpen] = useState(false)
   const [errorOpen, setErrorOpen] = useState(false)
   const [error, setError] = useState('')
@@ -387,31 +391,33 @@ const FlureeQL: FunctionComponent<Props> = ({
             }}
             style={{ width: 'inherit' }}
           > */}
-        <Grid item xs={12} md={historyOpen ? 5 : 6}>
-          <Editor
-            action={action}
-            title={action === 'query' ? 'Query' : 'Transact'}
-            width='100%'
-            name='flureeQL-editor'
-            value={action === 'query' ? queryParam : txParam}
-            onChange={(value) => {
-              if (action === 'query') setQueryParam(value)
-              else setTxParam(value)
-            }}
-            mode={jsonMode}
-          />
-        </Grid>
-        <Grid item xs={12} md={historyOpen ? 5 : 6}>
-          <Editor
-            title='Results'
-            readOnly
-            width='100%'
-            name='flureeQL-results'
-            value={results}
-            stats={stats}
-            action='results'
-            mode={jsonMode}
-          />
+        <Grid container xs={12} md={historyOpen ? 10 : 12}>
+          <Grid item xs={12} lg={6}>
+            <Editor
+              action={action}
+              title={action === 'query' ? 'Query' : 'Transact'}
+              width='100%'
+              name='flureeQL-editor'
+              value={action === 'query' ? queryParam : txParam}
+              onChange={(value) => {
+                if (action === 'query') setQueryParam(value)
+                else setTxParam(value)
+              }}
+              mode={jsonMode}
+            />
+          </Grid>
+          <Grid item xs={12} lg={6}>
+            <Editor
+              title='Results'
+              readOnly
+              width='100%'
+              name='flureeQL-results'
+              value={results}
+              stats={stats}
+              action='results'
+              mode={jsonMode}
+            />
+          </Grid>
         </Grid>
         {/* </SplitPane> */}
       </Grid>
