@@ -228,6 +228,9 @@ const FlureeQL: FunctionComponent<Props> = ({
     try {
       const results = await flureeFetch(opts)
       console.log({ results })
+      if (results.status >= 500) {
+        throw new Error(results.data.message)
+      }
       if (results.status < 400) {
         if (history.length && history.length > 0) {
           const latest = stringify({
@@ -272,6 +275,8 @@ const FlureeQL: FunctionComponent<Props> = ({
       }
     } catch (err) {
       console.log(err)
+      setError(err.message)
+      setErrorOpen(true)
     }
     // const formattedResults = stringify(response.json)
     // setResults(formattedResults)
