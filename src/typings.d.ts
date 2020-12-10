@@ -37,3 +37,5 @@ interface DB {
   openApiServer?: boolean
   token?: string
 }
+
+type Dictionary = { [index: string]: Array<string> }
