@@ -20,10 +20,12 @@ import {
 } from '@material-ui/core'
 import CloseIcon from '@material-ui/icons/Close'
 import { Editor } from '../Editor'
+import { BasicDialog } from '../General/BasicDialog'
 import { generateKeyPair, getSinFromPublicKey } from '@fluree/crypto-utils'
 import { convertArrayOfObjectsToCSV } from '../utils/convertToCsv'
 import { VpnKey } from '@material-ui/icons'
-// import { flureeFetch } from '../utils/flureeFetch'
+import JSON5 from 'json5'
+import { flureeFetch } from '../utils/flureeFetch'
 
 const useStyles = makeStyles((theme) => ({
   root: { overFlowY: 'scroll' },
@@ -73,14 +75,22 @@ const useStyles = makeStyles((theme) => ({
 interface Props {
   open: boolean
   onClose: () => void
-  db: DB
+  _db: DB
+  token?: string
 }
 
-export const GenerateKeys: FunctionComponent<Props> = ({ open, onClose }) => {
+export const GenerateKeys: FunctionComponent<Props> = ({
+  open,
+  onClose,
+  _db,
+  token
+}) => {
   const classes = useStyles()
   const [pubKey, setPubKey] = useState('')
   const [pvtKey, setPvtKey] = useState('')
   const [authId, setAuthId] = useState('')
+  const [error, setError] = useState('')
+  const [errorOpen, setErrorOpen] = useState(false)
   useEffect(() => {
     if (open) {
       const { publicKey, privateKey } = generateKeyPair()
@@ -90,6 +100,7 @@ export const GenerateKeys: FunctionComponent<Props> = ({ open, onClose }) => {
   }, [open])
 
   const [edValue, setEdValue] = useState('')
+  const [resEdValue, setResEdValue] = useState('')
 
   useEffect(() => {
     if (pubKey) {
@@ -120,6 +131,39 @@ export const GenerateKeys: FunctionComponent<Props> = ({ open, onClose }) => {
     hiddenElement.target = '_blank'
     hiddenElement.download = 'keys.csv'
     hiddenElement.click()
+  }
+
+  const transactHandler = async () => {
+    const param = edValue
+    const endpoint = 'transact'
+    let parsedParam: object
+    try {
+      parsedParam = JSON5.parse(param)
+    } catch (err) {
+      setError(err.message)
+      setErrorOpen(true)
+      return
+    }
+    const { ip, db } = _db
+    const dbName = typeof db === 'string' ? db : db['db/id']
+    const fullDb = dbName.split('/')
+    const opts = {
+      ip,
+      body: parsedParam,
+      auth: token,
+      network: fullDb[0],
+      endpoint,
+      db: fullDb[1]
+    }
+
+    console.log({ opts })
+    try {
+      const results = await flureeFetch(opts)
+      console.log({ results })
+      setResEdValue(JSON5.stringify(results.data, null, 2))
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   return (
@@ -209,6 +253,7 @@ export const GenerateKeys: FunctionComponent<Props> = ({ open, onClose }) => {
           variant='contained'
           color='primary'
           className={classes.fullWidthButton}
+          onClick={transactHandler}
         >
           Transact
         </Button>
@@ -218,8 +263,14 @@ export const GenerateKeys: FunctionComponent<Props> = ({ open, onClose }) => {
           title='Results'
           readOnly
           width='100%'
+          value={resEdValue}
         />
       </DialogContent>
+      <BasicDialog
+        open={errorOpen}
+        message={error}
+        onClose={() => setErrorOpen(false)}
+      />
     </Dialog>
   )
 }
