@@ -1,10 +1,12 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect, FunctionComponent } from 'react'
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogTitle,
   IconButton,
+  Link,
   List,
   ListItem,
   makeStyles,
@@ -19,6 +21,8 @@ import {
 import CloseIcon from '@material-ui/icons/Close'
 import { Editor } from '../Editor'
 import { generateKeyPair, getSinFromPublicKey } from '@fluree/crypto-utils'
+import { convertArrayOfObjectsToCSV } from '../utils/convertToCsv'
+import { VpnKey } from '@material-ui/icons'
 // import { flureeFetch } from '../utils/flureeFetch'
 
 const useStyles = makeStyles((theme) => ({
@@ -28,18 +32,30 @@ const useStyles = makeStyles((theme) => ({
     top: 5,
     right: theme.spacing(1)
   },
+  titleBar: {
+    display: 'flex',
+    width: '100%',
+    alignItems: 'center',
+    '&>h2': {
+      marginRight: theme.spacing(2)
+    },
+    borderBottom: `1px solid ${theme.palette.grey[300]}`
+  },
   list: {},
   subheader: {
     fontWeight: 700
   },
   keyTable: {
-    maxWidth: 'auto',
+    maxWidth: 'inherit',
     width: '80%',
-    justifyContent: 'center',
     margin: '0 auto',
     overflowX: 'hidden',
     overflowWrap: 'break-word',
     tableLayout: 'fixed'
+  },
+  downloadLink: {
+    fontWeight: 700,
+    cursor: 'pointer'
   },
   key: {},
   value: {
@@ -48,6 +64,9 @@ const useStyles = makeStyles((theme) => ({
   },
   accentRow: {
     backgroundColor: theme.palette.grey[100]
+  },
+  fullWidthButton: {
+    width: '100%'
   }
 }))
 
@@ -59,13 +78,9 @@ interface Props {
 
 export const GenerateKeys: FunctionComponent<Props> = ({ open, onClose }) => {
   const classes = useStyles()
-  // const [auth, setAuth] = useState('')
   const [pubKey, setPubKey] = useState('')
   const [pvtKey, setPvtKey] = useState('')
-  // const { publicKey, privateKey } = generateKeyPair()
-  // const authId = getSinFromPublicKey(publicKey)
   const [authId, setAuthId] = useState('')
-  // console.log({ authId, publicKey, privateKey })
   useEffect(() => {
     if (open) {
       const { publicKey, privateKey } = generateKeyPair()
@@ -73,13 +88,6 @@ export const GenerateKeys: FunctionComponent<Props> = ({ open, onClose }) => {
       setPubKey(publicKey)
     }
   }, [open])
-
-  // useEffect(() => {
-  //   // if (pubKey.length) {
-  //   const authId = getSinFromPublicKey(pubKey)
-  //   setAuth(authId)
-  //   // }
-  // }, [pubKey])
 
   const [edValue, setEdValue] = useState('')
 
@@ -96,9 +104,23 @@ export const GenerateKeys: FunctionComponent<Props> = ({ open, onClose }) => {
     )
   }, [authId])
 
-  // const transactHandler = () => {
+  const downloadHandler = () => {
+    const data = [
+      {
+        'Public Key': pubKey,
+        'Private Key': pvtKey,
+        'Auth Id': authId
+      }
+    ]
+    const csv = convertArrayOfObjectsToCSV({ data: data })
+    if (csv === null) return
 
-  // }
+    var hiddenElement = document.createElement('a')
+    hiddenElement.href = 'data:text/csv;charset=utf-8,' + csv
+    hiddenElement.target = '_blank'
+    hiddenElement.download = 'keys.csv'
+    hiddenElement.click()
+  }
 
   return (
     <Dialog
@@ -112,7 +134,17 @@ export const GenerateKeys: FunctionComponent<Props> = ({ open, onClose }) => {
       <IconButton className={classes.closeButton} onClick={onClose}>
         <CloseIcon />
       </IconButton>
-      <DialogTitle id='generate-keys-title'>Generate Keys</DialogTitle>
+      <DialogTitle
+        disableTypography
+        className={classes.titleBar}
+        id='generate-keys-title'
+      >
+        <Typography component='h2' variant='h6'>
+          Generate Keys
+        </Typography>
+        <VpnKey fontSize='large' />
+        <VpnKey fontSize='large' />
+      </DialogTitle>
       <DialogContent id='generate-keys-body'>
         <Typography
           className={classes.subheader}
@@ -124,8 +156,12 @@ export const GenerateKeys: FunctionComponent<Props> = ({ open, onClose }) => {
         <List>
           <ListItem>
             <Typography variant='body2'>
-              Please save your public and private keys . This is the only time
-              you will be able to view them through the user interface.
+              Please{' '}
+              <Link className={classes.downloadLink} onClick={downloadHandler}>
+                save your public and private keys
+              </Link>
+              . This is the only time you will be able to view them through the
+              user interface.
             </Typography>
           </ListItem>
           <ListItem>
@@ -169,6 +205,13 @@ export const GenerateKeys: FunctionComponent<Props> = ({ open, onClose }) => {
           onChange={(value) => setEdValue(value)}
           width='100%'
         />
+        <Button
+          variant='contained'
+          color='primary'
+          className={classes.fullWidthButton}
+        >
+          Transact
+        </Button>
         <Editor
           height='150px'
           name='generate-keys-results'
