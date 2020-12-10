@@ -92,8 +92,6 @@ interface Props {
   token?: string
 }
 
-type Dictionary = { [index: string]: Array<string> }
-
 const queryTypes: Dictionary = {
   Query: [
     'query',
@@ -126,13 +124,7 @@ const FlureeQL: FunctionComponent<Props> = ({
   )
   const [results, setResults] = useState('')
   // const [loading, setLoading] = useState(false)
-  const [stats, setStats] = useState({
-    fuel: '',
-    status: '',
-    block: '',
-    time: '',
-    remainingFuel: null
-  })
+  const [stats, setStats] = useState<Dictionary | undefined>(undefined)
   const [history, setHistory] = useLocalHistory(
     typeof _db.db === 'string'
       ? `${_db.db}_history`
@@ -258,18 +250,26 @@ const FlureeQL: FunctionComponent<Props> = ({
       setResults(stringify(results.data, null, 2))
       if (_db.environment === 'hosted') {
         setStats({
-          block:
+          Block:
             typeof results.data.block === 'object'
               ? results.data.block[0] === results.data.block[1]
                 ? results.data.block[0]
                 : results.data.block.join(' - ')
               : results.data.block,
-          fuel: results.data.fuel,
-          status: results.data.status,
-          time: results.data.time,
-          remainingFuel: results.data['fuel-remaining'] || null
+          'Fuel Spent': results.data.fuel,
+          Status: results.data.status,
+          Time: results.data.time,
+          'Remaining Fuel': results.data['fuel-remaining'] || null
         })
-      } else setStats(getStats(results))
+      } else {
+        const resStats = getStats(results)
+        setStats({
+          'Fuel Spent': resStats.fuel,
+          Block: resStats.block,
+          Status: resStats.status,
+          Time: resStats.time
+        })
+      }
     } catch (err) {
       console.log(err)
     }
