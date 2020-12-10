@@ -143,7 +143,7 @@ const FlureeQL: FunctionComponent<Props> = ({
   const [error, setError] = useState('')
   const [signOpen, setSignOpen] = useState(false)
   const [privateKey, setPrivateKey] = useState(_db.defaultPrivateKey || '')
-  const [genOpen, setGenOpen] = useState(true)
+  const [genOpen, setGenOpen] = useState(false)
   const [host, setHost] = useState(_db.ip)
 
   const parse = jsonMode === 'json' ? JSON.parse : JSON5.parse
