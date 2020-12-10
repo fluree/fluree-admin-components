@@ -430,7 +430,12 @@ const FlureeQL: FunctionComponent<Props> = ({
           setError('')
         }}
       />
-      <GenerateKeys open={genOpen} onClose={() => setGenOpen(false)} db={_db} />
+      <GenerateKeys
+        open={genOpen}
+        onClose={() => setGenOpen(false)}
+        _db={_db}
+        token={token}
+      />
     </div>
   )
 }
