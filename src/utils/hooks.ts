@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 
-type localHook = (storageKey: string) => any
+type HistoryHook = (storageKey: string) => any
+type StorageHook = (storageKey: string, defaultValue?: string) => any
 
-const useLocal: localHook = (storageKey) => {
+const useLocalHistory: HistoryHook = (storageKey) => {
   const storedState = localStorage.getItem(storageKey)
   const [state, setState] = useState(storedState ? JSON.parse(storedState) : [])
 
@@ -15,4 +16,18 @@ const useLocal: localHook = (storageKey) => {
   return [state, setState]
 }
 
-export { useLocal }
+const useLocalStorage: StorageHook = (storageKey, defaultValue = undefined) => {
+  const storedState = localStorage.getItem(storageKey)
+  const [state, setState] = useState(defaultValue || storedState || '')
+
+  useEffect(() => {
+    const storedData = localStorage.getItem(storageKey)
+
+    if (storedData !== storedState) {
+      localStorage.setItem(storageKey, state)
+    }
+  }, [state])
+  return [state, setState]
+}
+
+export { useLocalHistory, useLocalStorage }

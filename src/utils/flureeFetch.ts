@@ -22,6 +22,7 @@ interface FetchOptions {
 
 function gateway() {
   const production = process.env.NODE_ENV === 'production'
+  const hosted = process.env.REACT_APP_ENVIRONMENT === 'hosted'
   // production build is same for prod, staging & test environments
 
   if (production) {
@@ -34,6 +35,8 @@ function gateway() {
         ':' +
         window.location.port
       : window.location.protocol + '//' + window.location.hostname
+  } else if (hosted) {
+    return 'https://db.flur.ee'
   } else {
     return 'http://localhost:8090'
   }
@@ -41,7 +44,8 @@ function gateway() {
 
 function fullEndpoint(info: EndpointParams) {
   const { endpoint, network, db, body } = info
-  const endpointInfix = 'fdb'
+  const hosted = process.env.REACT_APP_ENVIRONMENT === 'hosted'
+  const endpointInfix = hosted ? 'api' : 'fdb'
 
   const locatedEndpoint = [
     'query',
@@ -68,7 +72,9 @@ function fullEndpoint(info: EndpointParams) {
     } else if (endpoint === 'nw-state') {
       return `${startURI}/${endpointInfix}/${endpoint}`
     } else {
-      return `${startURI}/${endpointInfix}/${network}/${db}/${endpoint}`
+      return `${startURI}/${endpointInfix}/${
+        hosted ? 'db/' : ''
+      }${network}/${db}/${endpoint}`
     }
   }
 

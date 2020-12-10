@@ -12,14 +12,17 @@ import {
   Select
 } from '@material-ui/core'
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled'
-// import SplitPane from 'react-split-pane'
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined' // import SplitPane from 'react-split-pane'
 import { Editor } from '../Editor'
 import { History } from '../History'
+import { SignQuery } from './SignQuery'
+import { GenerateKeys } from '../GenerateKeys'
 import { BasicDialog } from '../General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import { flureeFetch } from '../utils/flureeFetch'
-import { useLocal } from '../utils/hooks'
+import { useLocalHistory } from '../utils/hooks'
 import JSON5 from 'json5'
+import { signQuery } from '@fluree/crypto-utils'
 // import { format } from 'path'
 // import get from 'lodash'
 
@@ -39,8 +42,8 @@ const useStyles = makeStyles((theme) => ({
     height: 'inherit',
     display: 'inherit',
     alignItems: 'center',
-    '& > button': {
-      marginRight: 10
+    '& > :not(:last-child)': {
+      marginRight: theme.spacing(1)
     }
   },
   defaultSelect: {
@@ -81,29 +84,13 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface DB {
-  account?: string
-  db: string
-  dbs?: Array<string>
-  defaultPrivateKey?: any
-  displayError?: string
-  environment?: string
-  ip: string // url for fluree instance
-  loading?: boolean
-  logout?: boolean
-  openApi?: boolean
-  openApiServer?: boolean
-  token?: string
-}
-
 interface Props {
   _db: DB
   allowTransact?: boolean
   withHistory?: boolean
   jsonMode?: 'json' | 'json5'
+  token?: string
 }
-
-type Dictionary = { [index: string]: Array<string> }
 
 const queryTypes: Dictionary = {
   Query: [
@@ -122,9 +109,11 @@ const FlureeQL: FunctionComponent<Props> = ({
   _db,
   allowTransact,
   withHistory = false,
-  jsonMode = 'json'
+  jsonMode = 'json',
+  token = undefined
 }) => {
   const classes = useStyles()
+
   const [action, setAction] = useState('query')
   // const [size, setSize] = useState('50%')
   // const theme = useTheme();
@@ -135,16 +124,19 @@ const FlureeQL: FunctionComponent<Props> = ({
   )
   const [results, setResults] = useState('')
   // const [loading, setLoading] = useState(false)
-  const [stats, setStats] = useState({
-    fuel: '',
-    status: '',
-    block: '',
-    time: ''
-  })
-  const [history, setHistory] = useLocal(`${_db.db}_history`)
+  const [stats, setStats] = useState<Dictionary | undefined>(undefined)
+  const [history, setHistory] = useLocalHistory(
+    typeof _db.db === 'string'
+      ? `${_db.db}_history`
+      : `${_db.db['db/id']}_history`
+  )
   const [historyOpen, setHistoryOpen] = useState(false)
   const [errorOpen, setErrorOpen] = useState(false)
   const [error, setError] = useState('')
+  const [signOpen, setSignOpen] = useState(false)
+  const [privateKey, setPrivateKey] = useState(_db.defaultPrivateKey || '')
+  const [genOpen, setGenOpen] = useState(false)
+  const [host, setHost] = useState(_db.ip)
 
   const parse = jsonMode === 'json' ? JSON.parse : JSON5.parse
   const stringify = jsonMode === 'json' ? JSON.stringify : JSON5.stringify
@@ -173,15 +165,17 @@ const FlureeQL: FunctionComponent<Props> = ({
     const block = res.headers.get('x-fdb-block')
     const time = res.headers.get('x-fdb-time')
     const status = res.headers.get('x-fdb-status')
+    const remainingFuel = null
     return {
       fuel,
       block,
       time,
-      status
+      status,
+      remainingFuel
     }
   }
 
-  const flureeHandler = async () => {
+  const flureeHandler = async (sign = false) => {
     const param: string = action === 'query' ? queryParam : txParam
     let endpoint: string
     if (action === 'query') endpoint = queryTypes[queryType][0]
@@ -194,8 +188,9 @@ const FlureeQL: FunctionComponent<Props> = ({
       setErrorOpen(true)
       return
     }
-    const { ip, db, token } = _db
-    const fullDb = db.split('/')
+    const { ip, db } = _db
+    const dbName = typeof db === 'string' ? db : db['db/id']
+    const fullDb = dbName.split('/')
     const queryParamStore =
       stringify(queryParam).length > 5000
         ? 'Values greater than 5k are not saved in the admin UI.'
@@ -204,11 +199,11 @@ const FlureeQL: FunctionComponent<Props> = ({
       stringify(txParam).length > 5000
         ? 'Values greater than 5k are not saved in the admin UI.'
         : txParam
-    localStorage.setItem(db.concat('_queryParam'), queryParamStore)
-    localStorage.setItem(db.concat('_txParam'), txParamStore)
-    localStorage.setItem(db.concat('_lastAction'), action)
+    localStorage.setItem(dbName.concat('_queryParam'), queryParamStore)
+    localStorage.setItem(dbName.concat('_txParam'), txParamStore)
+    localStorage.setItem(dbName.concat('_lastAction'), action)
     localStorage.setItem(
-      db.concat('_lastType'),
+      dbName.concat('_lastType'),
       action === 'query' ? queryType : 'transact'
     )
     const opts = {
@@ -217,8 +212,18 @@ const FlureeQL: FunctionComponent<Props> = ({
       auth: token,
       network: fullDb[0],
       endpoint,
-      db: fullDb[1]
+      db: fullDb[1],
+      headers: sign
+        ? signQuery(
+            privateKey,
+            JSON.stringify(parsedParam),
+            endpoint,
+            host,
+            dbName
+          ).headers
+        : null
     }
+
     console.log({ opts })
     try {
       const results = await flureeFetch(opts)
@@ -243,7 +248,28 @@ const FlureeQL: FunctionComponent<Props> = ({
           ])
       }
       setResults(stringify(results.data, null, 2))
-      setStats(getStats(results))
+      if (_db.environment === 'hosted') {
+        setStats({
+          Block:
+            typeof results.data.block === 'object'
+              ? results.data.block[0] === results.data.block[1]
+                ? results.data.block[0]
+                : results.data.block.join(' - ')
+              : results.data.block,
+          'Fuel Spent': results.data.fuel,
+          Status: results.data.status,
+          Time: results.data.time,
+          'Remaining Fuel': results.data['fuel-remaining'] || null
+        })
+      } else {
+        const resStats = getStats(results)
+        setStats({
+          'Fuel Spent': resStats.fuel,
+          Block: resStats.block,
+          Status: resStats.status,
+          Time: resStats.time
+        })
+      }
     } catch (err) {
       console.log(err)
     }
@@ -256,12 +282,23 @@ const FlureeQL: FunctionComponent<Props> = ({
     <div className={classes.root}>
       <div className={classes.toolbar}>
         <div className={classes.queryActions}>
-          {/* <Button color='primary' variant='outlined'>
+          <Button
+            color='primary'
+            variant='outlined'
+            onClick={() => setGenOpen(true)}
+          >
             Generate Keys
           </Button>
-          <Button color='primary' variant='outlined'>
-            Sign
-          </Button> */}
+          {(_db.environment !== 'hosted' ||
+            process.env.REACT_APP_ENVIRONMENT !== 'hosted') && (
+            <Button
+              color='primary'
+              variant={signOpen ? 'contained' : 'outlined'}
+              onClick={() => setSignOpen(!signOpen)}
+            >
+              Sign
+            </Button>
+          )}
           {withHistory && (
             <Button
               color='primary'
@@ -272,33 +309,28 @@ const FlureeQL: FunctionComponent<Props> = ({
             >
               History
             </Button>
-          )}{' '}
+          )}
           {action === 'query' && (
-            <div>
-              {/* <FormControl color='primary' margin='none' variant='outlined'> */}
-              {/* <InputLabel id='query-type-label'>Query Type</InputLabel> */}
-              <Select
-                // labelId='query-type-label'
-                autoWidth
-                value={queryType}
-                onChange={(event: any) => setQueryType(event.target.value)}
-                className={classes.defaultSelect}
-                variant='outlined'
-                color='primary'
-                margin='dense'
-              >
-                {Object.keys(queryTypes).map((item) => (
-                  <MenuItem value={item} key={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-                {/* </FormControl> */}
-              </Select>
-            </div>
+            <Select
+              // labelId='query-type-label'
+              autoWidth
+              value={queryType}
+              onChange={(event: any) => setQueryType(event.target.value)}
+              className={classes.defaultSelect}
+              variant='outlined'
+              color='primary'
+              margin='dense'
+            >
+              {Object.keys(queryTypes).map((item) => (
+                <MenuItem value={item} key={item}>
+                  {item}
+                </MenuItem>
+              ))}
+            </Select>
           )}
         </div>
         <div>
-          {allowTransact && (
+          {allowTransact && !signOpen && (
             <ButtonGroup disableElevation>
               <Button
                 className={classes.actionButtons}
@@ -320,12 +352,27 @@ const FlureeQL: FunctionComponent<Props> = ({
               </Button>
             </ButtonGroup>
           )}
-          <IconButton size='medium' color='primary' onClick={flureeHandler}>
+          <IconButton
+            size='medium'
+            color='primary'
+            onClick={() => flureeHandler(signOpen)}
+          >
+            {signOpen && <LockOutlinedIcon fontSize='small' />}
             <PlayCircleFilledIcon fontSize='large' />
           </IconButton>
         </div>
       </div>
       <Grid container spacing={2} className={classes.grid}>
+        <Grid item xs={12}>
+          {signOpen && (
+            <SignQuery
+              hostValue={host}
+              keyValue={privateKey}
+              hostChange={(e) => setHost(e.target.value)}
+              keyChange={(e) => setPrivateKey(e.target.value)}
+            />
+          )}
+        </Grid>
         {historyOpen && (
           <Grid item xs={12} md={2}>
             <Paper className={classes.history}>
@@ -345,31 +392,33 @@ const FlureeQL: FunctionComponent<Props> = ({
             }}
             style={{ width: 'inherit' }}
           > */}
-        <Grid item xs={12} md={historyOpen ? 5 : 6}>
-          <Editor
-            action={action}
-            title={action === 'query' ? 'Query' : 'Transact'}
-            width='100%'
-            name='flureeQL-editor'
-            value={action === 'query' ? queryParam : txParam}
-            onChange={(value) => {
-              if (action === 'query') setQueryParam(value)
-              else setTxParam(value)
-            }}
-            mode={jsonMode}
-          />
-        </Grid>
-        <Grid item xs={12} md={historyOpen ? 5 : 6}>
-          <Editor
-            title='Results'
-            readOnly
-            width='100%'
-            name='flureeQL-results'
-            value={results}
-            stats={stats}
-            action='results'
-            mode={jsonMode}
-          />
+        <Grid container xs={12} md={historyOpen ? 10 : 12}>
+          <Grid item xs={12} lg={6}>
+            <Editor
+              action={action}
+              title={action === 'query' ? 'Query' : 'Transact'}
+              width='100%'
+              name='flureeQL-editor'
+              value={action === 'query' ? queryParam : txParam}
+              onChange={(value) => {
+                if (action === 'query') setQueryParam(value)
+                else setTxParam(value)
+              }}
+              mode={jsonMode}
+            />
+          </Grid>
+          <Grid item xs={12} lg={6}>
+            <Editor
+              title='Results'
+              readOnly
+              width='100%'
+              name='flureeQL-results'
+              value={results}
+              stats={stats}
+              action='results'
+              mode={jsonMode}
+            />
+          </Grid>
         </Grid>
         {/* </SplitPane> */}
       </Grid>
@@ -380,6 +429,12 @@ const FlureeQL: FunctionComponent<Props> = ({
           setErrorOpen(false)
           setError('')
         }}
+      />
+      <GenerateKeys
+        open={genOpen}
+        onClose={() => setGenOpen(false)}
+        _db={_db}
+        token={token}
       />
     </div>
   )
