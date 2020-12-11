@@ -39,3 +39,5 @@ interface DB {
 }
 
 type Dictionary = { [index: string]: Array<string> }
+
+type Action = 'query' | 'results' | 'transact'

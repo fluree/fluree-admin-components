@@ -114,7 +114,7 @@ const FlureeQL: FunctionComponent<Props> = ({
 }) => {
   const classes = useStyles()
 
-  const [action, setAction] = useState('query')
+  const [action, setAction] = useState<Action>('query')
   // const [size, setSize] = useState('50%')
   // const theme = useTheme();
   const [queryParam, setQueryParam] = useState('')
@@ -147,7 +147,7 @@ const FlureeQL: FunctionComponent<Props> = ({
   }, [queryType])
 
   const setHistoryHandler = (
-    action: string,
+    action: Action,
     param: object,
     type?: string | null
   ) => {
@@ -406,8 +406,10 @@ const FlureeQL: FunctionComponent<Props> = ({
               name='flureeQL-editor'
               value={action === 'query' ? queryParam : txParam}
               onChange={(value) => {
-                if (action === 'query') setQueryParam(value)
-                else setTxParam(value)
+                if (value) {
+                  if (action === 'query') setQueryParam(value)
+                  else setTxParam(value)
+                }
               }}
               mode={jsonMode}
             />
@@ -422,6 +424,10 @@ const FlureeQL: FunctionComponent<Props> = ({
               stats={stats}
               action='results'
               mode={jsonMode}
+              _db={_db}
+              onChange={(value) => {
+                if (value) setResults(value)
+              }}
             />
           </Grid>
         </Grid>

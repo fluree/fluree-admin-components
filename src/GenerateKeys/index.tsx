@@ -246,7 +246,9 @@ export const GenerateKeys: FunctionComponent<Props> = ({
           name='generate-keys-transaction'
           title='Transaction'
           value={edValue}
-          onChange={(value) => setEdValue(value)}
+          onChange={(value) => {
+            if (value) setEdValue(value)
+          }}
           width='100%'
         />
         <Button
