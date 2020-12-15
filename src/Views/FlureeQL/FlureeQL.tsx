@@ -16,7 +16,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined' // import SplitPa
 import { Editor } from '../../Components/Editor'
 import { History } from '../../Components/History'
 import { SignQuery } from '../../Components/General/SignQuery'
-import { GenerateKeys } from '../../Components/GenerateKeys'
+import { GenKeysDialog } from './Dialogs/GenKeysDialog'
 import { BasicDialog } from '../../Components/General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import { flureeFetch } from '../../utils/flureeFetch'
@@ -430,7 +430,7 @@ const FlureeQL: FunctionComponent<Props> = ({
           setError('')
         }}
       />
-      <GenerateKeys
+      <GenKeysDialog
         open={genOpen}
         onClose={() => setGenOpen(false)}
         _db={_db}

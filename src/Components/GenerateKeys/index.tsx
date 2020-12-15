@@ -2,10 +2,6 @@
 import React, { useState, useEffect, FunctionComponent } from 'react'
 import {
   Button,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  IconButton,
   Link,
   List,
   ListItem,
@@ -18,31 +14,14 @@ import {
   TableRow,
   Typography
 } from '@material-ui/core'
-import CloseIcon from '@material-ui/icons/Close'
 import { Editor } from '../Editor'
 import { BasicDialog } from '../General/BasicDialog'
 import { generateKeyPair, getSinFromPublicKey } from '@fluree/crypto-utils'
 import { convertArrayOfObjectsToCSV } from '../../utils/convertToCsv'
-import { VpnKey } from '@material-ui/icons'
 import JSON5 from 'json5'
 import { flureeFetch } from '../../utils/flureeFetch'
 
 const useStyles = makeStyles((theme) => ({
-  root: { overFlowY: 'scroll' },
-  closeButton: {
-    position: 'absolute',
-    top: 5,
-    right: theme.spacing(1)
-  },
-  titleBar: {
-    display: 'flex',
-    width: '100%',
-    alignItems: 'center',
-    '&>h2': {
-      marginRight: theme.spacing(2)
-    },
-    borderBottom: `1px solid ${theme.palette.grey[300]}`
-  },
   list: {},
   subheader: {
     fontWeight: 700
@@ -75,18 +54,11 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 interface Props {
-  open: boolean
-  onClose: () => void
   _db: DB
   token?: string
 }
 
-export const GenerateKeys: FunctionComponent<Props> = ({
-  open,
-  onClose,
-  _db,
-  token
-}) => {
+export const GenerateKeys: FunctionComponent<Props> = ({ _db, token }) => {
   const classes = useStyles()
   const [pubKey, setPubKey] = useState('')
   const [pvtKey, setPvtKey] = useState('')
@@ -94,12 +66,12 @@ export const GenerateKeys: FunctionComponent<Props> = ({
   const [error, setError] = useState('')
   const [errorOpen, setErrorOpen] = useState(false)
   useEffect(() => {
-    if (open) {
-      const { publicKey, privateKey } = generateKeyPair()
-      setPvtKey(privateKey)
-      setPubKey(publicKey)
-    }
-  }, [open])
+    // if (open) {
+    const { publicKey, privateKey } = generateKeyPair()
+    setPvtKey(privateKey)
+    setPubKey(publicKey)
+    // }
+  }, [])
 
   const [edValue, setEdValue] = useState('')
   const [resEdValue, setResEdValue] = useState('')
@@ -169,112 +141,89 @@ export const GenerateKeys: FunctionComponent<Props> = ({
   }
 
   return (
-    <Dialog
-      fullWidth
-      className={classes.root}
-      onClose={onClose}
-      open={open}
-      aria-labelledby='generate-keys-title'
-      aria-describedby='generate-keys-body'
-    >
-      <IconButton className={classes.closeButton} onClick={onClose}>
-        <CloseIcon />
-      </IconButton>
-      <DialogTitle
-        disableTypography
-        className={classes.titleBar}
-        id='generate-keys-title'
+    <div>
+      <Typography
+        className={classes.subheader}
+        component='h4'
+        variant='subtitle1'
       >
-        <Typography component='h2' variant='h6'>
-          Generate Keys
-        </Typography>
-        <VpnKey fontSize='large' />
-        <VpnKey fontSize='large' />
-      </DialogTitle>
-      <DialogContent id='generate-keys-body'>
-        <Typography
-          className={classes.subheader}
-          component='h4'
-          variant='subtitle1'
-        >
-          Managing Your Public and Private Keys
-        </Typography>
-        <List>
-          <ListItem>
-            <Typography variant='body2'>
-              Please{' '}
-              <Link className={classes.downloadLink} onClick={downloadHandler}>
-                save your public and private keys
-              </Link>
-              . This is the only time you will be able to view them through the
-              user interface.
-            </Typography>
-          </ListItem>
-          <ListItem>
-            <Typography variant='body2'>
-              In order to connect your key pair to an auth record, please submit
-              the below transaction. By default, the below transaction will
-              connect the new auth record to the root role, but this can be
-              modified.
-            </Typography>
-          </ListItem>
-        </List>
-        <TableContainer component={Paper} classes={{ root: classes.keyTable }}>
-          <Table>
-            <TableBody>
-              <TableRow className={classes.accentRow}>
-                <TableCell variant='head' className={classes.key}>
-                  Public Key
-                </TableCell>
-                <TableCell className={classes.value}>{pubKey}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell variant='head' className={classes.key}>
-                  Private Key
-                </TableCell>
-                <TableCell className={classes.value}>{pvtKey}</TableCell>
-              </TableRow>
-              <TableRow className={classes.accentRow}>
-                <TableCell variant='head' className={classes.key}>
-                  Auth ID
-                </TableCell>
-                <TableCell className={classes.value}>{authId}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <Editor
-          height='150px'
-          name='generate-keys-transaction'
-          title='Transaction'
-          value={edValue}
-          onChange={(value) => setEdValue(value)}
-          width='100%'
-          size='small'
-        />
-        <Button
-          variant='contained'
-          color='primary'
-          className={classes.fullWidthButton}
-          onClick={transactHandler}
-        >
-          Transact
-        </Button>
-        <Editor
-          height='150px'
-          name='generate-keys-results'
-          title='Results'
-          readOnly
-          width='100%'
-          value={resEdValue}
-          size='small'
-        />
-      </DialogContent>
+        Managing Your Public and Private Keys
+      </Typography>
+      <List>
+        <ListItem>
+          <Typography variant='body2'>
+            Please{' '}
+            <Link className={classes.downloadLink} onClick={downloadHandler}>
+              save your public and private keys
+            </Link>
+            . This is the only time you will be able to view them through the
+            user interface.
+          </Typography>
+        </ListItem>
+        <ListItem>
+          <Typography variant='body2'>
+            In order to connect your key pair to an auth record, please submit
+            the below transaction. By default, the below transaction will
+            connect the new auth record to the root role, but this can be
+            modified.
+          </Typography>
+        </ListItem>
+      </List>
+      <TableContainer component={Paper} classes={{ root: classes.keyTable }}>
+        <Table>
+          <TableBody>
+            <TableRow className={classes.accentRow}>
+              <TableCell variant='head' className={classes.key}>
+                Public Key
+              </TableCell>
+              <TableCell className={classes.value}>{pubKey}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell variant='head' className={classes.key}>
+                Private Key
+              </TableCell>
+              <TableCell className={classes.value}>{pvtKey}</TableCell>
+            </TableRow>
+            <TableRow className={classes.accentRow}>
+              <TableCell variant='head' className={classes.key}>
+                Auth ID
+              </TableCell>
+              <TableCell className={classes.value}>{authId}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Editor
+        height='150px'
+        name='generate-keys-transaction'
+        title='Transaction'
+        value={edValue}
+        onChange={(value) => setEdValue(value)}
+        width='100%'
+        size='small'
+      />
+      <Button
+        variant='contained'
+        color='primary'
+        className={classes.fullWidthButton}
+        onClick={transactHandler}
+      >
+        Transact
+      </Button>
+      <Editor
+        height='150px'
+        name='generate-keys-results'
+        title='Results'
+        readOnly
+        width='100%'
+        value={resEdValue}
+        size='small'
+      />
       <BasicDialog
         open={errorOpen}
         message={error}
         onClose={() => setErrorOpen(false)}
       />
-    </Dialog>
+    </div>
   )
 }
