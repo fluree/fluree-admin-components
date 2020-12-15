@@ -95,6 +95,8 @@ interface Props {
   withHistory?: boolean
   jsonMode?: 'json' | 'json5'
   token?: string
+  allowKeyGen?: boolean
+  allowSign?: boolean
 }
 
 const queryTypes: Dictionary = {
@@ -110,12 +112,14 @@ const queryTypes: Dictionary = {
   History: ['history', '{\n  "history": []\n}']
 }
 
-const FlureeQL: FunctionComponent<Props> = ({
+export const FlureeQL: FunctionComponent<Props> = ({
   _db,
   allowTransact,
   withHistory = false,
   jsonMode = 'json',
-  token = undefined
+  token = undefined,
+  allowKeyGen = false,
+  allowSign = false
 }) => {
   const classes = useStyles()
 
@@ -287,15 +291,16 @@ const FlureeQL: FunctionComponent<Props> = ({
     <div className={classes.root}>
       <div className={classes.toolbar}>
         <div className={classes.queryActions}>
-          <Button
-            color='primary'
-            variant='outlined'
-            onClick={() => setGenOpen(true)}
-          >
-            Generate Keys
-          </Button>
-          {(_db.environment !== 'hosted' ||
-            process.env.REACT_APP_ENVIRONMENT !== 'hosted') && (
+          {allowKeyGen && (
+            <Button
+              color='primary'
+              variant={genOpen ? 'contained' : 'outlined'}
+              onClick={() => setGenOpen(true)}
+            >
+              Generate Keys
+            </Button>
+          )}
+          {allowSign && (
             <Button
               color='primary'
               variant={signOpen ? 'contained' : 'outlined'}
@@ -447,5 +452,3 @@ const FlureeQL: FunctionComponent<Props> = ({
     </div>
   )
 }
-
-export default FlureeQL

@@ -19,6 +19,8 @@ const App = () => {
         dbs: ['example/mdm'],
         environment
       }}
+      allowKeyGen
+      allowSign
     />
   )
 }
