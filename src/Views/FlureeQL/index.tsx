@@ -18,6 +18,7 @@ import { Editor } from '../../Components/Editor'
 import { History } from '../../Components/History'
 import { SignQuery } from '../../Components/General/SignQuery'
 import { GenKeysDialog } from './Dialogs/GenKeysDialog'
+import { GenerateKeys } from '../../Components/GenerateKeys'
 import { BasicDialog } from '../../Components/General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import { flureeFetch } from '../../utils/flureeFetch'
@@ -443,12 +444,9 @@ export const FlureeQL: FunctionComponent<Props> = ({
           setError('')
         }}
       />
-      <GenKeysDialog
-        open={genOpen}
-        onClose={() => setGenOpen(false)}
-        _db={_db}
-        token={token}
-      />
+      <GenKeysDialog open={genOpen} onClose={() => setGenOpen(false)}>
+        <GenerateKeys _db={_db} token={token} />{' '}
+      </GenKeysDialog>
     </div>
   )
 }

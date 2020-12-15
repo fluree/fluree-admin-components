@@ -11,13 +11,13 @@ import {
 import { VpnKey } from '@material-ui/icons'
 import CloseIcon from '@material-ui/icons/Close'
 
-import { GenerateKeys } from '../../../Components/GenerateKeys'
+// import { GenerateKeys } from '../../../Components/GenerateKeys'
 
 interface Props {
   open: boolean
   onClose: () => void
-  _db: DB
-  token?: string
+  // _db: DB
+  // token?: string
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -41,8 +41,9 @@ const useStyles = makeStyles((theme) => ({
 export const GenKeysDialog: FunctionComponent<Props> = ({
   open,
   onClose,
-  _db,
-  token
+  // _db,
+  // token,
+  children
 }) => {
   const classes = useStyles()
   return (
@@ -68,9 +69,7 @@ export const GenKeysDialog: FunctionComponent<Props> = ({
         <VpnKey fontSize='large' />
         <VpnKey fontSize='large' />
       </DialogTitle>
-      <DialogContent id='generate-keys-body'>
-        <GenerateKeys _db={_db} token={token} />
-      </DialogContent>
+      <DialogContent id='generate-keys-body'>{children}</DialogContent>
     </Dialog>
   )
 }
