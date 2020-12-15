@@ -4,11 +4,11 @@ import React, {
   useState,
   useEffect
 } from 'react'
-import { flureeFetch } from '../utils/flureeFetch'
+import { flureeFetch } from '../../utils/flureeFetch'
 import { Graph } from 'react-d3-graph'
 
 interface GraphProps {
-  flakes: Array<Array<any>>
+  flakes: Array<Array<any>> | null
   _db: DB
   token?: string
 }
@@ -20,7 +20,7 @@ export const GraphView: FunctionComponent<GraphProps> = ({
 }) => {
   // const [data, setData] = useState({})
   const [meta, setMeta] = useState<any | null>(null)
-  const [metaObj, setMetaObj] = useState<any | null>(null)
+  const [metaObj, setMetaObj] = useState<Dictionary>({})
   const [flakeNodes, setFlakeNodes] = useState<Array<any> | null>(null)
   const [graphData, setGraphData] = useState<any>(null)
   // const [mounted, setMounted] = useState(false)
@@ -69,16 +69,18 @@ export const GraphView: FunctionComponent<GraphProps> = ({
 
   useEffect(() => {
     if (meta) {
-      const flakeArray = flakes.map((flake, i) => ({
-        id: 'flake' + i,
-        subject: flake[0],
-        predicate: flake[1],
-        object: flake[2],
-        transactionRef: flake[3],
-        op: flake[4],
-        m: flake[5]
-      }))
-      setFlakeNodes(flakeArray)
+      if (flakes) {
+        const flakeArray = flakes.map((flake, i) => ({
+          id: 'flake' + i,
+          subject: flake[0],
+          predicate: flake[1],
+          object: flake[2],
+          transactionRef: flake[3],
+          op: flake[4],
+          m: flake[5]
+        }))
+        setFlakeNodes(flakeArray)
+      }
     }
   }, [meta])
 
@@ -91,7 +93,8 @@ export const GraphView: FunctionComponent<GraphProps> = ({
           if (metaObj[i]) {
             relationships.push({
               source: flake.id,
-              target: metaObj[i]._id.toString()
+              // eslint-disable-next-line dot-notation
+              target: metaObj[i]['_id'].toString()
             })
           }
         })

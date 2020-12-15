@@ -38,4 +38,4 @@ interface DB {
   token?: string
 }
 
-type Dictionary = { [index: string]: Array<string> }
+type Dictionary = { [index: string]: Array<string> | object }
