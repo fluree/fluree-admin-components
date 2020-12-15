@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     marginLeft: '1%',
     alignItems: 'stretch',
-    maxHeight: 600,
+    // maxHeight: 600,
     height: '100%'
   },
   split: {
@@ -78,11 +78,12 @@ const useStyles = makeStyles((theme) => ({
     position: 'static'
   },
   historyHeader: {
-    marginTop: theme.spacing(2),
+    marginTop: theme.spacing(3),
     marginBottom: theme.spacing(2)
   },
   history: {
-    maxHeight: 560,
+    maxHeight: 500,
+    height: '100%',
     overflowX: 'scroll',
     [theme.breakpoints.down('sm')]: {
       maxHeight: 200
@@ -373,7 +374,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
           </IconButton>
         </div>
       </div>
-      <Grid container spacing={2} className={classes.grid}>
+      <Grid container className={classes.grid}>
         <Grid item xs={12}>
           {signOpen && (
             <SignQuery
@@ -406,32 +407,34 @@ export const FlureeQL: FunctionComponent<Props> = ({
             }}
             style={{ width: 'inherit' }}
           > */}
-        <Grid container xs={12} md={historyOpen ? 10 : 12}>
-          <Grid item xs={12} lg={6}>
-            <Editor
-              action={action}
-              title={action === 'query' ? 'Query' : 'Transact'}
-              width='100%'
-              name='flureeQL-editor'
-              value={action === 'query' ? queryParam : txParam}
-              onChange={(value) => {
-                if (action === 'query') setQueryParam(value)
-                else setTxParam(value)
-              }}
-              mode={jsonMode}
-            />
-          </Grid>
-          <Grid item xs={12} lg={6}>
-            <Editor
-              title='Results'
-              readOnly
-              width='100%'
-              name='flureeQL-results'
-              value={results}
-              stats={stats}
-              action='results'
-              mode={jsonMode}
-            />
+        <Grid item xs={12} md={historyOpen ? 10 : 12}>
+          <Grid container>
+            <Grid item xs={12} lg={6}>
+              <Editor
+                action={action}
+                title={action === 'query' ? 'Query' : 'Transact'}
+                width='100%'
+                name='flureeQL-editor'
+                value={action === 'query' ? queryParam : txParam}
+                onChange={(value) => {
+                  if (action === 'query') setQueryParam(value)
+                  else setTxParam(value)
+                }}
+                mode={jsonMode}
+              />
+            </Grid>
+            <Grid item xs={12} lg={6}>
+              <Editor
+                title='Results'
+                readOnly
+                width='100%'
+                name='flureeQL-results'
+                value={results}
+                stats={stats}
+                action='results'
+                mode={jsonMode}
+              />
+            </Grid>
           </Grid>
         </Grid>
         {/* </SplitPane> */}
