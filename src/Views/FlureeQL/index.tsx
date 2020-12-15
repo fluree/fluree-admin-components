@@ -242,6 +242,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
       const results = await flureeFetch(opts)
       console.log({ results })
       if (results.status < 400) {
+        setFlakes(null)
         if (history.length && history.length > 0) {
           const latest = stringify({
             action,
@@ -347,7 +348,11 @@ export const FlureeQL: FunctionComponent<Props> = ({
           )}
         </div>
         <div>
-          <IconButton color='primary' onClick={() => setVisOpen(true)}>
+          <IconButton
+            color='primary'
+            onClick={() => setVisOpen(true)}
+            disabled={!flakes}
+          >
             <AcUnitIcon />
           </IconButton>
           {allowTransact && !signOpen && (
