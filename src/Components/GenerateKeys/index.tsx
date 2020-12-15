@@ -22,10 +22,10 @@ import CloseIcon from '@material-ui/icons/Close'
 import { Editor } from '../Editor'
 import { BasicDialog } from '../General/BasicDialog'
 import { generateKeyPair, getSinFromPublicKey } from '@fluree/crypto-utils'
-import { convertArrayOfObjectsToCSV } from '../utils/convertToCsv'
+import { convertArrayOfObjectsToCSV } from '../../utils/convertToCsv'
 import { VpnKey } from '@material-ui/icons'
 import JSON5 from 'json5'
-import { flureeFetch } from '../utils/flureeFetch'
+import { flureeFetch } from '../../utils/flureeFetch'
 
 const useStyles = makeStyles((theme) => ({
   root: { overFlowY: 'scroll' },
@@ -68,7 +68,9 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.grey[100]
   },
   fullWidthButton: {
-    width: '100%'
+    maxWidth: 'auto',
+    width: '95%',
+    marginLeft: '2.5%'
   }
 }))
 
@@ -248,6 +250,7 @@ export const GenerateKeys: FunctionComponent<Props> = ({
           value={edValue}
           onChange={(value) => setEdValue(value)}
           width='100%'
+          size='small'
         />
         <Button
           variant='contained'
@@ -264,6 +267,7 @@ export const GenerateKeys: FunctionComponent<Props> = ({
           readOnly
           width='100%'
           value={resEdValue}
+          size='small'
         />
       </DialogContent>
       <BasicDialog

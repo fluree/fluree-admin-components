@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { FlureeQL } from 'fluree-admin-components'
+import { FlureeQL } from '@fluree/admin-react'
 
 const App = () => {
   const environment = process.env.REACT_APP_ENVIRONMENT || 'downloaded'

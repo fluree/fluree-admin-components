@@ -13,14 +13,14 @@ import {
 } from '@material-ui/core'
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined' // import SplitPane from 'react-split-pane'
-import { Editor } from '../Editor'
-import { History } from '../History'
-import { SignQuery } from './SignQuery'
-import { GenerateKeys } from '../GenerateKeys'
-import { BasicDialog } from '../General/BasicDialog'
+import { Editor } from '../../Components/Editor'
+import { History } from '../../Components/History'
+import { SignQuery } from '../../Components/General/SignQuery'
+import { GenerateKeys } from '../../Components/GenerateKeys'
+import { BasicDialog } from '../../Components/General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
-import { flureeFetch } from '../utils/flureeFetch'
-import { useLocalHistory } from '../utils/hooks'
+import { flureeFetch } from '../../utils/flureeFetch'
+import { useLocalHistory } from '../../utils/hooks'
 import JSON5 from 'json5'
 import { signQuery } from '@fluree/crypto-utils'
 // import { format } from 'path'
@@ -135,7 +135,7 @@ const FlureeQL: FunctionComponent<Props> = ({
   const [error, setError] = useState('')
   const [signOpen, setSignOpen] = useState(false)
   const [privateKey, setPrivateKey] = useState(_db.defaultPrivateKey || '')
-  const [genOpen, setGenOpen] = useState(false)
+  const [genOpen, setGenOpen] = useState(true)
   const [host, setHost] = useState(_db.ip)
 
   const parse = jsonMode === 'json' ? JSON.parse : JSON5.parse
