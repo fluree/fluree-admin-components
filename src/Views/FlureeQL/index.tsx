@@ -141,7 +141,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
       ? `${_db.db}_history`
       : `${_db.db['db/id']}_history`
   )
-  const [historyOpen, setHistoryOpen] = useState(true)
+  const [historyOpen, setHistoryOpen] = useState(false)
   const [errorOpen, setErrorOpen] = useState(false)
   const [error, setError] = useState('')
   const [signOpen, setSignOpen] = useState(false)
