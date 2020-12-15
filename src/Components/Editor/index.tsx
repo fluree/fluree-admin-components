@@ -24,6 +24,15 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 10,
     minHeight: 50
   },
+  headerBarSmall: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+    minHeight: 35
+  },
+  title: {},
+  prettyButton: {},
+  optionBarSmall: {},
   optionBar: {
     display: 'flex',
     alignItems: 'flex-end',
@@ -42,6 +51,7 @@ interface EditorProps {
   action?: string
   stats?: object
   height?: string
+  size?: 'small' | 'medium'
   onChange?: (value: string) => void
 }
 
@@ -56,6 +66,7 @@ export const Editor: FunctionComponent<EditorProps> = ({
   height,
   action,
   stats,
+  size = 'medium',
   onChange
 }) => {
   const classes = useStyles()
@@ -102,15 +113,25 @@ export const Editor: FunctionComponent<EditorProps> = ({
 
   return (
     <Box width={width} p={2} boxSizing='border-box'>
-      <div className={classes.headerBar}>
-        <Typography variant='h4'>{title}</Typography>
-        <div className={classes.optionBar}>
+      <div
+        className={
+          size === 'medium' ? classes.headerBar : classes.headerBarSmall
+        }
+      >
+        <Typography variant={size === 'medium' ? 'h4' : 'h6'}>
+          {title}
+        </Typography>
+        <div
+          className={
+            size === 'medium' ? classes.optionBar : classes.optionBarSmall
+          }
+        >
           {!readOnly && (mode === 'json' || mode === 'json5') && (
             <Button
               color='primary'
               variant='contained'
               onClick={formatHandler}
-              size='small'
+              size={size}
             >
               Beautify
             </Button>

@@ -1,14 +1,9 @@
 // eslint-disable-next-line no-unused-vars
 import React, { FunctionComponent, useState, useEffect } from 'react'
-import { List, ListItem, ListItemText, Typography } from '@material-ui/core'
+import { List, ListItem, ListItemText } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 
-const useStyles = makeStyles((theme) => ({
-  header: {
-    marginLeft: theme.spacing(2),
-    marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1)
-  },
+const useStyles = makeStyles(() => ({
   itemClickable: {
     cursor: 'pointer'
   },
@@ -53,9 +48,6 @@ export const History: FunctionComponent<HistoryProps> = ({
 
   return (
     <div>
-      <Typography variant='h4' className={classes.header}>
-        History
-      </Typography>
       <List disablePadding>
         {history &&
           history.map((item: HistoryObject, i: number) => (

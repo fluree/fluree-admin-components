@@ -9,18 +9,20 @@ import {
   // InputLabel,
   MenuItem,
   Paper,
-  Select
+  Select,
+  Typography
 } from '@material-ui/core'
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined' // import SplitPane from 'react-split-pane'
-import { Editor } from '../Editor'
-import { History } from '../History'
-import { SignQuery } from './SignQuery'
-import { GenerateKeys } from '../GenerateKeys'
-import { BasicDialog } from '../General/BasicDialog'
+import { Editor } from '../../Components/Editor'
+import { History } from '../../Components/History'
+import { SignQuery } from '../../Components/General/SignQuery'
+import { GenKeysDialog } from './Dialogs/GenKeysDialog'
+import { GenerateKeys } from '../../Components/GenerateKeys'
+import { BasicDialog } from '../../Components/General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
-import { flureeFetch } from '../utils/flureeFetch'
-import { useLocalHistory } from '../utils/hooks'
+import { flureeFetch } from '../../utils/flureeFetch'
+import { useLocalHistory } from '../../utils/hooks'
 import JSON5 from 'json5'
 import { signQuery } from '@fluree/crypto-utils'
 // import { format } from 'path'
@@ -59,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     marginLeft: '1%',
     alignItems: 'stretch',
-    maxHeight: 600,
+    // maxHeight: 600,
     height: '100%'
   },
   split: {
@@ -75,8 +77,13 @@ const useStyles = makeStyles((theme) => ({
     height: 'inherit',
     position: 'static'
   },
+  historyHeader: {
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(2)
+  },
   history: {
-    maxHeight: 560,
+    maxHeight: 500,
+    height: '100%',
     overflowX: 'scroll',
     [theme.breakpoints.down('sm')]: {
       maxHeight: 200
@@ -90,6 +97,8 @@ interface Props {
   withHistory?: boolean
   jsonMode?: 'json' | 'json5'
   token?: string
+  allowKeyGen?: boolean
+  allowSign?: boolean
 }
 
 const queryTypes: Dictionary = {
@@ -105,12 +114,14 @@ const queryTypes: Dictionary = {
   History: ['history', '{\n  "history": []\n}']
 }
 
-const FlureeQL: FunctionComponent<Props> = ({
+export const FlureeQL: FunctionComponent<Props> = ({
   _db,
   allowTransact,
   withHistory = false,
   jsonMode = 'json',
-  token = undefined
+  token = undefined,
+  allowKeyGen = false,
+  allowSign = false
 }) => {
   const classes = useStyles()
 
@@ -282,15 +293,16 @@ const FlureeQL: FunctionComponent<Props> = ({
     <div className={classes.root}>
       <div className={classes.toolbar}>
         <div className={classes.queryActions}>
-          <Button
-            color='primary'
-            variant='outlined'
-            onClick={() => setGenOpen(true)}
-          >
-            Generate Keys
-          </Button>
-          {(_db.environment !== 'hosted' ||
-            process.env.REACT_APP_ENVIRONMENT !== 'hosted') && (
+          {allowKeyGen && (
+            <Button
+              color='primary'
+              variant={genOpen ? 'contained' : 'outlined'}
+              onClick={() => setGenOpen(true)}
+            >
+              Generate Keys
+            </Button>
+          )}
+          {allowSign && (
             <Button
               color='primary'
               variant={signOpen ? 'contained' : 'outlined'}
@@ -362,7 +374,7 @@ const FlureeQL: FunctionComponent<Props> = ({
           </IconButton>
         </div>
       </div>
-      <Grid container spacing={2} className={classes.grid}>
+      <Grid container className={classes.grid}>
         <Grid item xs={12}>
           {signOpen && (
             <SignQuery
@@ -375,6 +387,9 @@ const FlureeQL: FunctionComponent<Props> = ({
         </Grid>
         {historyOpen && (
           <Grid item xs={12} md={2}>
+            <Typography variant='h4' className={classes.historyHeader}>
+              History
+            </Typography>
             <Paper className={classes.history}>
               <History history={history} loadHistoryItem={setHistoryHandler} />
             </Paper>
@@ -392,32 +407,34 @@ const FlureeQL: FunctionComponent<Props> = ({
             }}
             style={{ width: 'inherit' }}
           > */}
-        <Grid container xs={12} md={historyOpen ? 10 : 12}>
-          <Grid item xs={12} lg={6}>
-            <Editor
-              action={action}
-              title={action === 'query' ? 'Query' : 'Transact'}
-              width='100%'
-              name='flureeQL-editor'
-              value={action === 'query' ? queryParam : txParam}
-              onChange={(value) => {
-                if (action === 'query') setQueryParam(value)
-                else setTxParam(value)
-              }}
-              mode={jsonMode}
-            />
-          </Grid>
-          <Grid item xs={12} lg={6}>
-            <Editor
-              title='Results'
-              readOnly
-              width='100%'
-              name='flureeQL-results'
-              value={results}
-              stats={stats}
-              action='results'
-              mode={jsonMode}
-            />
+        <Grid item xs={12} md={historyOpen ? 10 : 12}>
+          <Grid container>
+            <Grid item xs={12} lg={6}>
+              <Editor
+                action={action}
+                title={action === 'query' ? 'Query' : 'Transact'}
+                width='100%'
+                name='flureeQL-editor'
+                value={action === 'query' ? queryParam : txParam}
+                onChange={(value) => {
+                  if (action === 'query') setQueryParam(value)
+                  else setTxParam(value)
+                }}
+                mode={jsonMode}
+              />
+            </Grid>
+            <Grid item xs={12} lg={6}>
+              <Editor
+                title='Results'
+                readOnly
+                width='100%'
+                name='flureeQL-results'
+                value={results}
+                stats={stats}
+                action='results'
+                mode={jsonMode}
+              />
+            </Grid>
           </Grid>
         </Grid>
         {/* </SplitPane> */}
@@ -430,14 +447,9 @@ const FlureeQL: FunctionComponent<Props> = ({
           setError('')
         }}
       />
-      <GenerateKeys
-        open={genOpen}
-        onClose={() => setGenOpen(false)}
-        _db={_db}
-        token={token}
-      />
+      <GenKeysDialog open={genOpen} onClose={() => setGenOpen(false)}>
+        <GenerateKeys _db={_db} token={token} />{' '}
+      </GenKeysDialog>
     </div>
   )
 }
-
-export default FlureeQL

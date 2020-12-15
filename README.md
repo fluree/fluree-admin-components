@@ -39,12 +39,15 @@ Contains everything you need to get started querying and transacting against you
 
 #### Props
 
-| Prop          | Required ? | Type            | Default | Description                                                  |
-| ------------- | ---------- | --------------- | ------- | ------------------------------------------------------------ |
-| \_db          | ✅         | object          |         | Object containing Fluree ledger data (detailed below)        |
-| allowTransact |            | boolean         | false   | If set to `true`, user can make transactions to ledger       |
-| withHistory   |            | boolean         | false   | If set to `true`, History component is available             |
-| jsonMode      |            | 'json', 'json5' | 'json'  | Determines Editor syntax features (linting / beautification) |
+| Prop          | Required ? | Type            | Default   | Description                                                  |
+| ------------- | ---------- | --------------- | --------- | ------------------------------------------------------------ |
+| \_db          | ✅         | object          |           | Object containing Fluree ledger data (detailed below)        |
+| allowTransact |            | boolean         | false     | If set to `true`, user can make transactions to ledger       |
+| withHistory   |            | boolean         | false     | If set to `true`, History component is available             |
+| jsonMode      |            | 'json', 'json5' | 'json'    | Determines Editor syntax features (linting / beautification) |
+| token         |            | string (JWT)    | undefined | A JWT token to pass into HTTP requests                       |
+| allowKeyGen   |            | boolean         | false     | Allow access to Public/Private Key Generation functionality  |
+| allowSign     |            | boolean         | false     | Allow for signing queries with private key                   |
 
 ##### `_db` Object
 
@@ -53,7 +56,6 @@ Contains everything you need to get started querying and transacting against you
 | db  | ledger name                  | string |
 | ip  | base url for Fluree instance | string |
 
-Coming soon: Key generation, signed queries / transactions
 
 ## License
 
