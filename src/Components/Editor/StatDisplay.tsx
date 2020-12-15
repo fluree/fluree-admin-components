@@ -4,8 +4,11 @@ import { Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(() => ({
-  root: { display: 'flex', '& > p:not(:last-child)': { marginRight: 10 } },
-  stat: { fontFamily: 'Cooper Hewitt' },
+  root: {
+    display: 'flex',
+    '& > p:not(:last-child)': { marginRight: 10 }
+  },
+  stat: {},
   label: { fontWeight: 800 }
 }))
 
@@ -22,7 +25,7 @@ export const StatText: FunctionComponent<StatTextProps> = (props) => {
   const classes = useStyles()
   const { label, value } = props
   return (
-    <Typography className={classes.stat} component='p' variant='h5'>
+    <Typography className={classes.stat} component='p' variant='body1'>
       <span className={classes.label}>{`${label}: `}</span>
       {value}
     </Typography>

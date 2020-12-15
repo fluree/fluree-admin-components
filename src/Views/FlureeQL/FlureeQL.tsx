@@ -9,7 +9,8 @@ import {
   // InputLabel,
   MenuItem,
   Paper,
-  Select
+  Select,
+  Typography
 } from '@material-ui/core'
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined' // import SplitPane from 'react-split-pane'
@@ -75,6 +76,10 @@ const useStyles = makeStyles((theme) => ({
     height: 'inherit',
     position: 'static'
   },
+  historyHeader: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2)
+  },
   history: {
     maxHeight: 560,
     overflowX: 'scroll',
@@ -130,12 +135,12 @@ const FlureeQL: FunctionComponent<Props> = ({
       ? `${_db.db}_history`
       : `${_db.db['db/id']}_history`
   )
-  const [historyOpen, setHistoryOpen] = useState(false)
+  const [historyOpen, setHistoryOpen] = useState(true)
   const [errorOpen, setErrorOpen] = useState(false)
   const [error, setError] = useState('')
   const [signOpen, setSignOpen] = useState(false)
   const [privateKey, setPrivateKey] = useState(_db.defaultPrivateKey || '')
-  const [genOpen, setGenOpen] = useState(true)
+  const [genOpen, setGenOpen] = useState(false)
   const [host, setHost] = useState(_db.ip)
 
   const parse = jsonMode === 'json' ? JSON.parse : JSON5.parse
@@ -375,6 +380,9 @@ const FlureeQL: FunctionComponent<Props> = ({
         </Grid>
         {historyOpen && (
           <Grid item xs={12} md={2}>
+            <Typography variant='h4' className={classes.historyHeader}>
+              History
+            </Typography>
             <Paper className={classes.history}>
               <History history={history} loadHistoryItem={setHistoryHandler} />
             </Paper>
