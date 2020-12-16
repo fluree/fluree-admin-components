@@ -28,6 +28,7 @@ export const GraphView: FunctionComponent<GraphProps> = ({
   const [meta, setMeta] = useState<object | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [selectedNode, setSelectedNode] = useState<object | null>(null)
+  const [flakeVis, setFlakeVis] = useState<object | null>(null)
   const [popperOpen, setPopperOpen] = useState(false)
 
   const getData = async () => {
@@ -69,16 +70,29 @@ export const GraphView: FunctionComponent<GraphProps> = ({
     setPopperOpen(false)
   }
 
+  function handleHoverLink(source: string, target: string) {
+    console.log([source, target])
+  }
+
   useEffect(() => {
     if (selectedId) {
       if (shapedFlakes && selectedId.includes('flake')) {
         const flakeIndex = selectedId.slice(5)
         const node: FlakeShape = shapedFlakes[flakeIndex]
+        if (meta) {
+          const visualizeNode = {
+            s: meta[node.s] ? JSON.stringify(meta[node.s], null, 2) : node.s,
+            p: meta[node.p] ? JSON.stringify(meta[node.p], null, 2) : node.p,
+            o: meta[node.o] ? JSON.stringify(meta[node.o], null, 2) : node.o,
+            t: node.t,
+            op: node.op,
+            m: node.m
+          }
+          setFlakeVis(visualizeNode)
+        }
         setSelectedNode(node)
       } else if (meta && meta[selectedId.toString()]) {
         const node = meta[selectedId.toString()]
-        // eslint-disable-next-line no-debugger
-        debugger
         setSelectedNode(node)
       }
       setPopperOpen(true)
@@ -94,11 +108,16 @@ export const GraphView: FunctionComponent<GraphProps> = ({
           config={{ height: 900, width: 1200 }}
           onClickNode={handleNodeClick}
           onClickGraph={handleClickAway}
+          onMouseOverLink={handleHoverLink}
         />
       )}
       <Popper open={popperOpen}>
         {selectedNode && selectedId && (
-          <NodeCard nodeId={selectedId} node={selectedNode} />
+          <NodeCard
+            nodeId={selectedId}
+            node={selectedNode}
+            altNode={flakeVis}
+          />
         )}
       </Popper>
     </div>

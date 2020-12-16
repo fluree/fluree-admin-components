@@ -78,7 +78,8 @@ export const createGraph = (
           links.push({
             source: id.toString(),
             target: meta[value.toString()]._id.toString(),
-            label: key
+            label: key,
+            highlightColor: theme.palette.success.main
           })
         }
       }
