@@ -5,6 +5,7 @@ import React, {
   useEffect
 } from 'react'
 import { flureeFetch } from '../../utils/flureeFetch'
+import { useTheme } from '@material-ui/core/styles'
 import { Graph } from 'react-d3-graph'
 
 interface GraphProps {
@@ -18,6 +19,7 @@ export const GraphView: FunctionComponent<GraphProps> = ({
   _db,
   token
 }) => {
+  const theme = useTheme()
   // const [data, setData] = useState({})
   const [meta, setMeta] = useState<any | null>(null)
   const [metaObj, setMetaObj] = useState<Dictionary>({})
@@ -102,10 +104,14 @@ export const GraphView: FunctionComponent<GraphProps> = ({
       const data = {
         nodes: [
           ...flakeNodes.map((f: any) => ({
+            ...f,
             id: typeof f.id === 'string' ? f.id : f.id.toString(),
-            color: '#13C6FF'
+            color: theme.palette.primary.main,
+            size: 300,
+            symbolType: 'cross'
           })),
           ...meta.map((m: any) => ({
+            ...m,
             id: typeof m.id === 'string' ? m.id : m.id.toString()
           }))
         ],
@@ -132,10 +138,19 @@ export const GraphView: FunctionComponent<GraphProps> = ({
   // links: [{ source: 'harry', target: 'sally' }]
   // }
 
+  const onClickNode = function (nodeId: string) {
+    window.alert(`Clicked node ${nodeId}`)
+  }
+
   return (
     <div style={{ maxWidth: 'inherit', width: '100%' }}>
       {meta && flakeNodes && graphData && (
-        <Graph id='flake-viz' data={graphData} config={{}} />
+        <Graph
+          id='flake-viz'
+          data={graphData}
+          config={{}}
+          onClickNode={onClickNode}
+        />
       )}
     </div>
   )
