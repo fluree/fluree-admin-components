@@ -102,7 +102,8 @@ export const GraphView: FunctionComponent<GraphProps> = ({
       const data = {
         nodes: [
           ...flakeNodes.map((f: any) => ({
-            id: typeof f.id === 'string' ? f.id : f.id.toString()
+            id: typeof f.id === 'string' ? f.id : f.id.toString(),
+            color: '#13C6FF'
           })),
           ...meta.map((m: any) => ({
             id: typeof m.id === 'string' ? m.id : m.id.toString()
@@ -130,8 +131,9 @@ export const GraphView: FunctionComponent<GraphProps> = ({
   //   nodes: [...flakes, ...metadata]
   // links: [{ source: 'harry', target: 'sally' }]
   // }
+
   return (
-    <div>
+    <div style={{ maxWidth: 'inherit', width: '100%' }}>
       {meta && flakeNodes && graphData && (
         <Graph id='flake-viz' data={graphData} config={{}} />
       )}

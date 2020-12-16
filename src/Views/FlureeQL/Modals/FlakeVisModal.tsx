@@ -1,27 +1,25 @@
 // eslint-disable-next-line no-unused-vars
 import React, { FunctionComponent } from 'react'
-import { Modal, Typography } from '@material-ui/core'
+import { Modal, Typography, makeStyles } from '@material-ui/core'
 import { GraphView } from '../../FlakeVis'
 
-interface BodyProps {
+interface Props {
   flakes: Array<any> | null
   _db: DB
-}
-interface Props extends BodyProps {
   open: boolean
   onClose: () => void
 }
 
-const Body: FunctionComponent<BodyProps> = ({ flakes, _db }) => {
-  return (
-    <div>
-      <Typography variant='h2' id='flake-view-title'>
-        Flake View
-      </Typography>
-      <GraphView flakes={flakes} _db={_db} />
-    </div>
-  )
-}
+const useStyles = makeStyles((theme) => ({
+  root: {
+    maxWidth: 1200,
+    width: '100%',
+    margin: '0 auto',
+    background: 'white',
+    marginTop: theme.spacing(8)
+  },
+  header: { textAlign: 'center' }
+}))
 
 export const FlakeVisModal: FunctionComponent<Props> = ({
   open,
@@ -29,9 +27,19 @@ export const FlakeVisModal: FunctionComponent<Props> = ({
   flakes,
   _db
 }) => {
+  const classes = useStyles()
+  const body = (
+    <div className={classes.root}>
+      <Typography variant='h2' id='flake-view-title' className={classes.header}>
+        Flake View
+      </Typography>
+      <GraphView flakes={flakes} _db={_db} />
+    </div>
+  )
+
   return (
     <Modal aria-labelledby='flake-view-title' open={open} onClose={onClose}>
-      <Body flakes={flakes} _db={_db} />
+      {body}
     </Modal>
   )
 }

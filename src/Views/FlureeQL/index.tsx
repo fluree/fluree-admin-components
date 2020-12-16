@@ -149,7 +149,44 @@ export const FlureeQL: FunctionComponent<Props> = ({
   const [genOpen, setGenOpen] = useState(false)
   const [host, setHost] = useState(_db.ip)
   const [visOpen, setVisOpen] = useState(false)
-  const [flakes, setFlakes] = useState<Array<any> | null>(null)
+  const [flakes, setFlakes] = useState<Array<any> | null>([
+    [87960930223089, 50, 'vvvv', -39, true, null],
+    [
+      -39,
+      99,
+      '12aa480d22625afeee419550a7f8c9d9e3b5767bae265ca9409c2438c287456d',
+      -39,
+      true,
+      null
+    ],
+    [
+      -39,
+      100,
+      'c32d48220d2f6adcdd2b2c20a36738626428fb3fc325360a3ac525eacea99491',
+      -39,
+      true,
+      null
+    ],
+    [-39, 101, 105553116266496, -39, true, null],
+    [-39, 103, 1608068036088, -39, true, null],
+    [
+      -39,
+      106,
+      '{"type":"tx","db":"example/mdm","tx":[{"_id":"_user","username":"vvvv"}],"nonce":1608068036088,"auth":"TfKXH47U4W6UgnxeoPSXsrfEuAt5Lm97DGx","expire":1608068066090}',
+      -39,
+      true,
+      null
+    ],
+    [
+      -39,
+      107,
+      '1c30440220394ddc76ba35240763cfc46746f1d3deaef673e183b8d6043dd3ae6a8ad2911c02206ff7202615bb3fc6e86c53e2e934fcf77c8719a469ed2cdd9caa7d189cdded9c',
+      -39,
+      true,
+      null
+    ],
+    [-39, 108, '{"_user$1":87960930223089}', -39, true, null]
+  ])
 
   const parse = jsonMode === 'json' ? JSON.parse : JSON5.parse
   const stringify = jsonMode === 'json' ? JSON.stringify : JSON5.stringify
