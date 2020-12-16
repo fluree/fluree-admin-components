@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import React, { FunctionComponent } from 'react'
 import { Modal, Typography, makeStyles } from '@material-ui/core'
-import { GraphView } from '../../FlakeVis'
+import { GraphView } from '../../../Components/GraphView'
 
 interface Props {
   flakes: Array<any> | null
