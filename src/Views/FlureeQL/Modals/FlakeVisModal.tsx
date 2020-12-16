@@ -14,9 +14,12 @@ const useStyles = makeStyles((theme) => ({
   root: {
     maxWidth: 1200,
     width: '100%',
-    margin: '0 auto',
     background: 'white',
-    marginTop: theme.spacing(8)
+    margin: '0 auto',
+    marginTop: theme.spacing(8),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center'
   },
   header: { textAlign: 'center' }
 }))
