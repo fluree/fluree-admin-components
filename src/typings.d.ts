@@ -39,3 +39,14 @@ interface DB {
 }
 
 type Dictionary = { [index: string]: Array<string> | object }
+
+type Flake = [number, number, number | string, number, boolean, null]
+
+interface FlakeShape {
+  s: number
+  p: number
+  o: number | string
+  t: number
+  op: boolean
+  m: null
+}
