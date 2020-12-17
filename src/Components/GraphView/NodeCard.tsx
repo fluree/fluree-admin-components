@@ -43,7 +43,7 @@ export const NodeCard: FunctionComponent<Props> = ({
                   <TableRow key={key}>
                     <TableCell>{key}</TableCell>
                     <TableCell>
-                      {typeof value === 'object'
+                      {typeof value === 'object' || typeof value === 'boolean'
                         ? JSON.stringify(value)
                         : value}
                     </TableCell>

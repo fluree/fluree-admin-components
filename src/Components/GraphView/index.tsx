@@ -10,17 +10,20 @@ import { Popper } from '@material-ui/core'
 import { NodeCard } from './NodeCard'
 import { Graph } from 'react-d3-graph'
 import { parseDrift, createGraph } from '../../utils/helpers'
-
 interface GraphProps {
   flakes: Array<Flake> | null
   _db: DB
   token?: string
+  height?: number
+  width?: number
 }
 
 export const GraphView: FunctionComponent<GraphProps> = ({
   flakes,
   _db,
-  token
+  token,
+  height = 400,
+  width = 800
 }) => {
   const theme = useTheme()
   const [graphData, setGraphData] = useState<any>(null)
@@ -75,6 +78,7 @@ export const GraphView: FunctionComponent<GraphProps> = ({
   }
 
   useEffect(() => {
+    setFlakeVis(null)
     if (selectedId) {
       if (shapedFlakes && selectedId.includes('flake')) {
         const flakeIndex = selectedId.slice(5)
@@ -99,16 +103,100 @@ export const GraphView: FunctionComponent<GraphProps> = ({
     }
   }, [selectedId])
 
+  // const d3Config = {
+  //   nodeHighlightBehavior: true,
+  //   linkHighlightBehavior: true,
+  //   staticGraph: false,
+  //   link: {
+  //     highlightColor: theme.palette.secondary.main
+  //     // type: 'CURVE_SMOOTH',
+  //     // renderLabel: true
+  //   },
+  //   height: height,
+  //   width: width,
+  //   d3: {
+  //     alphaTarget: 0.05,
+  //     gravity: -200,
+  //     linkLength: 100,
+  //     linkStrength: 1,
+  //     disableLinkForce: false
+  //   },
+  //   node: {
+  //     // viewGenerator: NodeView
+  //   }
+  // }
+
   return (
     <div style={{ maxWidth: 'inherit', width: '100%', margin: '0 auto' }}>
       {graphData && (
         <Graph
           id='flake-viz'
           data={graphData}
-          config={{ height: 900, width: 1200 }}
           onClickNode={handleNodeClick}
           onClickGraph={handleClickAway}
           onMouseOverLink={handleHoverLink}
+          config={{
+            automaticRearrangeAfterDropNode: false,
+            collapsible: false,
+            directed: false,
+            focusAnimationDuration: 0.75,
+            focusZoom: 1,
+            height: height,
+            highlightDegree: 1,
+            highlightOpacity: 1,
+            linkHighlightBehavior: false,
+            maxZoom: 8,
+            minZoom: 0.1,
+            nodeHighlightBehavior: false,
+            panAndZoom: false,
+            staticGraph: false,
+            staticGraphWithDragAndDrop: false,
+            width: width,
+            d3: {
+              alphaTarget: 0.05,
+              gravity: -100,
+              linkLength: 100,
+              linkStrength: 1,
+              disableLinkForce: false
+            },
+            node: {
+              color: '#d3d3d3',
+              fontColor: 'black',
+              fontSize: 8,
+              fontWeight: 'normal',
+              highlightColor: 'SAME',
+              highlightFontSize: 8,
+              highlightFontWeight: 'normal',
+              highlightStrokeColor: 'SAME',
+              highlightStrokeWidth: 'SAME',
+              labelProperty: 'id',
+              mouseCursor: 'pointer',
+              opacity: 1,
+              renderLabel: true,
+              size: 200,
+              strokeColor: 'none',
+              strokeWidth: 1.5,
+              svg: '',
+              symbolType: 'circle'
+            },
+            link: {
+              color: '#d3d3d3',
+              fontColor: 'black',
+              fontSize: 8,
+              fontWeight: 'normal',
+              highlightColor: 'SAME',
+              highlightFontSize: 8,
+              highlightFontWeight: 'normal',
+              labelProperty: 'color',
+              mouseCursor: 'pointer',
+              opacity: 1,
+              renderLabel: false,
+              semanticStrokeWidth: false,
+              strokeWidth: 1.5,
+              markerHeight: 6,
+              markerWidth: 6
+            }
+          }}
         />
       )}
       <Popper open={popperOpen}>

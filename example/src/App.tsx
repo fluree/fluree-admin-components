@@ -3,6 +3,7 @@ import { Switch, Route } from 'react-router-dom'
 import { ThemeProvider, createMuiTheme } from '@material-ui/core'
 
 import { FlureeQL, GraphView } from '@fluree/admin-react'
+// import { Graph } from 'react-d3-graph'
 
 const App = () => {
   const theme = createMuiTheme({
@@ -36,13 +37,15 @@ const App = () => {
         </Route>
         <Route path='/flake' exact>
           <GraphView
+            height={900}
+            width={1200}
             flakes={[
               [
                 105553116267497,
                 60,
                 'Tf78E3Duidr4nDf9tdQUA8AJ5mAoR5S7CpJ',
                 -13,
-                true,
+                false,
                 null
               ],
               [105553116267497, 65, 123145302310912, -13, true, null],
@@ -212,6 +215,9 @@ const App = () => {
             }}
           />
         </Route>
+        {/* <Route path='/test' exact>
+          <Graph id='testing' data={{ nodes: [{ id: '1', color: 'red' }], links: [] }} />
+        </Route> */}
       </Switch>
     </ThemeProvider>
   )

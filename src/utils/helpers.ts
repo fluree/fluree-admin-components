@@ -1,4 +1,7 @@
+// eslint-disable-next-line no-unused-vars
+import { GraphNode } from 'react-d3-graph'
 import { flureeFetch } from './flureeFetch'
+// import FlakeLogo from '../assets/fluree-logo.svg'
 
 export function parseFlake(flake: Flake) {
   const shapedFlake: FlakeShape = {
@@ -16,6 +19,7 @@ export function generateIdQuery(id: number) {
   return {
     selectOne: ['*'],
     from: id
+    // opts: { compact: true }
   }
 }
 
@@ -42,6 +46,23 @@ export async function parseDrift(flakes: Array<Flake> | null, fetchOpts: any) {
   return { shapedDrift: [], metaResults: {} }
 }
 
+export function createFlakeNodes(
+  flake: FlakeShape,
+  color: string,
+  i: number | string
+) {
+  const flakeNode: GraphNode = {
+    id: `flake${i}`,
+    // svg: '../assets/fluree-logo.svg',
+    color,
+    opacity: flake.op ? 1 : 0.5,
+    symbolType: 'triangle'
+    // svg: FlakeLogo,
+    // fill: color
+  }
+  return flakeNode
+}
+
 export const createGraph = (
   shapedDrift: Array<FlakeShape>,
   meta: object,
@@ -54,11 +75,13 @@ export const createGraph = (
   for (const flake in shapedDrift) {
     const id = `flake${flake}`
     nodeMemo.push(id)
-    nodes.push({
-      id,
-      color: theme.palette.primary.main,
-      label: shapedDrift[flake].o
-    })
+    nodes.push(
+      createFlakeNodes(
+        shapedDrift[flake],
+        `${theme.palette.primary.main}`,
+        flake
+      )
+    )
     for (const [key, value] of Object.entries(shapedDrift[flake])) {
       if (value && !!meta[value.toString()]) {
         if (!nodeMemo.includes(value.toString())) {
@@ -78,8 +101,7 @@ export const createGraph = (
           links.push({
             source: id.toString(),
             target: meta[value.toString()]._id.toString(),
-            label: key,
-            highlightColor: theme.palette.success.main
+            label: key
           })
         }
       }
