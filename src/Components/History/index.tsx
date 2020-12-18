@@ -68,9 +68,9 @@ export const History: FunctionComponent<HistoryProps> = ({
               <ListItemText
                 className={classes.item}
                 primary={
-                  item.type
-                    ? `${item.action}: ${item.type}`.toUpperCase()
-                    : `${item.action}`.toUpperCase()
+                  item.action === 'transact'
+                    ? `${item.action}`.toUpperCase()
+                    : `${item.action}: ${item.type}`.toUpperCase()
                 }
                 secondary={JSON.stringify(item.param)}
               />
