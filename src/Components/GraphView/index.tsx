@@ -29,7 +29,7 @@ export const GraphView: FunctionComponent<GraphProps> = ({
   const [graphData, setGraphData] = useState<any>(null)
   const [shapedFlakes, setFlakes] = useState<Array<FlakeShape> | null>(null)
   const [meta, setMeta] = useState<object | null>(null)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedId] = useState<string | null>(null)
   const [selectedNode, setSelectedNode] = useState<object | null>(null)
   const [flakeVis, setFlakeVis] = useState<object | null>(null)
   const [popperOpen, setPopperOpen] = useState(false)
@@ -66,15 +66,16 @@ export const GraphView: FunctionComponent<GraphProps> = ({
 
   function handleNodeClick(event: any) {
     console.log(event)
-    setSelectedId(event)
+    // setSelectedId(event)
   }
 
-  function handleClickAway() {
-    setPopperOpen(false)
+  function onClickGraph(event: any) {
+    console.log(event)
+    return event
   }
 
-  function handleHoverLink(source: string, target: string) {
-    console.log([source, target])
+  function onNodePositionChange(nodeId: string, x: number, y: number) {
+    console.log({ nodeId, x, y })
   }
 
   useEffect(() => {
@@ -133,8 +134,9 @@ export const GraphView: FunctionComponent<GraphProps> = ({
           id='flake-viz'
           data={graphData}
           onClickNode={handleNodeClick}
-          onClickGraph={handleClickAway}
-          onMouseOverLink={handleHoverLink}
+          onClickGraph={onClickGraph}
+          // onMouseOverLink={handleHoverLink}
+          onNodePositionChange={onNodePositionChange}
           config={{
             automaticRearrangeAfterDropNode: false,
             collapsible: false,
@@ -154,9 +156,9 @@ export const GraphView: FunctionComponent<GraphProps> = ({
             width: width,
             d3: {
               alphaTarget: 0.05,
-              gravity: -100,
+              gravity: -350,
               linkLength: 100,
-              linkStrength: 1,
+              linkStrength: 2,
               disableLinkForce: false
             },
             node: {

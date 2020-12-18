@@ -50,6 +50,7 @@
     "@typescript-eslint/parser": "^2.26.0",
     "ace-builds": "^1.4.12",
     "babel-eslint": "^10.0.3",
+    "babel-plugin-inline-svg": "^1.2.0",
     "cross-env": "^7.0.2",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.7.0",
@@ -71,6 +72,7 @@
     "react-ace": "^9.2.1",
     "react-dom": "^16.13.1",
     "react-scripts": "^3.4.1",
+    "rollup-plugin-svg": "^2.0.0",
     "typescript": "^3.7.5"
   },
   "files": [

@@ -1,7 +1,6 @@
 // eslint-disable-next-line no-unused-vars
-import { GraphNode } from 'react-d3-graph'
+// import { GraphNode } from 'react-d3-graph'
 import { flureeFetch } from './flureeFetch'
-// import FlakeLogo from '../assets/fluree-logo.svg'
 
 export function parseFlake(flake: Flake) {
   const shapedFlake: FlakeShape = {
@@ -51,13 +50,12 @@ export function createFlakeNodes(
   color: string,
   i: number | string
 ) {
-  const flakeNode: GraphNode = {
+  const flakeNode = {
     id: `flake${i}`,
     // svg: '../assets/fluree-logo.svg',
     color,
     opacity: flake.op ? 1 : 0.5,
     symbolType: 'triangle'
-    // svg: FlakeLogo,
     // fill: color
   }
   return flakeNode
@@ -91,7 +89,10 @@ export const createGraph = (
               id: meta[value.toString()]._id.toString(),
               color: theme.palette.secondary.main
             })
-          } else nodes.push({ id: meta[value.toString()]._id.toString() })
+          } else
+            nodes.push({
+              id: meta[value.toString()]._id.toString()
+            })
         }
         if (!linkMemo[id]) {
           linkMemo[id] = []
@@ -110,6 +111,7 @@ export const createGraph = (
   console.log({ nodeMemo, linkMemo })
   return { links, nodes }
 }
+
 // const flakes: Array<Flake> = [
 //   [105553116267497, 60, 'Tf78E3Duidr4nDf9tdQUA8AJ5mAoR5S7CpJ', -13, true, null],
 //   [105553116267497, 65, 123145302310912, -13, true, null],

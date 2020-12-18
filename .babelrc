@@ -1,0 +1,18 @@
+{
+  "plugins": [
+    [
+      "inline-svg",
+      {
+        "ignorePattern": "icons",
+        "disableNamespaceIds": true,
+        "svgo": {
+          "plugins": [
+            {
+              "removeDimensions": true
+            }
+          ]
+        }
+      }
+    ]
+  ]
+}
