@@ -27,7 +27,7 @@ interface DB {
   account?: string
   db: string | DBOject
   dbs?: Array<string>
-  defaultPrivateKey?: any
+  defaultPrivateKey?: string
   displayError?: string
   environment?: string
   ip: string // url for fluree instance
@@ -42,6 +42,17 @@ type Dictionary = { [index: string]: Array<string> }
 
 type Flake = [number, number, number | string, number, boolean, null]
 
+interface FetchOptions {
+  ip: string
+  body: object
+  auth?: string | undefined
+  network: string
+  db: string
+  endpoint: string
+  headers?: object | undefined
+  noRedirect?: boolean
+}
+
 interface FlakeShape {
   s: number
   p: number
@@ -49,4 +60,12 @@ interface FlakeShape {
   t: number
   op: boolean
   m: null
+}
+
+interface SignedTransactionForm {
+  maxFuel: string
+  nonce: string
+  expire: string
+  privateKey: string
+  auth: number | string
 }

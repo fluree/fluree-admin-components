@@ -9,17 +9,6 @@ interface EndpointParams {
   ip: string
 }
 
-interface FetchOptions {
-  ip: string
-  body: object
-  auth?: string | undefined
-  network: string
-  db: string
-  endpoint: string
-  headers?: object | undefined
-  noRedirect?: boolean
-}
-
 function gateway() {
   const production = process.env.NODE_ENV === 'production'
   const hosted = process.env.REACT_APP_ENVIRONMENT === 'hosted'
@@ -124,4 +113,9 @@ async function flureeFetch(opts: FetchOptions) {
   }
 }
 
-export { flureeFetch, gateway }
+const splitDb = (db: string | object) => {
+  const dbString = typeof db === 'string' ? db : db['db/id']
+  return [dbString, dbString.split('/')]
+}
+
+export { flureeFetch, gateway, splitDb }

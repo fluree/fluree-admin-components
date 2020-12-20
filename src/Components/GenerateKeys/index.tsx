@@ -19,7 +19,7 @@ import { BasicDialog } from '../General/BasicDialog'
 import { generateKeyPair, getSinFromPublicKey } from '@fluree/crypto-utils'
 import { convertArrayOfObjectsToCSV } from '../../utils/convertToCsv'
 import JSON5 from 'json5'
-import { flureeFetch } from '../../utils/flureeFetch'
+import { flureeFetch, splitDb } from '../../utils/flureeFetch'
 
 const useStyles = makeStyles((theme) => ({
   list: {},
@@ -119,8 +119,9 @@ export const GenerateKeys: FunctionComponent<Props> = ({ _db, token }) => {
       return
     }
     const { ip, db } = _db
-    const dbName = typeof db === 'string' ? db : db['db/id']
-    const fullDb = dbName.split('/')
+    const fullDb = splitDb(db)[1]
+    // const dbName = typeof db === 'string' ? db : db['db/id']
+    // const fullDb = dbName.split('/')
     const opts = {
       ip,
       body: parsedParam,

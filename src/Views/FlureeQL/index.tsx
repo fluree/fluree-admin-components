@@ -1,5 +1,11 @@
-// eslint-disable-next-line no-unused-vars
-import React, { useEffect, useState, FunctionComponent } from 'react'
+import React, {
+  useEffect,
+  useState,
+  // eslint-disable-next-line no-unused-vars
+  FunctionComponent,
+  // eslint-disable-next-line no-unused-vars
+  ChangeEvent
+} from 'react'
 import {
   Button,
   ButtonGroup,
@@ -16,12 +22,13 @@ import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined' // import SplitPane from 'react-split-pane'
 import { Editor } from '../../Components/Editor'
 import { History } from '../../Components/History'
-import { SignQuery } from '../../Components/General/SignQuery'
+import { SignQuery } from '../../Components/Forms/SignQuery'
+import { SignTransaction } from '../../Components/Forms/SignTransaction'
 import { GenKeysDialog } from './Dialogs/GenKeysDialog'
 import { GenerateKeys } from '../../Components/GenerateKeys'
 import { BasicDialog } from '../../Components/General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
-import { flureeFetch } from '../../utils/flureeFetch'
+import { flureeFetch, splitDb } from '../../utils/flureeFetch'
 import { useLocalHistory } from '../../utils/hooks'
 import JSON5 from 'json5'
 import { signQuery } from '@fluree/crypto-utils'
@@ -101,7 +108,15 @@ interface Props {
   allowSign?: boolean
 }
 
-const queryTypes: Dictionary = {
+type QueryType = 'Query' | 'Block' | 'Multi-Query' | 'History'
+interface QueryTypes {
+  Query: [string, string]
+  Block: [string, string]
+  'Multi-Query': [string, string]
+  History: [string, string]
+}
+
+const queryTypes: QueryTypes = {
   Query: [
     'query',
     '{\n  "select": [\n    "*"\n  ],\n  "from": "_collection"\n}'
@@ -125,16 +140,15 @@ export const FlureeQL: FunctionComponent<Props> = ({
 }) => {
   const classes = useStyles()
 
+  // state variable for toggling between 'query' and 'transact'
   const [action, setAction] = useState('query')
-  // const [size, setSize] = useState('50%')
-  // const theme = useTheme();
+  // special query endpoint
+  const [queryType, setQueryType] = useState<QueryType>('Query')
   const [queryParam, setQueryParam] = useState('')
-  const [queryType, setQueryType] = useState('Query')
   const [txParam, setTxParam] = useState(
     '[{"_id":"_user","username":"newUser"}]'
   )
   const [results, setResults] = useState('')
-  // const [loading, setLoading] = useState(false)
   const [stats, setStats] = useState<Dictionary | undefined>(undefined)
   const [history, setHistory] = useLocalHistory(
     typeof _db.db === 'string'
@@ -149,10 +163,33 @@ export const FlureeQL: FunctionComponent<Props> = ({
   const [genOpen, setGenOpen] = useState(false)
   const [host, setHost] = useState(_db.ip)
 
+  const [signTxForm, setSignTxForm] = useState<SignedTransactionForm>({
+    expire: `${Date.now() + 180000}`,
+    maxFuel: '1000000',
+    nonce: `${Math.ceil(Math.random() * 100)}`,
+    privateKey: '',
+    auth: ''
+  })
+
+  // const [loading, setLoading] = useState(false)
+  // const [size, setSize] = useState('50%')
+  const rollNonce = () => {
+    setSignTxForm({ ...signTxForm, nonce: `${Math.ceil(Math.random() * 100)}` })
+  }
+
+  const refreshExpire = () => {
+    setSignTxForm({ ...signTxForm, expire: `${Date.now() + 180000}` })
+  }
+
+  const signTxFormHandler = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setSignTxForm({ ...signTxForm, [event.target.name]: event.target.value })
+  }
+
   const parse = jsonMode === 'json' ? JSON.parse : JSON5.parse
   const stringify = jsonMode === 'json' ? JSON.stringify : JSON5.stringify
 
-  // console.log({ stats })
   useEffect(() => {
     setQueryParam(queryTypes[queryType][1])
   }, [queryType])
@@ -160,7 +197,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
   const setHistoryHandler = (
     action: string,
     param: object,
-    type?: string | null
+    type?: QueryType
   ) => {
     setAction(action)
     if (action === 'transact') {
@@ -200,8 +237,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
       return
     }
     const { ip, db } = _db
-    const dbName = typeof db === 'string' ? db : db['db/id']
-    const fullDb = dbName.split('/')
+    const [dbName, fullDb] = splitDb(db)
     const queryParamStore =
       stringify(queryParam).length > 5000
         ? 'Values greater than 5k are not saved in the admin UI.'
@@ -244,7 +280,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
           const latest = stringify({
             action,
             param: parsedParam,
-            type: queryType
+            type: action === 'query' ? queryType : null
           })
           if (stringify(history[0]) !== latest) {
             setHistory([
@@ -284,9 +320,6 @@ export const FlureeQL: FunctionComponent<Props> = ({
     } catch (err) {
       console.log(err)
     }
-    // const formattedResults = stringify(response.json)
-    // setResults(formattedResults)
-    // setResults(stringify(parse(response.json)))
   }
 
   return (
@@ -342,7 +375,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
           )}
         </div>
         <div>
-          {allowTransact && !signOpen && (
+          {allowTransact && (
             <ButtonGroup disableElevation>
               <Button
                 className={classes.actionButtons}
@@ -376,14 +409,23 @@ export const FlureeQL: FunctionComponent<Props> = ({
       </div>
       <Grid container className={classes.grid}>
         <Grid item xs={12}>
-          {signOpen && (
-            <SignQuery
-              hostValue={host}
-              keyValue={privateKey}
-              hostChange={(e) => setHost(e.target.value)}
-              keyChange={(e) => setPrivateKey(e.target.value)}
-            />
-          )}
+          {signOpen &&
+            (action === 'query' ? (
+              <SignQuery
+                hostValue={host}
+                keyValue={privateKey}
+                hostChange={(e) => setHost(e.target.value)}
+                keyChange={(e) => setPrivateKey(e.target.value)}
+              />
+            ) : (
+              <SignTransaction
+                formValue={signTxForm}
+                onChange={signTxFormHandler}
+                rollNonce={rollNonce}
+                refreshExpire={refreshExpire}
+                _db={_db}
+              />
+            ))}
         </Grid>
         {historyOpen && (
           <Grid item xs={12} md={2}>

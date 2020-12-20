@@ -17,7 +17,8 @@ const App = () => {
         },
         ip: 'http://localhost:8090',
         dbs: ['example/mdm'],
-        environment
+        environment,
+        openApi: true
       }}
       allowKeyGen
       allowSign
