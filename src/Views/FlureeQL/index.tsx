@@ -31,7 +31,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { flureeFetch, splitDb } from '../../utils/flureeFetch'
 import { useLocalHistory } from '../../utils/hooks'
 import JSON5 from 'json5'
-import { signQuery } from '@fluree/crypto-utils'
+import { signQuery, signTransaction } from '@fluree/crypto-utils'
 // import { format } from 'path'
 // import get from 'lodash'
 
@@ -141,7 +141,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
   const classes = useStyles()
 
   // state variable for toggling between 'query' and 'transact'
-  const [action, setAction] = useState('query')
+  const [action, setAction] = useState('transact')
   // special query endpoint
   const [queryType, setQueryType] = useState<QueryType>('Query')
   const [queryParam, setQueryParam] = useState('')
@@ -158,7 +158,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
   const [historyOpen, setHistoryOpen] = useState(false)
   const [errorOpen, setErrorOpen] = useState(false)
   const [error, setError] = useState('')
-  const [signOpen, setSignOpen] = useState(false)
+  const [signOpen, setSignOpen] = useState(true)
   const [privateKey, setPrivateKey] = useState(_db.defaultPrivateKey || '')
   const [genOpen, setGenOpen] = useState(false)
   const [host, setHost] = useState(_db.ip)
@@ -185,6 +185,10 @@ export const FlureeQL: FunctionComponent<Props> = ({
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setSignTxForm({ ...signTxForm, [event.target.name]: event.target.value })
+  }
+
+  const clearTxFormAuth = () => {
+    setSignTxForm({ ...signTxForm, auth: '' })
   }
 
   const parse = jsonMode === 'json' ? JSON.parse : JSON5.parse
@@ -224,20 +228,52 @@ export const FlureeQL: FunctionComponent<Props> = ({
   }
 
   const flureeHandler = async (sign = false) => {
-    const param: string = action === 'query' ? queryParam : txParam
-    let endpoint: string
-    if (action === 'query') endpoint = queryTypes[queryType][0]
-    else endpoint = 'transact'
-    let parsedParam: object
-    try {
-      parsedParam = parse(param)
-    } catch (err) {
-      setError(err.message)
-      setErrorOpen(true)
-      return
-    }
     const { ip, db } = _db
     const [dbName, fullDb] = splitDb(db)
+    const opts: FetchOptions = {
+      ip,
+      body: action === 'query' ? parse(queryParam) : parse(txParam),
+      auth: token,
+      network: fullDb[0],
+      endpoint:
+        action === 'query'
+          ? queryTypes[queryType][0]
+          : sign
+          ? 'command'
+          : 'transact',
+      db: fullDb[1]
+    }
+    const parsedParam = opts.body
+    if (sign) {
+      if (action === 'transact') {
+        try {
+          const signed = signTransaction(
+            signTxForm.auth,
+            splitDb(_db.db).join('/'),
+            signTxForm.expire,
+            signTxForm.maxFuel,
+            signTxForm.nonce,
+            signTxForm.privateKey,
+            txParam
+          )
+          opts.body = signed
+          // eslint-disable-next-line no-debugger
+          debugger
+        } catch (err) {
+          // eslint-disable-next-line no-debugger
+          debugger
+          console.log(err)
+        }
+      } else {
+        opts.headers = signQuery(
+          privateKey,
+          queryParam,
+          opts.endpoint,
+          host,
+          dbName
+        ).headers
+      }
+    }
     const queryParamStore =
       stringify(queryParam).length > 5000
         ? 'Values greater than 5k are not saved in the admin UI.'
@@ -253,23 +289,6 @@ export const FlureeQL: FunctionComponent<Props> = ({
       dbName.concat('_lastType'),
       action === 'query' ? queryType : 'transact'
     )
-    const opts = {
-      ip,
-      body: parsedParam,
-      auth: token,
-      network: fullDb[0],
-      endpoint,
-      db: fullDb[1],
-      headers: sign
-        ? signQuery(
-            privateKey,
-            JSON.stringify(parsedParam),
-            endpoint,
-            host,
-            dbName
-          ).headers
-        : null
-    }
 
     console.log({ opts })
     try {
@@ -423,6 +442,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
                 onChange={signTxFormHandler}
                 rollNonce={rollNonce}
                 refreshExpire={refreshExpire}
+                clearAuth={clearTxFormAuth}
                 _db={_db}
               />
             ))}

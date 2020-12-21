@@ -24,6 +24,7 @@ interface Props {
   onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
   rollNonce?: () => void
   refreshExpire?: () => void
+  clearAuth?: () => void
   _db: DB
 }
 
@@ -49,10 +50,11 @@ export const SignTransaction: FunctionComponent<Props> = ({
   onChange,
   rollNonce,
   refreshExpire,
-  _db
+  _db,
+  clearAuth
 }) => {
   const classes = useStyles()
-  const [authOptions, setAuthOptions] = useState<Array<object>>([])
+  const [authOptions, setAuthOptions] = useState<Array<object> | null>(null)
 
   const fetchAuth = async (_db: DB) => {
     try {
@@ -96,9 +98,10 @@ export const SignTransaction: FunctionComponent<Props> = ({
     })
 
     return function cleanup() {
+      clearAuth && clearAuth()
       mounted = false
     }
-  }, [_db])
+  }, [])
 
   return (
     <form className={classes.root}>
@@ -161,7 +164,7 @@ export const SignTransaction: FunctionComponent<Props> = ({
           label='Auth'
           name='auth'
           children={
-            authOptions.length &&
+            authOptions &&
             authOptions.map((option: AuthShape) => (
               <MenuItem value={option._id} key={option._id}>
                 {option.id}
