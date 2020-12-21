@@ -230,18 +230,25 @@ export const FlureeQL: FunctionComponent<Props> = ({
   const flureeHandler = async (sign = false) => {
     const { ip, db } = _db
     const [dbName, fullDb] = splitDb(db)
-    const opts: FetchOptions = {
-      ip,
-      body: action === 'query' ? parse(queryParam) : parse(txParam),
-      auth: token,
-      network: fullDb[0],
-      endpoint:
-        action === 'query'
-          ? queryTypes[queryType][0]
-          : sign
-          ? 'command'
-          : 'transact',
-      db: fullDb[1]
+    let opts: FetchOptions
+    try {
+      opts = {
+        ip,
+        body: action === 'query' ? parse(queryParam) : parse(txParam),
+        auth: token,
+        network: fullDb[0],
+        endpoint:
+          action === 'query'
+            ? queryTypes[queryType][0]
+            : sign
+            ? 'command'
+            : 'transact',
+        db: fullDb[1]
+      }
+    } catch (err) {
+      setError(err.message)
+      setErrorOpen(true)
+      return
     }
     const parsedParam = opts.body
     if (sign) {
@@ -254,8 +261,9 @@ export const FlureeQL: FunctionComponent<Props> = ({
             signTxForm.maxFuel,
             signTxForm.nonce,
             signTxForm.privateKey,
-            txParam
+            JSON.stringify(parse(txParam))
           )
+          console.log({ signed })
           opts.body = signed
           // eslint-disable-next-line no-debugger
           debugger

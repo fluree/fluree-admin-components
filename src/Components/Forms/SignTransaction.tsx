@@ -166,7 +166,7 @@ export const SignTransaction: FunctionComponent<Props> = ({
           children={
             authOptions &&
             authOptions.map((option: AuthShape) => (
-              <MenuItem value={option._id} key={option._id}>
+              <MenuItem value={option.id} key={option._id}>
                 {option.id}
               </MenuItem>
             ))
