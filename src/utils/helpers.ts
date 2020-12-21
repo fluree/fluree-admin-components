@@ -56,6 +56,7 @@ export function createFlakeNodes(
     color,
     opacity: flake.op ? 1 : 0.5,
     symbolType: 'triangle'
+
     // fill: color
   }
   return flakeNode
@@ -102,7 +103,8 @@ export const createGraph = (
           links.push({
             source: id.toString(),
             target: meta[value.toString()]._id.toString(),
-            label: key
+            label: key,
+            renderLabel: true
           })
         }
       }

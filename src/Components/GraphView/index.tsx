@@ -29,7 +29,7 @@ export const GraphView: FunctionComponent<GraphProps> = ({
   const [graphData, setGraphData] = useState<any>(null)
   const [shapedFlakes, setFlakes] = useState<Array<FlakeShape> | null>(null)
   const [meta, setMeta] = useState<object | null>(null)
-  const [selectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [selectedNode, setSelectedNode] = useState<object | null>(null)
   const [flakeVis, setFlakeVis] = useState<object | null>(null)
   const [popperOpen, setPopperOpen] = useState(false)
@@ -66,11 +66,14 @@ export const GraphView: FunctionComponent<GraphProps> = ({
 
   function handleNodeClick(event: any) {
     console.log(event)
-    // setSelectedId(event)
+    setSelectedId(event)
   }
 
   function onClickGraph(event: any) {
     console.log(event)
+    setPopperOpen(false)
+    setSelectedNode(null)
+    setFlakeVis(null)
     return event
   }
 
@@ -139,24 +142,24 @@ export const GraphView: FunctionComponent<GraphProps> = ({
           onNodePositionChange={onNodePositionChange}
           config={{
             automaticRearrangeAfterDropNode: false,
-            collapsible: false,
+            collapsible: true,
             directed: false,
             focusAnimationDuration: 0.75,
             focusZoom: 1,
             height: height,
             highlightDegree: 1,
             highlightOpacity: 1,
-            linkHighlightBehavior: false,
+            linkHighlightBehavior: true,
             maxZoom: 8,
             minZoom: 0.1,
-            nodeHighlightBehavior: false,
+            nodeHighlightBehavior: true,
             panAndZoom: false,
             staticGraph: false,
             staticGraphWithDragAndDrop: false,
             width: width,
             d3: {
               alphaTarget: 0.05,
-              gravity: -350,
+              gravity: -100,
               linkLength: 100,
               linkStrength: 2,
               disableLinkForce: false
@@ -169,11 +172,11 @@ export const GraphView: FunctionComponent<GraphProps> = ({
               highlightColor: 'SAME',
               highlightFontSize: 8,
               highlightFontWeight: 'normal',
-              highlightStrokeColor: 'SAME',
-              highlightStrokeWidth: 'SAME',
+              // highlightStrokeColor: 'SAME',
+              // highlightStrokeWidth: 'SAME',
               labelProperty: 'id',
               mouseCursor: 'pointer',
-              opacity: 1,
+              // opacity: 1,
               renderLabel: true,
               size: 200,
               strokeColor: 'none',
@@ -186,13 +189,13 @@ export const GraphView: FunctionComponent<GraphProps> = ({
               fontColor: 'black',
               fontSize: 8,
               fontWeight: 'normal',
-              highlightColor: 'SAME',
+              highlightColor: '#13F',
               highlightFontSize: 8,
               highlightFontWeight: 'normal',
-              labelProperty: 'color',
+              // labelProperty: 'label',
               mouseCursor: 'pointer',
               opacity: 1,
-              renderLabel: false,
+              renderLabel: true,
               semanticStrokeWidth: false,
               strokeWidth: 1.5,
               markerHeight: 6,
