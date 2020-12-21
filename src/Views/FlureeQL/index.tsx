@@ -249,7 +249,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
         try {
           const signed = signTransaction(
             signTxForm.auth,
-            splitDb(_db.db).join('/'),
+            dbName,
             signTxForm.expire,
             signTxForm.maxFuel,
             signTxForm.nonce,
@@ -267,7 +267,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
       } else {
         opts.headers = signQuery(
           privateKey,
-          queryParam,
+          JSON.stringify(parsedParam),
           opts.endpoint,
           host,
           dbName
