@@ -163,15 +163,22 @@ export const SignTransaction: FunctionComponent<Props> = ({
           onChange={onChange}
           label='Auth'
           name='auth'
-          children={
-            authOptions &&
+          // children={
+          //   authOptions &&
+          //   authOptions.map((option: AuthShape) => (
+          //     <MenuItem value={option.id} key={option._id}>
+          //       {option.id}
+          //     </MenuItem>
+          //   ))
+          // }
+        >
+          {authOptions &&
             authOptions.map((option: AuthShape) => (
               <MenuItem value={option.id} key={option._id}>
                 {option.id}
               </MenuItem>
-            ))
-          }
-        />
+            ))}
+        </TextField>
       </FormControl>
       <FormControl variant='outlined' color='primary' margin='dense'>
         <TextField

@@ -12,6 +12,7 @@ interface EndpointParams {
 function gateway() {
   const production = process.env.NODE_ENV === 'production'
   const hosted = process.env.REACT_APP_ENVIRONMENT === 'hosted'
+  console.log(hosted)
   // production build is same for prod, staging & test environments
 
   if (production) {
@@ -113,7 +114,10 @@ async function flureeFetch(opts: FetchOptions) {
   }
 }
 
-const splitDb = (db: string | object) => {
+/**
+ * Conform _db.db prop data from hosted or downloaded version
+ */
+function splitDb(db: string | object): [string, [string, string]] {
   const dbString = typeof db === 'string' ? db : db['db/id']
   return [dbString, dbString.split('/')]
 }
