@@ -18,6 +18,7 @@ import {
 import CasinoIcon from '@material-ui/icons/Casino'
 import RestoreIcon from '@material-ui/icons/Restore'
 import { flureeFetch, splitDb } from '../../utils/flureeFetch'
+// import { signQuery } from '@fluree/crypto-utils'
 
 interface Props {
   formValue: SignedTransactionForm
@@ -54,27 +55,52 @@ export const SignTransaction: FunctionComponent<Props> = ({
   clearAuth
 }) => {
   const classes = useStyles()
+  const hosted = process.env.REACT_APP_ENVIRONMENT === 'hosted'
   const [authOptions, setAuthOptions] = useState<Array<object> | null>(null)
 
   const fetchAuth = async (_db: DB) => {
     try {
-      const { ip, db, openApi, token } = _db
+      const { ip, db } = _db
+      const token = _db.token || localStorage.getItem('token') || undefined
       const dbSplit = splitDb(db)[1]
       const authQuery = { select: ['*'], from: '_auth' }
-      if (openApi) {
-        const opts: FetchOptions = {
-          ip,
-          endpoint: 'query',
-          network: dbSplit[0],
-          db: dbSplit[1],
-          body: authQuery,
-          auth: token
-        }
-        const results = await flureeFetch(opts)
-
-        console.log(results)
-        return results.data
+      const opts: FetchOptions = {
+        ip,
+        endpoint: 'query',
+        network: dbSplit[0],
+        db: dbSplit[1],
+        body: authQuery,
+        auth: token
       }
+      // if (openApi) {
+      //   opts = {
+      //     ip,
+      //     endpoint: 'query',
+      //     network: dbSplit[0],
+      //     db: dbSplit[1],
+      //     body: authQuery,
+      //     auth: token
+      //   }
+      // } else {
+      //   opts = {
+      //     ip,
+      //     endpoint: 'query',
+      //     network: dbSplit[0],
+      //     db: dbSplit[1],
+      //     body: authQuery,
+      //     auth: token,
+      //     headers: signQuery()
+      //   }
+      // }
+      console.log({ opts })
+
+      const results = await flureeFetch(opts)
+
+      console.log(results)
+      if (hosted) {
+        return results.data.result
+      }
+      return results.data
     } catch (err) {
       console.log(err)
       // eslint-disable-next-line no-debugger
