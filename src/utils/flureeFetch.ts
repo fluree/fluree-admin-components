@@ -93,7 +93,8 @@ function fullEndpoint(info: EndpointParams) {
 }
 
 async function flureeFetch(opts: FetchOptions) {
-  const { ip, body, auth, network, db, endpoint, headers } = opts
+  const { ip, body, network, db, endpoint, headers } = opts
+  const auth = opts.auth || localStorage.getItem('token')
   const fullUri = fullEndpoint({ endpoint, network, db, body, ip })
   const finalHeaders = headers || {
     'Content-Type': 'application/json',
@@ -105,8 +106,11 @@ async function flureeFetch(opts: FetchOptions) {
     headers: { ...finalHeaders },
     body: JSON.stringify(body)
   }
+  // eslint-disable-next-line no-debugger
+  // debugger
   try {
     const results = await fetch(fullUri, fetchOpts)
+    console.log(results)
     const data = await results.json()
     return { data, headers: results.headers, status: results.status }
   } catch (err) {
