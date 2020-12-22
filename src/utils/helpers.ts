@@ -17,8 +17,8 @@ export function parseFlake(flake: Flake) {
 export function generateIdQuery(id: number) {
   return {
     selectOne: ['*'],
-    from: id
-    // opts: { compact: true }
+    from: id,
+    opts: { compact: true }
   }
 }
 
@@ -92,7 +92,9 @@ export const createGraph = (
             })
           } else
             nodes.push({
-              id: meta[value.toString()]._id.toString()
+              id:
+                meta[value.toString()].name ||
+                meta[value.toString()]._id.toString()
             })
         }
         if (!linkMemo[id]) {
@@ -102,7 +104,9 @@ export const createGraph = (
           linkMemo[id].push(value.toString())
           links.push({
             source: id.toString(),
-            target: meta[value.toString()]._id.toString(),
+            target:
+              meta[value.toString()].name ||
+              meta[value.toString()]._id.toString(),
             label: key,
             renderLabel: true
           })
