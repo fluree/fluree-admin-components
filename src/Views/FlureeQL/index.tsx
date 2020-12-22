@@ -141,7 +141,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
   const classes = useStyles()
 
   // state variable for toggling between 'query' and 'transact'
-  const [action, setAction] = useState('transact')
+  const [action, setAction] = useState('query')
   // special query endpoint
   const [queryType, setQueryType] = useState<QueryType>('Query')
   const [queryParam, setQueryParam] = useState('')
@@ -158,7 +158,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
   const [historyOpen, setHistoryOpen] = useState(false)
   const [errorOpen, setErrorOpen] = useState(false)
   const [error, setError] = useState('')
-  const [signOpen, setSignOpen] = useState(true)
+  const [signOpen, setSignOpen] = useState(false)
   const [privateKey, setPrivateKey] = useState(_db.defaultPrivateKey || '')
   const [genOpen, setGenOpen] = useState(false)
   const [host, setHost] = useState(_db.ip)
