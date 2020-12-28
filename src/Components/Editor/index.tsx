@@ -132,6 +132,7 @@ export const Editor: FunctionComponent<EditorProps> = ({
               variant='contained'
               onClick={formatHandler}
               size={size}
+              disableElevation
             >
               Beautify
             </Button>
