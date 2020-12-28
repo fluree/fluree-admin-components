@@ -93,8 +93,7 @@ function fullEndpoint(info: EndpointParams) {
 }
 
 async function flureeFetch(opts: FetchOptions) {
-  const { ip, body, network, db, endpoint, headers } = opts
-  const auth = opts.auth || localStorage.getItem('token')
+  const { ip, body, network, db, endpoint, headers, auth } = opts
   const fullUri = fullEndpoint({ endpoint, network, db, body, ip })
   const finalHeaders = headers || {
     'Content-Type': 'application/json',
