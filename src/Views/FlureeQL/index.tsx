@@ -85,7 +85,7 @@ const useStyles = makeStyles((theme) => ({
     position: 'static'
   },
   historyHeader: {
-    marginTop: theme.spacing(3),
+    marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2)
   },
   history: {
@@ -408,7 +408,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
                 className={classes.actionButtons}
                 variant={action === 'query' ? 'contained' : 'outlined'}
                 onClick={() => setAction('query')}
-                color={action === 'query' ? 'primary' : 'default'}
+                color='primary'
                 size='small'
               >
                 Query
@@ -417,7 +417,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
                 className={classes.actionButtons}
                 variant={action === 'transact' ? 'contained' : 'outlined'}
                 onClick={() => setAction('transact')}
-                color={action === 'transact' ? 'primary' : 'default'}
+                color='primary'
                 size='small'
               >
                 Transact
