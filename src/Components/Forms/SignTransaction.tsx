@@ -60,8 +60,10 @@ export const SignTransaction: FunctionComponent<Props> = ({
 
   const fetchAuth = async (_db: DB) => {
     try {
-      const { ip, db } = _db
-      const token = _db.token || localStorage.getItem('token') || undefined
+      const { ip, db, openApi } = _db
+      const token = openApi
+        ? undefined
+        : _db.token || localStorage.getItem('token') || undefined
       const dbSplit = splitDb(db)[1]
       const authQuery = { select: ['*'], from: '_auth' }
       const opts: FetchOptions = {

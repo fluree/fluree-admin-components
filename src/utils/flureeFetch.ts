@@ -1,4 +1,5 @@
 import fetch from 'isomorphic-fetch'
+// import { signQuery, signTransaction } from '@fluree/crypto-utils'
 // import JSON5 from 'json5'
 
 interface EndpointParams {
@@ -33,7 +34,7 @@ function gateway() {
 }
 
 function fullEndpoint(info: EndpointParams) {
-  const { endpoint, network, db, body } = info
+  const { endpoint, network, db, body, ip } = info
   const hosted = process.env.REACT_APP_ENVIRONMENT === 'hosted'
   const endpointInfix = hosted ? 'api' : 'fdb'
 
@@ -54,7 +55,7 @@ function fullEndpoint(info: EndpointParams) {
     'list-snapshots'
   ].includes(endpoint)
 
-  const startURI = gateway()
+  const startURI = ip
 
   if (locatedEndpoint) {
     if (endpoint === 'snapshot' && body) {
