@@ -227,7 +227,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
     }
   }
 
-  const flureeHandler = async (sign = false) => {
+  const flureeHandler = async (sign: boolean) => {
     const { ip, db } = _db
     const [dbName, fullDb] = splitDb(db)
     let opts: FetchOptions
@@ -261,7 +261,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
             signTxForm.maxFuel,
             signTxForm.nonce,
             signTxForm.privateKey,
-            JSON.stringify(parse(txParam))
+            JSON.stringify(parsedParam)
           )
           console.log({ signed })
           opts.body = signed
