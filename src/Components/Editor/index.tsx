@@ -7,6 +7,7 @@ import StatDisplay from './StatDisplay'
 import { BasicDialog } from '../General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import JSON5 from 'json5'
+import YAML from 'yaml'
 
 import 'ace-builds/webpack-resolver'
 import 'ace-builds/src-noconflict/theme-xcode'
@@ -14,6 +15,7 @@ import 'ace-builds/src-noconflict/theme-dracula'
 import 'ace-builds/src-noconflict/mode-json'
 import 'ace-builds/src-noconflict/mode-json5'
 import 'ace-builds/src-noconflict/mode-sparql'
+import 'ace-builds/src-noconflict/mode-yaml'
 import 'ace-builds/src-noconflict/ext-beautify'
 
 const useStyles = makeStyles((theme) => ({
@@ -44,7 +46,7 @@ interface EditorProps {
   name?: string
   value?: string
   theme?: 'dracula' | 'xcode'
-  mode?: 'json' | 'json5' | 'sparql'
+  mode?: 'json' | 'json5' | 'sparql' | 'yaml'
   title?: string
   readOnly?: boolean
   width?: number | string
@@ -85,8 +87,14 @@ export const Editor: FunctionComponent<EditorProps> = ({
   }
 
   const formatHandler = () => {
-    const parse = mode === 'json' ? JSON.parse : JSON5.parse
-    const stringify = mode === 'json' ? JSON.stringify : JSON5.stringify
+    const parsers = {
+      json: [JSON.parse, JSON.stringify],
+      json5: [JSON5.parse, JSON5.stringify],
+      yaml: [YAML.parse, YAML.stringify]
+    }
+
+    const parse = parsers[mode][0]
+    const stringify = parsers[mode][1]
     try {
       const newValue = stringify(parse(value || contents), null, 2)
 
@@ -126,7 +134,7 @@ export const Editor: FunctionComponent<EditorProps> = ({
             size === 'medium' ? classes.optionBar : classes.optionBarSmall
           }
         >
-          {!readOnly && (mode === 'json' || mode === 'json5') && (
+          {!readOnly && ['json', 'json5', 'yaml'].includes(mode) && (
             <Button
               color='primary'
               variant='contained'

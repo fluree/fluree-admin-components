@@ -31,6 +31,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { flureeFetch, splitDb } from '../../utils/flureeFetch'
 import { useLocalHistory } from '../../utils/hooks'
 import JSON5 from 'json5'
+import YAML from 'yaml'
 import { signQuery, signTransaction } from '@fluree/crypto-utils'
 // import { format } from 'path'
 // import get from 'lodash'
@@ -102,7 +103,7 @@ interface Props {
   _db: DB
   allowTransact?: boolean
   withHistory?: boolean
-  jsonMode?: 'json' | 'json5'
+  editorMode?: 'json' | 'json5' | 'yaml'
   token?: string
   allowKeyGen?: boolean
   allowSign?: boolean
@@ -133,7 +134,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
   _db,
   allowTransact,
   withHistory = false,
-  jsonMode = 'json',
+  editorMode = 'json',
   token = undefined,
   allowKeyGen = false,
   allowSign = false
@@ -191,8 +192,14 @@ export const FlureeQL: FunctionComponent<Props> = ({
     setSignTxForm({ ...signTxForm, auth: '' })
   }
 
-  const parse = jsonMode === 'json' ? JSON.parse : JSON5.parse
-  const stringify = jsonMode === 'json' ? JSON.stringify : JSON5.stringify
+  const parse = { json: JSON.parse, json5: JSON5.parse, yaml: YAML.parse }[
+    editorMode
+  ]
+  const stringify = {
+    json: JSON.stringify,
+    json5: JSON5.stringify,
+    yaml: (value: object | string, ..._rest: any) => YAML.stringify(value)
+  }[editorMode]
 
   useEffect(() => {
     setQueryParam(queryTypes[queryType][1])
@@ -490,7 +497,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
                   if (action === 'query') setQueryParam(value)
                   else setTxParam(value)
                 }}
-                mode={jsonMode}
+                mode={editorMode}
               />
             </Grid>
             <Grid item xs={12} lg={6}>
@@ -502,7 +509,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
                 value={results}
                 stats={stats}
                 action='results'
-                mode={jsonMode}
+                mode={editorMode}
               />
             </Grid>
           </Grid>
