@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1)
   },
   grid: {
-    padding: theme.spacing(2)
+    // padding: theme.spacing(2)
   },
   editorPane: {
     display: 'flex',
@@ -90,11 +90,17 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2)
   },
   history: {
-    maxHeight: 500,
+    maxHeight: 200,
     height: '100%',
     overflowX: 'scroll',
-    [theme.breakpoints.down('sm')]: {
-      maxHeight: 200
+    [theme.breakpoints.up('md')]: {
+      maxHeight: 1090
+    },
+    // [theme.breakpoints.down('sm')]: {
+    //   maxHeight: 200
+    // },
+    [theme.breakpoints.up('lg')]: {
+      maxHeight: 500
     }
   }
 }))
@@ -365,6 +371,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
               color='primary'
               variant={genOpen ? 'contained' : 'outlined'}
               onClick={() => setGenOpen(true)}
+              disableElevation
             >
               Generate Keys
             </Button>
@@ -374,6 +381,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
               color='primary'
               variant={signOpen ? 'contained' : 'outlined'}
               onClick={() => setSignOpen(!signOpen)}
+              disableElevation
             >
               Sign
             </Button>
@@ -385,6 +393,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
               onClick={() => {
                 setHistoryOpen(!historyOpen)
               }}
+              disableElevation
             >
               History
             </Button>
@@ -467,7 +476,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
             <Typography variant='h4' className={classes.historyHeader}>
               History
             </Typography>
-            <Paper className={classes.history}>
+            <Paper className={classes.history} elevation={0}>
               <History history={history} loadHistoryItem={setHistoryHandler} />
             </Paper>
           </Grid>
