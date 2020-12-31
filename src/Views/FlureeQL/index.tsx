@@ -11,8 +11,6 @@ import {
   ButtonGroup,
   Grid,
   IconButton,
-  // FormControl,
-  // InputLabel,
   MenuItem,
   Paper,
   Select,
@@ -20,12 +18,14 @@ import {
 } from '@material-ui/core'
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined' // import SplitPane from 'react-split-pane'
+import AcUnitIcon from '@material-ui/icons/AcUnit'
 import { Editor } from '../../Components/Editor'
 import { History } from '../../Components/History'
 import { SignQuery } from '../../Components/Forms/SignQuery'
 import { SignTransaction } from '../../Components/Forms/SignTransaction'
 import { GenKeysDialog } from './Dialogs/GenKeysDialog'
 import { GenerateKeys } from '../../Components/GenerateKeys'
+import { FlakeVisModal } from './Modals/FlakeVisModal'
 import { BasicDialog } from '../../Components/General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import { flureeFetch, splitDb } from '../../utils/flureeFetch'
@@ -169,6 +169,8 @@ export const FlureeQL: FunctionComponent<Props> = ({
   const [privateKey, setPrivateKey] = useState(_db.defaultPrivateKey || '')
   const [genOpen, setGenOpen] = useState(false)
   const [host, setHost] = useState(_db.ip)
+  const [visOpen, setVisOpen] = useState(false)
+  const [flakes, setFlakes] = useState<Array<any> | null>(null)
 
   const [signTxForm, setSignTxForm] = useState<SignedTransactionForm>({
     expire: `${Date.now() + 180000}`,
@@ -316,6 +318,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
       const results = await flureeFetch(opts)
       console.log({ results })
       if (results.status < 400) {
+        setFlakes(null)
         if (history.length && history.length > 0) {
           const latest = stringify({
             action,
@@ -333,6 +336,9 @@ export const FlureeQL: FunctionComponent<Props> = ({
             { action: action, param: parsedParam, type: queryType },
             ...history
           ])
+      }
+      if (results.data.flakes) {
+        setFlakes(results.data.flakes)
       }
       setResults(stringify(results.data, null, 2))
       if (_db.environment === 'hosted') {
@@ -536,6 +542,12 @@ export const FlureeQL: FunctionComponent<Props> = ({
       <GenKeysDialog open={genOpen} onClose={() => setGenOpen(false)}>
         <GenerateKeys _db={_db} token={token} />{' '}
       </GenKeysDialog>
+      <FlakeVisModal
+        open={visOpen}
+        onClose={() => setVisOpen(false)}
+        flakes={flakes}
+        _db={_db}
+      />
     </div>
   )
 }
