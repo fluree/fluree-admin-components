@@ -1,26 +1,22 @@
 import { useEffect, useState } from 'react'
-// import { flureeFetch } from './flureeFetch'
+import { signQuery, signTransaction } from '@fluree/crypto-utils'
+import 'isomorphic-fetch'
 
 type HistoryHook = (storageKey: string) => any
 type StorageHook = (storageKey: string, defaultValue?: string) => any
-type FlureeHook = (
-  db: DB,
-  action: 'query' | 'tx',
-  signed?: SignOptions,
-  queryType?: string
-) => any
-interface dbObj {
-  _id: number
-  'db/active': boolean
-  'db/id': string
+interface Results {
+  data: string
+  status?: number | null
 }
-
-interface SignOptions {
-  chosenAuth?: string | null
-  expire?: number
-  fuel?: number
-  nonce?: number
-  privateKey?: string
+interface FQLReturn {
+  results: Results
+  metadata: FlureeStats | null
+  sendUnsigned: (options: FetchOptions) => void
+  requestError: string
+  reqErrorOpen: boolean
+  setReqErrorOpen: (option: boolean) => void
+  sendSignedQuery: (fetchOpts: FetchOptions, sOpts: SignOptions) => void
+  sendSignedTx: (fetchOpts: FetchOptions, sOpts: SignOptions) => void
 }
 
 const useLocalHistory: HistoryHook = (storageKey) => {
@@ -50,48 +46,210 @@ const useLocalStorage: StorageHook = (storageKey, defaultValue = undefined) => {
   return [state, setState]
 }
 
-// openQuery
-// openTx
-// signedQuery
-// singedTx
+/**
+ * useFql React hook
+ * @param placeholder Provide the default placeholder text to be displayed for results
+ *
+ */
+const useFql = (placeholder = ''): FQLReturn => {
+  const [results, setResults] = useState<Results>({
+    data: placeholder,
+    status: null
+  })
+  const [requestError, setRequestError] = useState('')
+  const [reqErrorOpen, setReqErrorOpen] = useState(false)
+  const [metadata, setMetadata] = useState<FlureeStats>({
+    fuel: undefined,
+    status: undefined,
+    time: undefined,
+    block: undefined
+  })
 
-// possible FlureeFetch hook
-// return results string, function to set new query/tx body
-// change body, http request is sent to Fluree ledger, changes
-// results state with response data
-// signed param includes keys, auth info for signed tx/queries
-const useFluree: FlureeHook = (_db, action, signed, queryType) => {
-  const {
-    // ip,
-    db
-    // openApi,
-    // defaultPrivateKey,
-    // token
-  } = _db
-  const dbName = splitDb(db)
-  const [body, setBody] = useState('')
-  const [results, setResults] = useState('')
-  console.log(signed)
+  const parseUrl = (
+    baseUrl: string,
+    network: string,
+    db: string,
+    action: string,
+    body?: string,
+    hosted = false
+  ) => {
+    const endpointInfix = hosted ? 'api' : 'fdb'
 
-  useEffect(() => {
-    if (body) {
-      if (action === 'query') {
-        setResults(`you did a ${queryType} query` + body + dbName)
+    const locatedEndpoint = [
+      'query',
+      'multi-query',
+      'block',
+      'history',
+      'transact',
+      'graphql',
+      'sparql',
+      'sql',
+      'command',
+      'snapshot',
+      'ledger-stats',
+      'block-range-with-txn',
+      'nw-state',
+      'list-snapshots'
+    ].includes(action)
+
+    const startURI = baseUrl
+
+    if (locatedEndpoint) {
+      if (action === 'snapshot' && body) {
+        return `${startURI}/${endpointInfix}/${body['db/id']}/${action}`
+      } else if (action === 'nw-state') {
+        return `${startURI}/${endpointInfix}/${action}`
+      } else {
+        return `${startURI}/${endpointInfix}/${
+          hosted ? 'db/' : ''
+        }${network}/${db}/${action}`
       }
-    } else {
-      setResults(`you did a tx` + body + dbName)
     }
-  }, [body])
 
-  return [results, setBody]
-}
+    const prefixedEndpoints = [
+      'dbs',
+      'action',
+      'new-db',
+      'accounts',
+      'signin',
+      'health',
+      'sub',
+      'new-pw',
+      'reset-pw',
+      'activate-account',
+      'delete-db'
+    ].includes(action)
 
-const splitDb = (db: string | dbObj) => {
-  if (typeof db === 'string') {
-    return db.split('/')
-  } else {
-    return db['db/id'].split('/')
+    if (prefixedEndpoints) {
+      return `${startURI}/${endpointInfix}/${action}`
+    }
+
+    if (action === 'logs') {
+      return `${startURI}/${endpointInfix}/fdb/${action}/${network}`
+    }
+    throw new Error('400 - Invalid Endpoint')
+  }
+
+  const fetchRequest = async (
+    url: string,
+    body: Record<string, unknown>,
+    headers?: Record<string, string>,
+    auth?: string
+  ) => {
+    const finalHeaders = headers || {
+      'Content-Type': 'application/json',
+      'Request-Timeout': '20000',
+      Authorization: `Bearer ${auth}`
+    }
+    const fetchOpts = {
+      method: 'POST',
+      headers: { ...finalHeaders },
+      body: JSON.stringify(body)
+    }
+    try {
+      const response = await fetch(url, fetchOpts)
+      console.log(response)
+      processResponse(response)
+    } catch (err) {
+      setRequestError(err.message)
+      setReqErrorOpen(true)
+    }
+  }
+
+  const getStats = (headers: Headers) => {
+    const fuel = headers.get('x-fdb-fuel') || undefined
+    const block = headers.get('x-fdb-block') || undefined
+    const time = headers.get('x-fdb-time') || undefined
+    const status = headers.get('x-fdb-status') || undefined
+    return {
+      fuel,
+      block,
+      time,
+      status
+    }
+  }
+
+  const processResponse = async (response: Response) => {
+    try {
+      const data = await response.json()
+      const headers = response.headers
+      const status = response.status
+
+      if (status >= 500) {
+        throw Error(data.message)
+      }
+
+      console.log(typeof status)
+      const stats = getStats(headers)
+      setResults({ data: JSON.stringify(data, null, 2), status: status })
+      setMetadata(stats)
+      console.log({ data, headers, status })
+    } catch (err) {
+      console.log(err)
+      setRequestError(err.message)
+      setReqErrorOpen(true)
+    }
+  }
+
+  // const processResults = (response: Record<string, unknown>) => undefined
+
+  const sendUnsigned = ({
+    endpoint,
+    network,
+    db,
+    ip,
+    auth,
+    headers,
+    body
+  }: FetchOptions) => {
+    const url = parseUrl(ip, network, db, endpoint)
+    fetchRequest(url, body, headers, auth)
+  }
+
+  const sendSignedQuery = (
+    fetchOpts: FetchOptions,
+    { dbName, privateKey }: SignOptions
+  ) => {
+    const { body, endpoint, ip, network, db } = fetchOpts
+    fetchOpts.headers = signQuery(
+      privateKey,
+      JSON.stringify(body),
+      endpoint,
+      ip,
+      dbName
+    )
+    const url = parseUrl(ip, network, db, endpoint)
+    fetchRequest(url, body, fetchOpts.headers, fetchOpts.auth)
+  }
+
+  const sendSignedTx = (
+    fetchOpts: FetchOptions,
+    { authId, dbName, expire, maxFuel, nonce, privateKey }: SignOptions
+  ) => {
+    const { endpoint, ip, network, db } = fetchOpts
+    fetchOpts.body = signTransaction(
+      authId,
+      dbName,
+      expire,
+      maxFuel,
+      nonce,
+      privateKey,
+      JSON.stringify(fetchOpts.body)
+    )
+    const url = parseUrl(ip, network, db, endpoint)
+    fetchRequest(url, fetchOpts.body, fetchOpts.headers, fetchOpts.auth)
+  }
+
+  return {
+    results,
+    metadata,
+    sendUnsigned,
+    sendSignedQuery,
+    requestError,
+    reqErrorOpen,
+    setReqErrorOpen,
+    sendSignedTx
   }
 }
 
-export { useLocalHistory, useLocalStorage, useFluree }
+export { useLocalHistory, useLocalStorage, useFql }
