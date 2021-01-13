@@ -51,7 +51,7 @@ interface EditorProps {
   readOnly?: boolean
   width?: number | string
   action?: string
-  stats?: object
+  stats?: FlureeStats | null
   height?: string
   size?: 'small' | 'medium'
   onChange?: (value: string) => void

@@ -110,7 +110,7 @@ export const GenerateKeys: FunctionComponent<Props> = ({ _db, token }) => {
   const transactHandler = async () => {
     const param = edValue
     const endpoint = 'transact'
-    let parsedParam: object
+    let parsedParam: Record<string, unknown>
     try {
       parsedParam = JSON5.parse(param)
     } catch (err) {

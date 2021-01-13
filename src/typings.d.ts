@@ -44,12 +44,12 @@ type Flake = [number, number, number | string, number, boolean, null]
 
 interface FetchOptions {
   ip: string
-  body: object
+  body: Record<string, unknown>
   auth?: string | undefined
   network: string
   db: string
   endpoint: string
-  headers?: object | undefined
+  headers?: Record<string, string>
   noRedirect?: boolean
 }
 
@@ -67,5 +67,46 @@ interface SignedTransactionForm {
   nonce: string
   expire: string
   privateKey: string
-  auth: number | string
+  auth: string
+}
+
+interface EndpointParams {
+  endpoint: string
+  network: string
+  db: string
+  ip: string
+  body?: string
+}
+
+type Endpoints =
+  | 'query'
+  | 'multi-query'
+  | 'block'
+  | 'history'
+  | 'transact'
+  | 'graphql'
+  | 'sparql'
+  | 'sql'
+  | 'command'
+  | 'snapshot'
+  | 'ledger-stats'
+  | 'block-range-with-txn'
+  | 'nw-state'
+  | 'list-snapshots'
+
+interface FlureeStats {
+  fuel?: string | number
+  block?: string | number
+  time?: string
+  status?: string | number
+  remainingFuel?: string | number
+}
+
+interface SignOptions {
+  authId?: string
+  dbName: string
+  expire?: string | number
+  maxFuel?: string | number
+  nonce?: string | number
+  privateKey: string
 }
