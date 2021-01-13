@@ -18,21 +18,24 @@ import {
 } from '@material-ui/core'
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined' // import SplitPane from 'react-split-pane'
-import AcUnitIcon from '@material-ui/icons/AcUnit'
+// import AcUnitIcon from '@material-ui/icons/AcUnit'
 import { Editor } from '../../Components/Editor'
 import { History } from '../../Components/History'
 import { SignQuery } from '../../Components/Forms/SignQuery'
 import { SignTransaction } from '../../Components/Forms/SignTransaction'
 import { GenKeysDialog } from './Dialogs/GenKeysDialog'
 import { GenerateKeys } from '../../Components/GenerateKeys'
-import { FlakeVisModal } from './Modals/FlakeVisModal'
+// import { FlakeVisModal } from './Modals/FlakeVisModal'
 import { BasicDialog } from '../../Components/General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
-import { flureeFetch, splitDb } from '../../utils/flureeFetch'
-import { useLocalHistory } from '../../utils/hooks'
+import {
+  splitDb
+  // flureeFetch
+} from '../../utils/flureeFetch'
+import { useLocalHistory, useFql } from '../../utils/hooks'
 import JSON5 from 'json5'
 import YAML from 'yaml'
-import { signQuery, signTransaction } from '@fluree/crypto-utils'
+// import { signQuery, signTransaction } from '@fluree/crypto-utils'
 // import { format } from 'path'
 // import get from 'lodash'
 
@@ -155,8 +158,8 @@ export const FlureeQL: FunctionComponent<Props> = ({
   const [txParam, setTxParam] = useState(
     '[{"_id":"_user","username":"newUser"}]'
   )
-  const [results, setResults] = useState('')
-  const [stats, setStats] = useState<Dictionary | undefined>(undefined)
+  // const [results, setResults] = useState('')
+  // const [stats, setStats] = useState<Dictionary | undefined>(undefined)
   const [history, setHistory] = useLocalHistory(
     typeof _db.db === 'string'
       ? `${_db.db}_history`
@@ -169,8 +172,18 @@ export const FlureeQL: FunctionComponent<Props> = ({
   const [privateKey, setPrivateKey] = useState(_db.defaultPrivateKey || '')
   const [genOpen, setGenOpen] = useState(false)
   const [host, setHost] = useState(_db.ip)
-  const [visOpen, setVisOpen] = useState(false)
-  const [flakes, setFlakes] = useState<Array<any> | null>(null)
+  // const [visOpen, setVisOpen] = useState(false)
+  // const [flakes, setFlakes] = useState<Array<any> | null>(null)
+  const {
+    results,
+    metadata,
+    sendUnsigned,
+    sendSignedQuery,
+    sendSignedTx,
+    requestError,
+    reqErrorOpen,
+    setReqErrorOpen
+  } = useFql('Results will appear here!')
 
   const [signTxForm, setSignTxForm] = useState<SignedTransactionForm>({
     expire: `${Date.now() + 180000}`,
@@ -213,6 +226,25 @@ export const FlureeQL: FunctionComponent<Props> = ({
     setQueryParam(queryTypes[queryType][1])
   }, [queryType])
 
+  useEffect(() => {
+    if (results.status) {
+      if (results.status && results.status < 400) {
+        // setFlakes(null)
+        const latest = stringify({
+          action,
+          param: action === 'query' ? parse(queryParam) : parse(txParam),
+          type: action === 'query' ? queryType : null
+        })
+        console.log({ latest })
+        if (history.length && history.length > 0) {
+          if (stringify(history[0]) !== latest) {
+            setHistory([parse(latest), ...history])
+          }
+        } else setHistory([parse(latest), ...history])
+      }
+    }
+  }, [results])
+
   const setHistoryHandler = (
     action: string,
     param: object,
@@ -220,25 +252,10 @@ export const FlureeQL: FunctionComponent<Props> = ({
   ) => {
     setAction(action)
     if (action === 'transact') {
-      setTxParam(stringify(param))
+      setTxParam(stringify(param, null, 2))
     } else {
       type && setQueryType(type)
-      setQueryParam(stringify(param))
-    }
-  }
-
-  const getStats = (res: any) => {
-    const fuel = res.headers.get('x-fdb-fuel')
-    const block = res.headers.get('x-fdb-block')
-    const time = res.headers.get('x-fdb-time')
-    const status = res.headers.get('x-fdb-status')
-    const remainingFuel = null
-    return {
-      fuel,
-      block,
-      time,
-      status,
-      remainingFuel
+      setQueryParam(stringify(param, null, 2))
     }
   }
 
@@ -263,40 +280,41 @@ export const FlureeQL: FunctionComponent<Props> = ({
     } catch (err) {
       setError(err.message)
       setErrorOpen(true)
+      console.log('bing')
       return
     }
-    const parsedParam = opts.body
-    if (sign) {
-      if (action === 'transact') {
-        try {
-          const signed = signTransaction(
-            signTxForm.auth,
-            dbName,
-            signTxForm.expire,
-            signTxForm.maxFuel,
-            signTxForm.nonce,
-            signTxForm.privateKey,
-            JSON.stringify(parsedParam)
-          )
-          console.log({ signed })
-          opts.body = signed
-          // eslint-disable-next-line no-debugger
-          debugger
-        } catch (err) {
-          // eslint-disable-next-line no-debugger
-          debugger
-          console.log(err)
-        }
-      } else {
-        opts.headers = signQuery(
-          privateKey,
-          JSON.stringify(parsedParam),
-          opts.endpoint,
-          host,
-          dbName
-        ).headers
-      }
-    }
+    // const parsedParam = opts.body
+    // if (sign) {
+    //   if (action === 'transact') {
+    //     try {
+    //       const signed = signTransaction(
+    //         signTxForm.auth,
+    //         dbName,
+    //         signTxForm.expire,
+    //         signTxForm.maxFuel,
+    //         signTxForm.nonce,
+    //         signTxForm.privateKey,
+    //         JSON.stringify(parsedParam)
+    //       )
+    //       console.log({ signed })
+    //       opts.body = signed
+    //       // eslint-disable-next-line no-debugger
+    //       debugger
+    //     } catch (err) {
+    //       // eslint-disable-next-line no-debugger
+    //       debugger
+    //       console.log(err)
+    //     }
+    //   } else {
+    //     opts.headers = signQuery(
+    //       privateKey,
+    //       JSON.stringify(parsedParam),
+    //       opts.endpoint,
+    //       host,
+    //       dbName
+    //     ).headers
+    //   }
+    // }
     const queryParamStore =
       stringify(queryParam).length > 5000
         ? 'Values greater than 5k are not saved in the admin UI.'
@@ -315,54 +333,23 @@ export const FlureeQL: FunctionComponent<Props> = ({
 
     console.log({ opts })
     try {
-      const results = await flureeFetch(opts)
-      console.log({ results })
-      if (results.status < 400) {
-        setFlakes(null)
-        if (history.length && history.length > 0) {
-          const latest = stringify({
-            action,
-            param: parsedParam,
-            type: action === 'query' ? queryType : null
+      if (sign) {
+        if (action === 'transact') {
+          sendSignedTx(opts, {
+            authId: signTxForm.auth,
+            dbName,
+            expire: signTxForm.expire,
+            maxFuel: signTxForm.maxFuel,
+            nonce: signTxForm.nonce,
+            privateKey: signTxForm.privateKey
           })
-          if (stringify(history[0]) !== latest) {
-            setHistory([
-              { action: action, param: parsedParam, type: queryType },
-              ...history
-            ])
-          }
-        } else
-          setHistory([
-            { action: action, param: parsedParam, type: queryType },
-            ...history
-          ])
+        } else sendSignedQuery(opts, { dbName, privateKey })
+        return
       }
-      if (results.data.flakes) {
-        setFlakes(results.data.flakes)
-      }
-      setResults(stringify(results.data, null, 2))
-      if (_db.environment === 'hosted') {
-        setStats({
-          Block:
-            typeof results.data.block === 'object'
-              ? results.data.block[0] === results.data.block[1]
-                ? results.data.block[0]
-                : results.data.block.join(' - ')
-              : results.data.block,
-          'Fuel Spent': results.data.fuel,
-          Status: results.data.status,
-          Time: results.data.time,
-          'Remaining Fuel': results.data['fuel-remaining'] || null
-        })
-      } else {
-        const resStats = getStats(results)
-        setStats({
-          'Fuel Spent': resStats.fuel,
-          Block: resStats.block,
-          Status: resStats.status,
-          Time: resStats.time
-        })
-      }
+      sendUnsigned(opts)
+      // if (results.data.flakes) {
+      //   setFlakes(results.data.flakes)
+      // }
     } catch (err) {
       console.log(err)
     }
@@ -521,8 +508,8 @@ export const FlureeQL: FunctionComponent<Props> = ({
                 readOnly
                 width='100%'
                 name='flureeQL-results'
-                value={results}
-                stats={stats}
+                value={results.data}
+                stats={metadata}
                 action='results'
                 mode={editorMode}
               />
@@ -532,22 +519,29 @@ export const FlureeQL: FunctionComponent<Props> = ({
         {/* </SplitPane> */}
       </Grid>
       <BasicDialog
+        message={requestError}
+        open={reqErrorOpen}
+        onClose={() => {
+          setReqErrorOpen(false)
+        }}
+      />
+      <BasicDialog
         message={error}
         open={errorOpen}
         onClose={() => {
           setErrorOpen(false)
-          setError('')
         }}
       />
+
       <GenKeysDialog open={genOpen} onClose={() => setGenOpen(false)}>
         <GenerateKeys _db={_db} token={token} />{' '}
       </GenKeysDialog>
-      <FlakeVisModal
+      {/* <FlakeVisModal
         open={visOpen}
         onClose={() => setVisOpen(false)}
         flakes={flakes}
         _db={_db}
-      />
+      /> */}
     </div>
   )
 }
