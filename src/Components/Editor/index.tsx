@@ -23,13 +23,13 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: theme.spacing(2),
     minHeight: 50
   },
   headerBarSmall: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginBottom: 5,
+    marginBottom: theme.spacing(1),
     minHeight: 35
   },
   title: {},
@@ -120,7 +120,7 @@ export const Editor: FunctionComponent<EditorProps> = ({
   }
 
   return (
-    <Box width={width} p={2} boxSizing='border-box'>
+    <Box width={width} p={0} boxSizing='border-box'>
       <div
         className={
           size === 'medium' ? classes.headerBar : classes.headerBarSmall

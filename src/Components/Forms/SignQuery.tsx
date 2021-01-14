@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import React, { FunctionComponent } from 'react'
-import { TextField, makeStyles } from '@material-ui/core'
+import { Grid, TextField } from '@material-ui/core'
 
 interface SignQueryProps {
   keyValue: string
@@ -9,37 +9,34 @@ interface SignQueryProps {
   hostChange: (event: any) => void
 }
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    '& > :not(:last-child)': {
-      marginRight: theme.spacing(1)
-    }
-  }
-}))
-
 export const SignQuery: FunctionComponent<SignQueryProps> = ({
   keyValue,
   hostValue,
   keyChange,
   hostChange
 }) => {
-  const classes = useStyles()
   return (
-    <div className={classes.root}>
-      <TextField
-        label='Private Key'
-        variant='outlined'
-        value={keyValue}
-        onChange={keyChange}
-        margin='dense'
-      />
-      <TextField
-        label='Host'
-        variant='outlined'
-        value={hostValue}
-        onChange={hostChange}
-        margin='dense'
-      />
-    </div>
+    <Grid container spacing={2}>
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label='Private Key'
+          variant='outlined'
+          value={keyValue}
+          onChange={keyChange}
+          margin='dense'
+        />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label='Host'
+          variant='outlined'
+          value={hostValue}
+          onChange={hostChange}
+          margin='dense'
+        />
+      </Grid>
+    </Grid>
   )
 }

@@ -51,6 +51,10 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: 'auto',
     width: '95%',
     marginLeft: '2.5%'
+  },
+  editors: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2)
   }
 }))
 
@@ -204,15 +208,17 @@ export const GenerateKeys: FunctionComponent<Props> = ({ _db, token }) => {
           </TableBody>
         </Table>
       </TableContainer>
-      <Editor
-        height='150px'
-        name='generate-keys-transaction'
-        title='Transaction'
-        value={edValue}
-        onChange={(value) => setEdValue(value)}
-        width='100%'
-        size='small'
-      />
+      <div className={classes.editors}>
+        <Editor
+          height='150px'
+          name='generate-keys-transaction'
+          title='Transaction'
+          value={edValue}
+          onChange={(value) => setEdValue(value)}
+          width='100%'
+          size='small'
+        />
+      </div>
       <Button
         variant='contained'
         color='primary'
@@ -221,15 +227,17 @@ export const GenerateKeys: FunctionComponent<Props> = ({ _db, token }) => {
       >
         Transact
       </Button>
-      <Editor
-        height='150px'
-        name='generate-keys-results'
-        title='Results'
-        readOnly
-        width='100%'
-        value={results.dataString}
-        size='small'
-      />
+      <div className={classes.editors}>
+        <Editor
+          height='150px'
+          name='generate-keys-results'
+          title='Results'
+          readOnly
+          width='100%'
+          value={results.dataString}
+          size='small'
+        />
+      </div>
       <BasicDialog
         open={reqErrorOpen || errorOpen}
         message={requestError || error}

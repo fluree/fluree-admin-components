@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
     height: 75
   },
   queryActions: {
-    marginLeft: '1%',
+    // marginLeft: '1%',
     height: 'inherit',
     display: 'inherit',
     alignItems: 'center',
@@ -89,8 +89,8 @@ const useStyles = makeStyles((theme) => ({
     position: 'static'
   },
   historyHeader: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2)
+    // marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2.5)
   },
   history: {
     maxHeight: 200,
@@ -410,7 +410,7 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
           </IconButton>
         </div>
       </div>
-      <Grid container className={classes.grid}>
+      <Grid container spacing={1} className={classes.grid}>
         <Grid item xs={12}>
           {signOpen &&
             (action === 'query' ? (
@@ -454,7 +454,7 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
             style={{ width: 'inherit' }}
           > */}
         <Grid item xs={12} md={historyOpen ? 10 : 12}>
-          <Grid container>
+          <Grid spacing={3} container>
             <Grid item xs={12} lg={6}>
               <Editor
                 action={action}
