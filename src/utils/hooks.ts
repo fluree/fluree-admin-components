@@ -5,8 +5,8 @@ import 'isomorphic-fetch'
 type HistoryHook = (storageKey: string) => any
 type StorageHook = (storageKey: string, defaultValue?: string) => any
 interface Results {
-  data?: Record<string, unknown>
-  status?: number | null
+  data?: Record<string, unknown> | Array<Record<string, unknown>>
+  status: number | null
   dataString: string
 }
 interface FQLReturn {
