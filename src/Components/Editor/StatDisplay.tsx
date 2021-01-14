@@ -12,15 +12,6 @@ const useStyles = makeStyles(() => ({
   label: { fontWeight: 800, textTransform: 'capitalize' }
 }))
 
-interface StatTextProps {
-  label: string
-  value: string
-}
-
-interface StatDisplayProps {
-  stats: object
-}
-
 export const StatText: FunctionComponent<StatTextProps> = (props) => {
   const classes = useStyles()
   const { label, value } = props

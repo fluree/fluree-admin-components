@@ -25,7 +25,7 @@ import {
 import { useFql } from '../../utils/hooks'
 // import { signQuery } from '@fluree/crypto-utils'
 
-interface Props {
+interface SignTxProps {
   formValue: SignedTransactionForm
   onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
   rollNonce?: () => void
@@ -39,19 +39,19 @@ interface AuthShape {
   _id: number
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     // '&>div': {
     //   marginRight: theme.spacing(1)
     // }
   },
   selectRoot: {
-    marginTop: 8,
+    marginTop: theme.spacing(1),
     minWidth: 200
   }
 }))
 
-export const SignTransaction: FunctionComponent<Props> = ({
+export const SignTransaction: FunctionComponent<SignTxProps> = ({
   formValue,
   onChange,
   rollNonce,
@@ -119,18 +119,9 @@ export const SignTransaction: FunctionComponent<Props> = ({
 
   useEffect(() => {
     fetchAuth(_db)
-    // if (mounted && results.data.length) {
-    //   setAuthOptions(
-    //     [results.data].map((auth: Record<string, unknown>) => ({
-    //       id: auth['_auth/id'],
-    //       _id: auth._id
-    //     }))
-    //   )
-    // }
-  }, [])
+  }, [_db])
+
   useEffect(() => {
-    // let mounted = true
-    // if (mounted) {
     console.log({ results })
     if (results.data && Array.isArray(results.data)) {
       const options: Array<AuthShape> = results.data.map((auth: any) => ({
@@ -139,11 +130,6 @@ export const SignTransaction: FunctionComponent<Props> = ({
       }))
       setAuthOptions(options)
     }
-    // }
-    // return function cleanup() {
-    //   clearAuth && clearAuth()
-    //   mounted = false
-    // }
   }, [results.data])
 
   return (
@@ -171,8 +157,8 @@ export const SignTransaction: FunctionComponent<Props> = ({
             color='primary'
             variant='outlined'
             classes={{ root: classes.selectRoot }}
+            disabled={!authOptions}
           >
-            {/* <InputLabel id='auth-label'>Auth</InputLabel> */}
             <TextField
               variant='outlined'
               color='primary'
@@ -182,14 +168,6 @@ export const SignTransaction: FunctionComponent<Props> = ({
               onChange={onChange}
               label='Auth'
               name='auth'
-              // children={
-              //   authOptions &&
-              //   authOptions.map((option: AuthShape) => (
-              //     <MenuItem value={option.id} key={option._id}>
-              //       {option.id}
-              //     </MenuItem>
-              //   ))
-              // }
             >
               {authOptions &&
                 authOptions.map((option: AuthShape) => (

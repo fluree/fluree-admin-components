@@ -6,7 +6,6 @@ declare module '*.css' {
   const content: { [className: string]: string }
   export default content
 }
-
 interface SvgrComponent
   extends React.StatelessComponent<React.SVGAttributes<SVGElement>> {}
 
@@ -67,7 +66,7 @@ interface SignedTransactionForm {
   nonce: string
   expire: string
   privateKey: string
-  auth: string
+  auth: string | null
 }
 
 interface EndpointParams {
@@ -127,4 +126,67 @@ interface QueryTypes {
   Block: [string, Record<string, unknown>]
   'Multi-Query': [string, Record<string, unknown>]
   History: [string, Record<string, unknown>]
+}
+
+interface EditorProps {
+  name?: string
+  value?: string
+  theme?: 'dracula' | 'xcode'
+  mode?: 'json' | 'json5' | 'sparql' | 'yaml'
+  title?: string
+  readOnly?: boolean
+  width?: number | string
+  action?: string
+  stats?: FlureeStats | null
+  height?: string
+  size?: 'small' | 'medium'
+  onChange?: (value: string) => void
+}
+
+interface StatTextProps {
+  label: string
+  value: string
+}
+
+interface StatDisplayProps {
+  stats: object
+}
+
+interface SignQueryProps {
+  keyValue: string
+  hostValue: string
+  keyChange: (event: any) => void
+  hostChange: (event: any) => void
+}
+
+interface AuthShape {
+  id: string
+  _id: number
+}
+
+interface GenerateKeysProps {
+  _db: DB
+  token?: string
+}
+
+interface HistoryProps {
+  history: Array<object> | null | undefined
+  loadHistoryItem?: (
+    action: string,
+    param: object,
+    type?: string | null
+  ) => void | undefined
+}
+
+interface HistoryObject {
+  action: string
+  param: object
+  type?: string
+}
+
+interface GenKeysDialogProps {
+  open: boolean
+  onClose: () => void
+  // _db: DB
+  // token?: string
 }

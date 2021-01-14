@@ -2,13 +2,6 @@
 import React, { FunctionComponent } from 'react'
 import { Grid, TextField } from '@material-ui/core'
 
-interface SignQueryProps {
-  keyValue: string
-  hostValue: string
-  keyChange: (event: any) => void
-  hostChange: (event: any) => void
-}
-
 export const SignQuery: FunctionComponent<SignQueryProps> = ({
   keyValue,
   hostValue,
@@ -24,7 +17,6 @@ export const SignQuery: FunctionComponent<SignQueryProps> = ({
           variant='outlined'
           value={keyValue}
           onChange={keyChange}
-          margin='dense'
         />
       </Grid>
       <Grid item xs={12} sm={6}>
@@ -34,7 +26,6 @@ export const SignQuery: FunctionComponent<SignQueryProps> = ({
           variant='outlined'
           value={hostValue}
           onChange={hostChange}
-          margin='dense'
         />
       </Grid>
     </Grid>

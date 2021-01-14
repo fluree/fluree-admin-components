@@ -8,13 +8,13 @@ import {
   Button
 } from '@material-ui/core'
 
-interface DialogProps {
+interface BasicDialogProps {
   open: boolean
   onClose: () => void
   message: string
 }
 
-export const BasicDialog: FunctionComponent<DialogProps> = ({
+export const BasicDialog: FunctionComponent<BasicDialogProps> = ({
   open,
   onClose,
   message

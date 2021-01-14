@@ -58,22 +58,18 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface Props {
-  _db: DB
-  token?: string
-}
-
-export const GenerateKeys: FunctionComponent<Props> = ({ _db, token }) => {
+export const GenerateKeys: FunctionComponent<GenerateKeysProps> = ({
+  _db,
+  token
+}) => {
   const classes = useStyles()
   const [pubKey, setPubKey] = useState('')
   const [pvtKey, setPvtKey] = useState('')
   const [authId, setAuthId] = useState('')
   useEffect(() => {
-    // if (open) {
     const { publicKey, privateKey } = generateKeyPair()
     setPvtKey(privateKey)
     setPubKey(publicKey)
-    // }
   }, [])
 
   const [edValue, setEdValue] = useState('')
@@ -86,7 +82,7 @@ export const GenerateKeys: FunctionComponent<Props> = ({ _db, token }) => {
     requestError,
     reqErrorOpen,
     setReqErrorOpen
-  } = useFql('Transaction receipt will appear here')
+  } = useFql('// Press "Transact" to create new _auth record')
 
   useEffect(() => {
     if (pubKey) {
@@ -136,8 +132,6 @@ export const GenerateKeys: FunctionComponent<Props> = ({ _db, token }) => {
     }
     const { ip, db } = _db
     const fullDb = splitDb(db)[1]
-    // const dbName = typeof db === 'string' ? db : db['db/id']
-    // const fullDb = dbName.split('/')
     const opts = {
       ip,
       body: parsedParam,

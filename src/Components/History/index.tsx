@@ -13,21 +13,6 @@ const useStyles = makeStyles(() => ({
   }
 }))
 
-interface HistoryProps {
-  history: Array<object> | null | undefined
-  loadHistoryItem?: (
-    action: string,
-    param: object,
-    type?: string | null
-  ) => void | undefined
-}
-
-interface HistoryObject {
-  action: string
-  param: object
-  type?: string
-}
-
 export const History: FunctionComponent<HistoryProps> = ({
   history,
   loadHistoryItem

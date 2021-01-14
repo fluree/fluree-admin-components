@@ -42,21 +42,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface EditorProps {
-  name?: string
-  value?: string
-  theme?: 'dracula' | 'xcode'
-  mode?: 'json' | 'json5' | 'sparql' | 'yaml'
-  title?: string
-  readOnly?: boolean
-  width?: number | string
-  action?: string
-  stats?: FlureeStats | null
-  height?: string
-  size?: 'small' | 'medium'
-  onChange?: (value: string) => void
-}
-
 export const Editor: FunctionComponent<EditorProps> = ({
   name,
   value,
