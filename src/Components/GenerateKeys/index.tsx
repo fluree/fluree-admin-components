@@ -19,7 +19,8 @@ import { BasicDialog } from '../General/BasicDialog'
 import { generateKeyPair, getSinFromPublicKey } from '@fluree/crypto-utils'
 import { convertArrayOfObjectsToCSV } from '../../utils/convertToCsv'
 import JSON5 from 'json5'
-import { flureeFetch, splitDb } from '../../utils/flureeFetch'
+import { splitDb } from '../../utils/flureeFetch'
+import { useFql } from '../../utils/hooks'
 
 const useStyles = makeStyles((theme) => ({
   list: {},
@@ -63,8 +64,6 @@ export const GenerateKeys: FunctionComponent<Props> = ({ _db, token }) => {
   const [pubKey, setPubKey] = useState('')
   const [pvtKey, setPvtKey] = useState('')
   const [authId, setAuthId] = useState('')
-  const [error, setError] = useState('')
-  const [errorOpen, setErrorOpen] = useState(false)
   useEffect(() => {
     // if (open) {
     const { publicKey, privateKey } = generateKeyPair()
@@ -74,7 +73,16 @@ export const GenerateKeys: FunctionComponent<Props> = ({ _db, token }) => {
   }, [])
 
   const [edValue, setEdValue] = useState('')
-  const [resEdValue, setResEdValue] = useState('')
+  const [error, setError] = useState('')
+  const [errorOpen, setErrorOpen] = useState(false)
+
+  const {
+    sendUnsigned,
+    results,
+    requestError,
+    reqErrorOpen,
+    setReqErrorOpen
+  } = useFql('Transaction receipt will appear here')
 
   useEffect(() => {
     if (pubKey) {
@@ -85,7 +93,11 @@ export const GenerateKeys: FunctionComponent<Props> = ({ _db, token }) => {
 
   useEffect(() => {
     setEdValue(
-      `[\n  {\n    "_id": "_auth",\n    "id": "${authId}",\n    "roles": [\n      [\n        "_role/id",\n        "root"\n      ]\n    ]\n  }\n]`
+      JSON5.stringify(
+        [{ _id: '_auth', id: authId, roles: [['_role/id', 'root']] }],
+        null,
+        2
+      )
     )
   }, [authId])
 
@@ -133,9 +145,7 @@ export const GenerateKeys: FunctionComponent<Props> = ({ _db, token }) => {
 
     console.log({ opts })
     try {
-      const results = await flureeFetch(opts)
-      console.log({ results })
-      setResEdValue(JSON5.stringify(results.data, null, 2))
+      sendUnsigned(opts)
     } catch (err) {
       console.log(err)
     }
@@ -217,13 +227,13 @@ export const GenerateKeys: FunctionComponent<Props> = ({ _db, token }) => {
         title='Results'
         readOnly
         width='100%'
-        value={resEdValue}
+        value={results.dataString}
         size='small'
       />
       <BasicDialog
-        open={errorOpen}
-        message={error}
-        onClose={() => setErrorOpen(false)}
+        open={reqErrorOpen || errorOpen}
+        message={requestError || error}
+        onClose={() => setReqErrorOpen(false)}
       />
     </div>
   )
