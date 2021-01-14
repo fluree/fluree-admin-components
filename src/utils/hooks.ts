@@ -5,8 +5,9 @@ import 'isomorphic-fetch'
 type HistoryHook = (storageKey: string) => any
 type StorageHook = (storageKey: string, defaultValue?: string) => any
 interface Results {
-  data: string
+  data?: Record<string, unknown>
   status?: number | null
+  dataString: string
 }
 interface FQLReturn {
   results: Results
@@ -18,6 +19,8 @@ interface FQLReturn {
   sendSignedQuery: (fetchOpts: FetchOptions, sOpts: SignOptions) => void
   sendSignedTx: (fetchOpts: FetchOptions, sOpts: SignOptions) => void
 }
+
+const hosted = process.env.REACT_APP_ENVIRONMENT === 'hosted'
 
 const useLocalHistory: HistoryHook = (storageKey) => {
   const storedState = localStorage.getItem(storageKey)
@@ -53,7 +56,8 @@ const useLocalStorage: StorageHook = (storageKey, defaultValue = undefined) => {
  */
 const useFql = (placeholder = ''): FQLReturn => {
   const [results, setResults] = useState<Results>({
-    data: placeholder,
+    data: undefined,
+    dataString: placeholder,
     status: null
   })
   const [requestError, setRequestError] = useState('')
@@ -146,6 +150,7 @@ const useFql = (placeholder = ''): FQLReturn => {
       headers: { ...finalHeaders },
       body: JSON.stringify(body)
     }
+    console.log({ url, fetchOpts })
     try {
       const response = await fetch(url, fetchOpts)
       console.log(response)
@@ -181,7 +186,11 @@ const useFql = (placeholder = ''): FQLReturn => {
 
       console.log(typeof status)
       const stats = getStats(headers)
-      setResults({ data: JSON.stringify(data, null, 2), status: status })
+      setResults({
+        data,
+        dataString: JSON.stringify(data, null, 2),
+        status: status
+      })
       setMetadata(stats)
       console.log({ data, headers, status })
     } catch (err) {
@@ -190,8 +199,6 @@ const useFql = (placeholder = ''): FQLReturn => {
       setReqErrorOpen(true)
     }
   }
-
-  // const processResults = (response: Record<string, unknown>) => undefined
 
   const sendUnsigned = ({
     endpoint,
@@ -202,7 +209,7 @@ const useFql = (placeholder = ''): FQLReturn => {
     headers,
     body
   }: FetchOptions) => {
-    const url = parseUrl(ip, network, db, endpoint)
+    const url = parseUrl(ip, network, db, endpoint, undefined, hosted)
     fetchRequest(url, body, headers, auth)
   }
 
@@ -210,16 +217,18 @@ const useFql = (placeholder = ''): FQLReturn => {
     fetchOpts: FetchOptions,
     { dbName, privateKey }: SignOptions
   ) => {
+    console.log({ fetchOpts })
     const { body, endpoint, ip, network, db } = fetchOpts
-    fetchOpts.headers = signQuery(
+    const signedOpts = signQuery(
       privateKey,
       JSON.stringify(body),
       endpoint,
       ip,
       dbName
     )
-    const url = parseUrl(ip, network, db, endpoint)
-    fetchRequest(url, body, fetchOpts.headers, fetchOpts.auth)
+    console.log({ fetchOpts })
+    const url = parseUrl(ip, network, db, endpoint, undefined, hosted)
+    fetchRequest(url, body, signedOpts.headers, fetchOpts.auth)
   }
 
   const sendSignedTx = (
@@ -236,7 +245,7 @@ const useFql = (placeholder = ''): FQLReturn => {
       privateKey,
       JSON.stringify(fetchOpts.body)
     )
-    const url = parseUrl(ip, network, db, endpoint)
+    const url = parseUrl(ip, network, db, endpoint, undefined, hosted)
     fetchRequest(url, fetchOpts.body, fetchOpts.headers, fetchOpts.auth)
   }
 
