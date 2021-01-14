@@ -9,7 +9,7 @@ const useStyles = makeStyles(() => ({
     '& > p:not(:last-child)': { marginRight: 10 }
   },
   stat: {},
-  label: { fontWeight: 800 }
+  label: { fontWeight: 800, textTransform: 'capitalize' }
 }))
 
 interface StatTextProps {
