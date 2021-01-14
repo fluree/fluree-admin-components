@@ -108,38 +108,20 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface Props {
-  _db: DB
-  allowTransact?: boolean
-  withHistory?: boolean
-  editorMode?: 'json' | 'json5' | 'yaml'
-  token?: string
-  allowKeyGen?: boolean
-  allowSign?: boolean
-}
-
-type QueryType = 'Query' | 'Block' | 'Multi-Query' | 'History'
-interface QueryTypes {
-  Query: [string, string]
-  Block: [string, string]
-  'Multi-Query': [string, string]
-  History: [string, string]
-}
-
 const queryTypes: QueryTypes = {
-  Query: [
-    'query',
-    '{\n  "select": [\n    "*"\n  ],\n  "from": "_collection"\n}'
-  ],
-  Block: ['block', '{\n  "block": 1\n}'],
+  Query: ['query', { select: ['*'], from: '_collection' }],
+  Block: ['block', { block: 1 }],
   'Multi-Query': [
     'multi-query',
-    '{\n  "collections": {\n    "select": [\n      "*"\n    ],\n    "from": "_collection"\n  },\n  "users": {\n    "select": [\n      "*"\n    ],\n    "from": "_user"\n  }\n}'
+    {
+      collections: { select: ['*'], from: '_collection' },
+      users: { select: ['*'], from: '_user' }
+    }
   ],
-  History: ['history', '{\n  "history": []\n}']
+  History: ['history', { history: [] }]
 }
 
-export const FlureeQL: FunctionComponent<Props> = ({
+export const FlureeQL: FunctionComponent<FQLProps> = ({
   _db,
   allowTransact,
   withHistory = false,
@@ -149,14 +131,22 @@ export const FlureeQL: FunctionComponent<Props> = ({
   allowSign = false
 }) => {
   const classes = useStyles()
+  const parse = { json: JSON.parse, json5: JSON5.parse, yaml: YAML.parse }[
+    editorMode
+  ]
+  const stringify = {
+    json: JSON.stringify,
+    json5: JSON5.stringify,
+    yaml: (value: object | string, ..._rest: any) => YAML.stringify(value)
+  }[editorMode]
 
   // state variable for toggling between 'query' and 'transact'
   const [action, setAction] = useState('query')
   // special query endpoint
-  const [queryType, setQueryType] = useState<QueryType>('Query')
-  const [queryParam, setQueryParam] = useState('')
+  const [queryType, setQueryType] = useState('Query')
+  const [queryParam, setQueryParam] = useState(queryTypes[queryType[1]])
   const [txParam, setTxParam] = useState(
-    '[{"_id":"_user","username":"newUser"}]'
+    stringify(parse('[{"_id":"_user","username":"newUser"}]'), null, 2)
   )
   // const [results, setResults] = useState('')
   // const [stats, setStats] = useState<Dictionary | undefined>(undefined)
@@ -193,6 +183,22 @@ export const FlureeQL: FunctionComponent<Props> = ({
     auth: ''
   })
 
+  // useEffect(() => {
+  //   if (_db) {
+  //     const dbName = splitDb(_db.db)[0]
+  //     const lastQuery = localStorage.getItem(dbName.concat('_queryParam'))
+  //     const lastTx = localStorage.getItem(dbName.concat('_txParam'))
+  //     const lastAction = localStorage.getItem(dbName.concat('_lastAction'))
+  //     // const lastType = localStorage.getItem(dbName.concat('_lastType'))
+  //     console.log({ lastQuery, lastTx, lastAction })
+  //     if (lastQuery) setQueryParam(stringify(parse(lastQuery), null, 2))
+  //     if (lastTx) setTxParam(stringify(parse(lastTx), null, 2))
+  //     if (lastAction) setAction(lastAction)
+  //     // if (lastType && lastAction !== 'transact')
+  //     //   setQueryType(queryTypes[lastType][0])
+  //   }
+  // }, [_db])
+
   // const [loading, setLoading] = useState(false)
   // const [size, setSize] = useState('50%')
   const rollNonce = () => {
@@ -213,19 +219,11 @@ export const FlureeQL: FunctionComponent<Props> = ({
     setSignTxForm({ ...signTxForm, auth: '' })
   }
 
-  const parse = { json: JSON.parse, json5: JSON5.parse, yaml: YAML.parse }[
-    editorMode
-  ]
-  const stringify = {
-    json: JSON.stringify,
-    json5: JSON5.stringify,
-    yaml: (value: object | string, ..._rest: any) => YAML.stringify(value)
-  }[editorMode]
-
   useEffect(() => {
-    setQueryParam(queryTypes[queryType][1])
+    setQueryParam(stringify(queryTypes[queryType][1], null, 2))
   }, [queryType])
 
+  // handles writing last successful request to history
   useEffect(() => {
     if (results.status) {
       if (results.status && results.status < 400) {
@@ -283,38 +281,6 @@ export const FlureeQL: FunctionComponent<Props> = ({
       console.log('bing')
       return
     }
-    // const parsedParam = opts.body
-    // if (sign) {
-    //   if (action === 'transact') {
-    //     try {
-    //       const signed = signTransaction(
-    //         signTxForm.auth,
-    //         dbName,
-    //         signTxForm.expire,
-    //         signTxForm.maxFuel,
-    //         signTxForm.nonce,
-    //         signTxForm.privateKey,
-    //         JSON.stringify(parsedParam)
-    //       )
-    //       console.log({ signed })
-    //       opts.body = signed
-    //       // eslint-disable-next-line no-debugger
-    //       debugger
-    //     } catch (err) {
-    //       // eslint-disable-next-line no-debugger
-    //       debugger
-    //       console.log(err)
-    //     }
-    //   } else {
-    //     opts.headers = signQuery(
-    //       privateKey,
-    //       JSON.stringify(parsedParam),
-    //       opts.endpoint,
-    //       host,
-    //       dbName
-    //     ).headers
-    //   }
-    // }
     const queryParamStore =
       stringify(queryParam).length > 5000
         ? 'Values greater than 5k are not saved in the admin UI.'
@@ -332,6 +298,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
     )
 
     console.log({ opts })
+    // time to send the request
     try {
       if (sign) {
         if (action === 'transact') {
@@ -508,7 +475,7 @@ export const FlureeQL: FunctionComponent<Props> = ({
                 readOnly
                 width='100%'
                 name='flureeQL-results'
-                value={results.data}
+                value={results.dataString}
                 stats={metadata}
                 action='results'
                 mode={editorMode}

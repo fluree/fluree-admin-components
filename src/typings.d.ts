@@ -110,3 +110,21 @@ interface SignOptions {
   nonce?: string | number
   privateKey: string
 }
+
+interface FQLProps {
+  _db: DB
+  allowTransact?: boolean
+  withHistory?: boolean
+  editorMode?: 'json' | 'json5' | 'yaml'
+  token?: string
+  allowKeyGen?: boolean
+  allowSign?: boolean
+}
+
+type QueryType = 'Query' | 'Block' | 'Multi-Query' | 'History'
+interface QueryTypes {
+  Query: [string, Record<string, unknown>]
+  Block: [string, Record<string, unknown>]
+  'Multi-Query': [string, Record<string, unknown>]
+  History: [string, Record<string, unknown>]
+}

@@ -27,7 +27,7 @@ export const SignQuery: FunctionComponent<SignQueryProps> = ({
   return (
     <div className={classes.root}>
       <TextField
-        label='Sign'
+        label='Private Key'
         variant='outlined'
         value={keyValue}
         onChange={keyChange}

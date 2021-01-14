@@ -133,6 +133,16 @@ export const SignTransaction: FunctionComponent<Props> = ({
 
   return (
     <form className={classes.root}>
+      <FormControl variant='outlined' color='primary' margin='dense'>
+        <TextField
+          variant='outlined'
+          value={formValue.privateKey}
+          onChange={onChange}
+          label='Private Key'
+          name='privateKey'
+        />
+      </FormControl>
+
       <FormControl color='primary' margin='dense' variant='outlined'>
         <TextField
           onChange={onChange}
@@ -207,15 +217,6 @@ export const SignTransaction: FunctionComponent<Props> = ({
               </MenuItem>
             ))}
         </TextField>
-      </FormControl>
-      <FormControl variant='outlined' color='primary' margin='dense'>
-        <TextField
-          variant='outlined'
-          value={formValue.privateKey}
-          onChange={onChange}
-          label='Private Key'
-          name='privateKey'
-        />
       </FormControl>
     </form>
   )

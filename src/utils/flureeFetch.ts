@@ -2,14 +2,6 @@ import fetch from 'isomorphic-fetch'
 // import { signQuery, signTransaction } from '@fluree/crypto-utils'
 // import JSON5 from 'json5'
 
-interface EndpointParams {
-  endpoint: string
-  network: string
-  db: string
-  body?: object
-  ip: string
-}
-
 function gateway() {
   const production = process.env.NODE_ENV === 'production'
   const hosted = process.env.REACT_APP_ENVIRONMENT === 'hosted'
@@ -27,14 +19,14 @@ function gateway() {
         window.location.port
       : window.location.protocol + '//' + window.location.hostname
   } else if (hosted) {
-    return 'https://db.flur.ee'
+    return 'https://staging.db.flur.ee'
   } else {
     return 'http://localhost:8090'
   }
 }
 
 function fullEndpoint(info: EndpointParams) {
-  const { endpoint, network, db, body, ip } = info
+  const { endpoint, network, db, ip, body } = info
   const hosted = process.env.REACT_APP_ENVIRONMENT === 'hosted'
   const endpointInfix = hosted ? 'api' : 'fdb'
 
@@ -95,7 +87,13 @@ function fullEndpoint(info: EndpointParams) {
 
 async function flureeFetch(opts: FetchOptions) {
   const { ip, body, network, db, endpoint, headers, auth } = opts
-  const fullUri = fullEndpoint({ endpoint, network, db, body, ip })
+  const fullUri = fullEndpoint({
+    endpoint,
+    network,
+    db,
+    body: JSON.stringify(body),
+    ip
+  })
   const finalHeaders = headers || {
     'Content-Type': 'application/json',
     'Request-Timeout': '20000',
