@@ -180,7 +180,7 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
     maxFuel: '1000000',
     nonce: `${Math.ceil(Math.random() * 100)}`,
     privateKey: '',
-    auth: ''
+    auth: null
   })
 
   // useEffect(() => {
@@ -301,7 +301,7 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
     // time to send the request
     try {
       if (sign) {
-        if (action === 'transact') {
+        if (action === 'transact' && signTxForm.auth) {
           sendSignedTx(opts, {
             authId: signTxForm.auth,
             dbName,
