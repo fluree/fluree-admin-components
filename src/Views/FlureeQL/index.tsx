@@ -2,9 +2,7 @@ import React, {
   useEffect,
   useState,
   // eslint-disable-next-line no-unused-vars
-  FunctionComponent,
-  // eslint-disable-next-line no-unused-vars
-  ChangeEvent
+  FunctionComponent
 } from 'react'
 import {
   Button,
@@ -18,22 +16,19 @@ import {
 } from '@material-ui/core'
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined' // import SplitPane from 'react-split-pane'
-// import AcUnitIcon from '@material-ui/icons/AcUnit'
 import { Editor } from '../../Components/Editor'
 import { History } from '../../Components/History'
-import { SignQuery } from '../../Components/Forms/SignQuery'
-import { SignTransaction } from '../../Components/Forms/SignTransaction'
+import { SignQuery } from '../../Components/Forms/Sign/SignQuery'
+import { SignTransaction } from '../../Components/Forms/Sign/SignTransaction'
 import { GenKeysDialog } from './Dialogs/GenKeysDialog'
 import { GenerateKeys } from '../../Components/GenerateKeys'
 import { BasicDialog } from '../../Components/General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import { splitDb } from '../../utils/flureeFetch'
 import { useLocalHistory, useFql, useSavedState } from '../../utils/hooks'
+import useSignForm from '../../Components/Forms/Sign/hooks'
 import JSON5 from 'json5'
 import YAML from 'yaml'
-// import { signQuery, signTransaction } from '@fluree/crypto-utils'
-// import { format } from 'path'
-// import get from 'lodash'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,7 +42,6 @@ const useStyles = makeStyles((theme) => ({
     height: 75
   },
   queryActions: {
-    // marginLeft: '1%',
     height: 'inherit',
     display: 'inherit',
     alignItems: 'center',
@@ -64,14 +58,11 @@ const useStyles = makeStyles((theme) => ({
   signQueryForm: {
     marginTop: theme.spacing(1)
   },
-  grid: {
-    // padding: theme.spacing(2)
-  },
+  grid: {},
   editorPane: {
     display: 'flex',
     marginLeft: '1%',
     alignItems: 'stretch',
-    // maxHeight: 600,
     height: '100%'
   },
   split: {
@@ -88,7 +79,6 @@ const useStyles = makeStyles((theme) => ({
     position: 'static'
   },
   historyHeader: {
-    // marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2.5)
   },
   history: {
@@ -98,9 +88,6 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up('md')]: {
       maxHeight: 1090
     },
-    // [theme.breakpoints.down('sm')]: {
-    //   maxHeight: 200
-    // },
     [theme.breakpoints.up('lg')]: {
       maxHeight: 500
     }
@@ -157,8 +144,6 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
     splitDb(_db.db)[0].concat('_savedTx'),
     stringify([{ _id: '_user', username: 'newUser' }], null, 2)
   )
-  // const [results, setResults] = useState('')
-  // const [stats, setStats] = useState<Dictionary | undefined>(undefined)
   const [history, setHistory] = useLocalHistory(
     typeof _db.db === 'string'
       ? `${_db.db}_history`
@@ -176,8 +161,6 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
   )
   const [genOpen, setGenOpen] = useState(false)
   const [host, setHost] = useState(_db.ip)
-  // const [visOpen, setVisOpen] = useState(false)
-  // const [flakes, setFlakes] = useState<Array<any> | null>(null)
   const {
     results,
     metadata,
@@ -189,39 +172,17 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
     setReqErrorOpen
   } = useFql('// Results will appear here!')
 
-  const [signForm, setSignForm] = useState<SignedTransactionForm>({
-    expire: `${Date.now() + 180000}`,
-    maxFuel: '1000000',
-    nonce: `${Math.ceil(Math.random() * 100)}`,
-    privateKey: _db.defaultPrivateKey || '',
-    auth: null
-  })
-
-  // const [loading, setLoading] = useState(false)
-  // const [size, setSize] = useState('50%')
-  const rollNonce = () => {
-    setSignForm({ ...signForm, nonce: `${Math.ceil(Math.random() * 100)}` })
-  }
-
-  const refreshExpire = () => {
-    setSignForm({ ...signForm, expire: `${Date.now() + 180000}` })
-  }
-
-  const signFormHandler = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setSignForm({ ...signForm, [event.target.name]: event.target.value })
-  }
-
-  const clearTxFormAuth = () => {
-    setSignForm({ ...signForm, auth: '' })
-  }
-
+  const {
+    signForm,
+    rollNonce,
+    refreshExpire,
+    signFormHandler,
+    clearTxFormAuth
+  } = useSignForm(_db.defaultPrivateKey || '')
   // handles writing last successful request to history
   useEffect(() => {
     if (results.status) {
       if (results.status && results.status < 400) {
-        // setFlakes(null)
         const latest = stringify({
           action,
           param: action === 'query' ? parse(queryParam) : parse(txParam),
@@ -237,6 +198,8 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
     }
   }, [results])
 
+  // handles action, query type (if applicable), and query/tx
+  // param value change when clicking on history list item
   const setHistoryHandler = (
     action: string,
     param: object,
@@ -279,7 +242,6 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
     } catch (err) {
       setError(err.message)
       setErrorOpen(true)
-      console.log('bing')
       return
     }
 
@@ -301,9 +263,6 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
         return
       }
       sendUnsigned(opts)
-      // if (results.data.flakes) {
-      //   setFlakes(results.data.flakes)
-      // }
     } catch (err) {
       console.log(err)
     }
@@ -430,18 +389,6 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
             </Paper>
           </Grid>
         )}
-        {/* <div> */}
-        {/* <SplitPane
-            className={classes.editors}
-            split='vertical'
-            minSize={300}
-            defaultSize={size}
-            resizerClassName={classes.split}
-            onChange={(size) => {
-              setSize(`${size}%`)
-            }}
-            style={{ width: 'inherit' }}
-          > */}
         <Grid item xs={12} md={historyOpen ? 10 : 12}>
           <Grid spacing={3} container>
             <Grid item xs={12} lg={6}>
@@ -472,7 +419,6 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
             </Grid>
           </Grid>
         </Grid>
-        {/* </SplitPane> */}
       </Grid>
       <BasicDialog
         message={requestError}
@@ -492,12 +438,6 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
       <GenKeysDialog open={genOpen} onClose={() => setGenOpen(false)}>
         <GenerateKeys _db={_db} token={token} />{' '}
       </GenKeysDialog>
-      {/* <FlakeVisModal
-        open={visOpen}
-        onClose={() => setVisOpen(false)}
-        flakes={flakes}
-        _db={_db}
-      /> */}
     </div>
   )
 }
