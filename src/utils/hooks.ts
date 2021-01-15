@@ -51,7 +51,7 @@ const useSavedState: StorageHook = (storageKey, defaultValue = undefined) => {
     if (storedData !== state) {
       localStorage.setItem(
         storageKey,
-        state.length && state.length > 5000
+        state?.length && state.length > 5000
           ? 'Values greater than 5k are not saved in the admin UI.'
           : state
       )

@@ -146,12 +146,12 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
   )
   // special query endpoint
   const [queryType, setQueryType] = useSavedState(
-    splitDb(_db.db)[0].concat('_storedQueryType'),
+    splitDb(_db.db)[0].concat('_savedQueryType'),
     'Query'
   )
   const [queryParam, setQueryParam] = useSavedState(
     splitDb(_db.db)[0].concat('_savedQuery'),
-    queryTypes[queryType[1]]
+    stringify(queryTypes.Query[1], null, 2)
   )
   const [txParam, setTxParam] = useSavedState(
     splitDb(_db.db)[0].concat('_savedTx'),
