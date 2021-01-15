@@ -21,8 +21,8 @@ import RestoreIcon from '@material-ui/icons/Restore'
 import {
   // flureeFetch,
   splitDb
-} from '../../utils/flureeFetch'
-import { useFql } from '../../utils/hooks'
+} from '../../../utils/flureeFetch'
+import { useFql } from '../../../utils/hooks'
 // import { signQuery } from '@fluree/crypto-utils'
 
 interface SignTxProps {
@@ -178,8 +178,13 @@ export const SignTransaction: FunctionComponent<SignTxProps> = ({
             </TextField>
           </FormControl>
         </Grid>
-        <Grid item xs={6} sm={2}>
-          <FormControl color='primary' margin='dense' variant='outlined'>
+        <Grid item xs={6} sm={3}>
+          <FormControl
+            fullWidth
+            color='primary'
+            margin='dense'
+            variant='outlined'
+          >
             <TextField
               onChange={onChange}
               value={formValue.expire}
@@ -196,7 +201,7 @@ export const SignTransaction: FunctionComponent<SignTxProps> = ({
             />
           </FormControl>
         </Grid>
-        <Grid item xs={6} sm={2}>
+        <Grid item xs={6} sm={3}>
           <FormControl
             fullWidth
             color='primary'
@@ -212,7 +217,7 @@ export const SignTransaction: FunctionComponent<SignTxProps> = ({
             />
           </FormControl>
         </Grid>
-        <Grid item xs={6} sm={2}>
+        <Grid item xs={6} sm={3}>
           <FormControl color='primary' margin='dense' variant='outlined'>
             <TextField
               onChange={onChange}
