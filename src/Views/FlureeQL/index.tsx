@@ -28,11 +28,8 @@ import { GenerateKeys } from '../../Components/GenerateKeys'
 // import { FlakeVisModal } from './Modals/FlakeVisModal'
 import { BasicDialog } from '../../Components/General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
-import {
-  splitDb
-  // flureeFetch
-} from '../../utils/flureeFetch'
-import { useLocalHistory, useFql } from '../../utils/hooks'
+import { splitDb } from '../../utils/flureeFetch'
+import { useLocalHistory, useFql, useSavedState } from '../../utils/hooks'
 import JSON5 from 'json5'
 import YAML from 'yaml'
 // import { signQuery, signTransaction } from '@fluree/crypto-utils'
@@ -141,12 +138,22 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
   }[editorMode]
 
   // state variable for toggling between 'query' and 'transact'
-  const [action, setAction] = useState('query')
+  const [action, setAction] = useSavedState(
+    splitDb(_db.db)[0].concat('_lastAction'),
+    'query'
+  )
   // special query endpoint
-  const [queryType, setQueryType] = useState('Query')
-  const [queryParam, setQueryParam] = useState(queryTypes[queryType[1]])
-  const [txParam, setTxParam] = useState(
-    stringify(parse('[{"_id":"_user","username":"newUser"}]'), null, 2)
+  const [queryType, setQueryType] = useSavedState(
+    splitDb(_db.db)[0].concat('_storedQueryType'),
+    'Query'
+  )
+  const [queryParam, setQueryParam] = useSavedState(
+    splitDb(_db.db)[0].concat('_savedQuery'),
+    queryTypes[queryType[1]]
+  )
+  const [txParam, setTxParam] = useSavedState(
+    splitDb(_db.db)[0].concat('_savedTx'),
+    stringify([{ _id: '_user', username: 'newUser' }], null, 2)
   )
   // const [results, setResults] = useState('')
   // const [stats, setStats] = useState<Dictionary | undefined>(undefined)
@@ -155,11 +162,16 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
       ? `${_db.db}_history`
       : `${_db.db['db/id']}_history`
   )
-  const [historyOpen, setHistoryOpen] = useState(false)
+  const [historyOpen, setHistoryOpen] = useSavedState(
+    splitDb(_db.db)[0].concat('_histOpen'),
+    false
+  )
   const [errorOpen, setErrorOpen] = useState(false)
   const [error, setError] = useState('')
-  const [signOpen, setSignOpen] = useState(false)
-  const [privateKey, setPrivateKey] = useState(_db.defaultPrivateKey || '')
+  const [signOpen, setSignOpen] = useSavedState(
+    splitDb(_db.db)[0].concat('_signOpen'),
+    false
+  )
   const [genOpen, setGenOpen] = useState(false)
   const [host, setHost] = useState(_db.ip)
   // const [visOpen, setVisOpen] = useState(false)
@@ -257,6 +269,13 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
     }
   }
 
+  const queryTypeChange = (e: any) => {
+    console.log(e.target.value)
+    setQueryType(e.target.value)
+    const formattedString = stringify(queryTypes[e.target.value][1], null, 2)
+    setQueryParam(formattedString)
+  }
+
   const flureeHandler = async (sign: boolean) => {
     const { ip, db } = _db
     const [dbName, fullDb] = splitDb(db)
@@ -281,21 +300,6 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
       console.log('bing')
       return
     }
-    const queryParamStore =
-      stringify(queryParam).length > 5000
-        ? 'Values greater than 5k are not saved in the admin UI.'
-        : queryParam
-    const txParamStore =
-      stringify(txParam).length > 5000
-        ? 'Values greater than 5k are not saved in the admin UI.'
-        : txParam
-    localStorage.setItem(dbName.concat('_queryParam'), queryParamStore)
-    localStorage.setItem(dbName.concat('_txParam'), txParamStore)
-    localStorage.setItem(dbName.concat('_lastAction'), action)
-    localStorage.setItem(
-      dbName.concat('_lastType'),
-      action === 'query' ? queryType : 'transact'
-    )
 
     console.log({ opts })
     // time to send the request
