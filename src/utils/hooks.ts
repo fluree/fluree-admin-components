@@ -3,7 +3,7 @@ import { signQuery, signTransaction } from '@fluree/crypto-utils'
 import 'isomorphic-fetch'
 
 type HistoryHook = (storageKey: string) => any
-type StorageHook = (storageKey: string, defaultValue?: string) => any
+type StorageHook = (storageKey: string, defaultValue?: any) => any
 interface Results {
   data?: Record<string, unknown> | Array<Record<string, unknown>>
   status: number | null
@@ -35,15 +35,26 @@ const useLocalHistory: HistoryHook = (storageKey) => {
   return [state, setState]
 }
 
-const useLocalStorage: StorageHook = (storageKey, defaultValue = undefined) => {
+const useSavedState: StorageHook = (storageKey, defaultValue = undefined) => {
   const storedState = localStorage.getItem(storageKey)
-  const [state, setState] = useState(defaultValue || storedState || '')
+  let notString: any
+  try {
+    notString = storedState && JSON.parse(storedState)
+  } catch {
+    notString = storedState
+  }
+  const [state, setState] = useState(notString || defaultValue)
 
   useEffect(() => {
     const storedData = localStorage.getItem(storageKey)
 
-    if (storedData !== storedState) {
-      localStorage.setItem(storageKey, state)
+    if (storedData !== state) {
+      localStorage.setItem(
+        storageKey,
+        state.length && state.length > 5000
+          ? 'Values greater than 5k are not saved in the admin UI.'
+          : state
+      )
     }
   }, [state])
   return [state, setState]
@@ -261,4 +272,4 @@ const useFql = (placeholder = ''): FQLReturn => {
   }
 }
 
-export { useLocalHistory, useLocalStorage, useFql }
+export { useLocalHistory, useSavedState, useFql }
