@@ -153,7 +153,7 @@ export const Editor: FunctionComponent<EditorProps> = ({
         open={openError}
         onClose={() => {
           setOpenError(false)
-          setError('')
+          setTimeout(() => setError(''), 1000)
         }}
       />
     </Box>
