@@ -25,7 +25,6 @@ import { SignQuery } from '../../Components/Forms/SignQuery'
 import { SignTransaction } from '../../Components/Forms/SignTransaction'
 import { GenKeysDialog } from './Dialogs/GenKeysDialog'
 import { GenerateKeys } from '../../Components/GenerateKeys'
-// import { FlakeVisModal } from './Modals/FlakeVisModal'
 import { BasicDialog } from '../../Components/General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import { splitDb } from '../../utils/flureeFetch'
@@ -61,6 +60,9 @@ const useStyles = makeStyles((theme) => ({
   },
   actionButtons: {
     marginLeft: theme.spacing(1)
+  },
+  signQueryForm: {
+    marginTop: theme.spacing(1)
   },
   grid: {
     // padding: theme.spacing(2)
@@ -185,55 +187,35 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
     requestError,
     reqErrorOpen,
     setReqErrorOpen
-  } = useFql('Results will appear here!')
+  } = useFql('// Results will appear here!')
 
-  const [signTxForm, setSignTxForm] = useState<SignedTransactionForm>({
+  const [signForm, setSignForm] = useState<SignedTransactionForm>({
     expire: `${Date.now() + 180000}`,
     maxFuel: '1000000',
     nonce: `${Math.ceil(Math.random() * 100)}`,
-    privateKey: '',
+    privateKey: _db.defaultPrivateKey || '',
     auth: null
   })
-
-  // useEffect(() => {
-  //   if (_db) {
-  //     const dbName = splitDb(_db.db)[0]
-  //     const lastQuery = localStorage.getItem(dbName.concat('_queryParam'))
-  //     const lastTx = localStorage.getItem(dbName.concat('_txParam'))
-  //     const lastAction = localStorage.getItem(dbName.concat('_lastAction'))
-  //     // const lastType = localStorage.getItem(dbName.concat('_lastType'))
-  //     console.log({ lastQuery, lastTx, lastAction })
-  //     if (lastQuery) setQueryParam(stringify(parse(lastQuery), null, 2))
-  //     if (lastTx) setTxParam(stringify(parse(lastTx), null, 2))
-  //     if (lastAction) setAction(lastAction)
-  //     // if (lastType && lastAction !== 'transact')
-  //     //   setQueryType(queryTypes[lastType][0])
-  //   }
-  // }, [_db])
 
   // const [loading, setLoading] = useState(false)
   // const [size, setSize] = useState('50%')
   const rollNonce = () => {
-    setSignTxForm({ ...signTxForm, nonce: `${Math.ceil(Math.random() * 100)}` })
+    setSignForm({ ...signForm, nonce: `${Math.ceil(Math.random() * 100)}` })
   }
 
   const refreshExpire = () => {
-    setSignTxForm({ ...signTxForm, expire: `${Date.now() + 180000}` })
+    setSignForm({ ...signForm, expire: `${Date.now() + 180000}` })
   }
 
-  const signTxFormHandler = (
+  const signFormHandler = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setSignTxForm({ ...signTxForm, [event.target.name]: event.target.value })
+    setSignForm({ ...signForm, [event.target.name]: event.target.value })
   }
 
   const clearTxFormAuth = () => {
-    setSignTxForm({ ...signTxForm, auth: '' })
+    setSignForm({ ...signForm, auth: '' })
   }
-
-  useEffect(() => {
-    setQueryParam(stringify(queryTypes[queryType][1], null, 2))
-  }, [queryType])
 
   // handles writing last successful request to history
   useEffect(() => {
@@ -305,16 +287,17 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
     // time to send the request
     try {
       if (sign) {
-        if (action === 'transact' && signTxForm.auth) {
+        if (action === 'transact' && signForm.auth) {
           sendSignedTx(opts, {
-            authId: signTxForm.auth,
+            authId: signForm.auth,
             dbName,
-            expire: signTxForm.expire,
-            maxFuel: signTxForm.maxFuel,
-            nonce: signTxForm.nonce,
-            privateKey: signTxForm.privateKey
+            expire: signForm.expire,
+            maxFuel: signForm.maxFuel,
+            nonce: signForm.nonce,
+            privateKey: signForm.privateKey
           })
-        } else sendSignedQuery(opts, { dbName, privateKey })
+        } else
+          sendSignedQuery(opts, { dbName, privateKey: signForm.privateKey })
         return
       }
       sendUnsigned(opts)
@@ -367,7 +350,7 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
               // labelId='query-type-label'
               autoWidth
               value={queryType}
-              onChange={(event: any) => setQueryType(event.target.value)}
+              onChange={queryTypeChange}
               className={classes.defaultSelect}
               variant='outlined'
               color='primary'
@@ -418,16 +401,18 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
         <Grid item xs={12}>
           {signOpen &&
             (action === 'query' ? (
-              <SignQuery
-                hostValue={host}
-                keyValue={privateKey}
-                hostChange={(e) => setHost(e.target.value)}
-                keyChange={(e) => setPrivateKey(e.target.value)}
-              />
+              <div className={classes.signQueryForm}>
+                <SignQuery
+                  hostValue={host}
+                  keyValue={signForm.privateKey}
+                  hostChange={(e) => setHost(e.target.value)}
+                  keyChange={signFormHandler}
+                />
+              </div>
             ) : (
               <SignTransaction
-                formValue={signTxForm}
-                onChange={signTxFormHandler}
+                formValue={signForm}
+                onChange={signFormHandler}
                 rollNonce={rollNonce}
                 refreshExpire={refreshExpire}
                 clearAuth={clearTxFormAuth}

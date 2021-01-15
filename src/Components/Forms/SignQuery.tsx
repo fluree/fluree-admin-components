@@ -17,6 +17,7 @@ export const SignQuery: FunctionComponent<SignQueryProps> = ({
           variant='outlined'
           value={keyValue}
           onChange={keyChange}
+          name='privateKey'
         />
       </Grid>
       <Grid item xs={12} sm={6}>
