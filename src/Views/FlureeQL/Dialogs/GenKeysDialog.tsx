@@ -13,13 +13,6 @@ import CloseIcon from '@material-ui/icons/Close'
 
 // import { GenerateKeys } from '../../../Components/GenerateKeys'
 
-interface Props {
-  open: boolean
-  onClose: () => void
-  // _db: DB
-  // token?: string
-}
-
 const useStyles = makeStyles((theme) => ({
   root: { overFlowY: 'scroll' },
   closeButton: {
@@ -38,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export const GenKeysDialog: FunctionComponent<Props> = ({
+export const GenKeysDialog: FunctionComponent<GenKeysDialogProps> = ({
   open,
   onClose,
   // _db,
