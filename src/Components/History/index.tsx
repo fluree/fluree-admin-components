@@ -57,7 +57,7 @@ export const History: FunctionComponent<HistoryProps> = ({
                     ? `${item.action}`.toUpperCase()
                     : `${item.action}: ${item.type}`.toUpperCase()
                 }
-                secondary={JSON.stringify(item.param)}
+                secondary={JSON.stringify(item.param).slice(0, 40)}
               />
             </ListItem>
           ))}
