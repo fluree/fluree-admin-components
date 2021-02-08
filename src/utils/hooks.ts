@@ -147,13 +147,21 @@ const useFql = (placeholder = ''): FQLReturn => {
 
   const fetchRequest = async (
     url: string,
-    body: Record<string, unknown>,
+    body: Record<string, unknown> | Array<Record<string, unknown>>,
     headers?: Record<string, string>,
     auth?: string
   ) => {
+    if (Array.isArray(body) && body.length > 5000) {
+      setResults({
+        ...results,
+        dataString:
+          '// Large transactions may take some time to process.\n // Either wait or check the latest block for results.'
+      })
+    }
     const finalHeaders = headers || {
       'Content-Type': 'application/json',
       'Request-Timeout': '20000',
+      'Access-Control-Allow-Origin': '*',
       Authorization: `Bearer ${auth}`
     }
     const fetchOpts = {
@@ -206,8 +214,12 @@ const useFql = (placeholder = ''): FQLReturn => {
       console.log({ data, headers, status })
     } catch (err) {
       console.log(err)
-      setRequestError(err.message)
-      setReqErrorOpen(true)
+      if (response.statusText) {
+        setResults({ dataString: response.statusText, status: response.status })
+      } else {
+        setRequestError(err.message)
+        setReqErrorOpen(true)
+      }
     }
   }
 
