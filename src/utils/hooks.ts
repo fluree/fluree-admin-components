@@ -1,5 +1,6 @@
+/* eslint-disable no-debugger */
 import { useEffect, useState } from 'react'
-import { signQuery, signTransaction } from '@fluree/crypto-utils'
+import { signQuery, signTransaction, signRequest } from '@fluree/crypto-utils'
 import 'isomorphic-fetch'
 
 type HistoryHook = (storageKey: string) => any
@@ -17,6 +18,7 @@ interface FQLReturn {
   reqErrorOpen: boolean
   setReqErrorOpen: (option: boolean) => void
   sendSignedQuery: (fetchOpts: FetchOptions, sOpts: SignOptions) => void
+  sendSignedQueryHosted: (fetchOpts: FetchOptions, sOpts: SignOptions) => void
   sendSignedTx: (fetchOpts: FetchOptions, sOpts: SignOptions) => void
 }
 
@@ -171,10 +173,12 @@ const useFql = (placeholder = ''): FQLReturn => {
     }
     console.log({ url, fetchOpts })
     try {
+      // debugger
       const response = await fetch(url, fetchOpts)
       console.log(response)
       processResponse(response)
     } catch (err) {
+      // debugger
       setRequestError(err.message)
       setReqErrorOpen(true)
     }
@@ -196,6 +200,9 @@ const useFql = (placeholder = ''): FQLReturn => {
   const processResponse = async (response: Response) => {
     try {
       const data = await response.json()
+      // const data = await response.text()
+      // eslint-disable-next-line no-debugger
+      // debugger
       const headers = response.headers
       const status = response.status
 
@@ -214,6 +221,7 @@ const useFql = (placeholder = ''): FQLReturn => {
       console.log({ data, headers, status })
     } catch (err) {
       console.log(err)
+      // debugger
       if (response.statusText) {
         setResults({ dataString: response.statusText, status: response.status })
       } else {
@@ -236,12 +244,12 @@ const useFql = (placeholder = ''): FQLReturn => {
     fetchRequest(url, body, headers, auth)
   }
 
-  const sendSignedQuery = (
+  const sendSignedQuery = async (
     fetchOpts: FetchOptions,
     { dbName, privateKey }: SignOptions
   ) => {
-    console.log({ fetchOpts })
     const { body, endpoint, ip, network, db } = fetchOpts
+    // debugger
     const signedOpts = signQuery(
       privateKey,
       JSON.stringify(body),
@@ -249,9 +257,48 @@ const useFql = (placeholder = ''): FQLReturn => {
       ip,
       dbName
     )
-    console.log({ fetchOpts })
-    const url = parseUrl(ip, network, db, endpoint, undefined, hosted)
-    fetchRequest(url, body, signedOpts.headers, fetchOpts.auth)
+    console.log({ fetchOpts, signedOpts })
+    const url = parseUrl(ip, network, db, endpoint, undefined)
+    const requestOpts = signRequest(
+      'POST',
+      url,
+      JSON.stringify(body),
+      privateKey,
+      fetchOpts.auth
+    )
+    console.log({ requestOpts })
+    // fetchRequest(url, body, signedOpts.headers, fetchOpts.auth)
+    // const results = await fetch(url, { ...requestOpts, body })
+    fetchRequest(url, body, requestOpts.headers, fetchOpts.auth)
+    // processResponse(results)
+  }
+
+  const sendSignedQueryHosted = async (
+    fetchOpts: FetchOptions,
+    { privateKey }: SignOptions
+  ) => {
+    const { body, endpoint, ip, network, db } = fetchOpts
+    const url = parseUrl(ip, network, db, endpoint, undefined, true)
+    const signedOpts = signRequest(
+      'POST',
+      url,
+      JSON.stringify(body),
+      privateKey,
+      undefined
+      // fetchOpts.auth
+    )
+    signedOpts.headers = {
+      ...signedOpts.headers,
+      Authorization: `Bearer ${fetchOpts.auth}`
+    }
+    debugger
+    try {
+      const results = await fetch(url, signedOpts)
+      processResponse(results)
+    } catch (err) {
+      console.log(err)
+      debugger
+    }
   }
 
   const sendSignedTx = (
@@ -277,6 +324,7 @@ const useFql = (placeholder = ''): FQLReturn => {
     metadata,
     sendUnsigned,
     sendSignedQuery,
+    sendSignedQueryHosted,
     requestError,
     reqErrorOpen,
     setReqErrorOpen,
