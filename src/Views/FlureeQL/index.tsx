@@ -166,6 +166,7 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
     metadata,
     sendUnsigned,
     sendSignedQuery,
+    sendSignedQueryHosted,
     sendSignedTx,
     requestError,
     reqErrorOpen,
@@ -256,6 +257,11 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
             expire: signForm.expire,
             maxFuel: signForm.maxFuel,
             nonce: signForm.nonce,
+            privateKey: signForm.privateKey
+          })
+        } else if (_db.environment === 'hosted') {
+          sendSignedQueryHosted(opts, {
+            dbName,
             privateKey: signForm.privateKey
           })
         } else
