@@ -6,17 +6,17 @@ declare module '*.css' {
   const content: { [className: string]: string }
   export default content
 }
-interface SvgrComponent
-  extends React.StatelessComponent<React.SVGAttributes<SVGElement>> {}
+// interface SvgrComponent
+//   extends React.StatelessComponent<React.SVGAttributes<SVGElement>> {}
 
-declare module '*.svg' {
-  const svgUrl: string
-  const svgComponent: SvgrComponent
-  export default svgUrl
-  export { svgComponent as ReactComponent }
-}
+// declare module '*.svg' {
+//   const svgUrl: string
+//   const svgComponent: SvgrComponent
+//   export default svgUrl
+//   export { svgComponent as ReactComponent }
+// }
 
-interface DBOject {
+interface DBObject {
   _id: number
   'db/active': boolean
   'db/id': string
@@ -24,7 +24,7 @@ interface DBOject {
 
 interface DB {
   account?: string
-  db: string | DBOject
+  db: string | DBObject
   dbs?: Array<string>
   defaultPrivateKey?: string
   displayError?: string
@@ -120,7 +120,9 @@ interface FQLProps {
   allowSign?: boolean
 }
 
-type QueryType = 'Query' | 'Block' | 'Multi-Query' | 'History'
+// type QueryType = 'Query' | 'Block' | 'Multi-Query' | 'History'
+type QueryType = string | undefined | null
+
 interface QueryTypes {
   Query: [string, Record<string, unknown>]
   Block: [string, Record<string, unknown>]
@@ -170,7 +172,7 @@ interface GenerateKeysProps {
 }
 
 interface HistoryProps {
-  history: Array<object> | null | undefined
+  history: Array<HistoryObject> | null | undefined
   loadHistoryItem?: (
     action: string,
     param: object,
