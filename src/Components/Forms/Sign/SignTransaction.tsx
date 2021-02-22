@@ -18,10 +18,10 @@ import {
 } from '@material-ui/core'
 import CasinoIcon from '@material-ui/icons/Casino'
 import RestoreIcon from '@material-ui/icons/Restore'
-import {
-  // flureeFetch,
-  splitDb
-} from '../../../utils/flureeFetch'
+// import {
+//   // flureeFetch,
+//   splitDb
+// } from '../../../utils/flureeFetch'
 import { useFql } from '../../../utils/useFql'
 // import { signQuery } from '@fluree/crypto-utils'
 
@@ -66,18 +66,18 @@ export const SignTransaction: FunctionComponent<SignTxProps> = ({
 
   const fetchAuth = async (_db: DB) => {
     try {
-      const { ip, db } = _db
-      const token = _db.token || localStorage.getItem('token') || undefined
-      const dbSplit = splitDb(db)[1]
+      // const { ip, db } = _db
+      // const token = _db.token || localStorage.getItem('token') || undefined
+      // const dbSplit = splitDb(db)[1]
       const authQuery = { select: ['*'], from: '_auth' }
-      const opts: FetchOptions = {
-        ip,
-        endpoint: 'query',
-        network: dbSplit[0],
-        db: dbSplit[1],
-        body: authQuery,
-        auth: token
-      }
+      // const opts: FetchOptions = {
+      //   ip,
+      //   endpoint: 'query',
+      //   network: dbSplit[0],
+      //   db: dbSplit[1],
+      //   body: authQuery,
+      //   auth: token
+      // }
       // if (openApi) {
       //   opts = {
       //     ip,
@@ -98,8 +98,8 @@ export const SignTransaction: FunctionComponent<SignTxProps> = ({
       //     headers: signQuery()
       //   }
       // }
-      console.log({ opts })
-      sendUnsigned(opts)
+      // console.log({ opts })
+      sendUnsigned('query', authQuery)
 
       // const results = await flureeFetch(opts)
 
