@@ -12,7 +12,10 @@ interface Results {
 interface FQLReturn {
   results: Results
   metadata: FlureeStats | null
-  sendUnsigned: (options: FetchOptions) => void
+  sendUnsigned: (
+    endpoint: string,
+    body: Record<string, unknown> | Array<Record<string, unknown>>
+  ) => void
   requestError: string
   reqErrorOpen: boolean
   setReqErrorOpen: (option: boolean) => void
@@ -41,6 +44,20 @@ export function useFql(placeholder = '', _db: DB): FQLReturn {
     time: undefined,
     block: undefined
   })
+
+  const defaultHeaders: HeadersInit = {
+    'Content-Type': 'application/json',
+    'Request-Timeout': '20000',
+    'Access-Control-Allow-Origin': '*'
+  }
+
+  const largeTxWarning = () => {
+    setResults({
+      ...results,
+      dataString:
+        '// Large transactions may take some time to process.\n // Either wait or check the latest block for results.'
+    })
+  }
 
   const parseUrl = (
     // baseUrl: string,
@@ -192,17 +209,27 @@ export function useFql(placeholder = '', _db: DB): FQLReturn {
     }
   }
 
-  const sendUnsigned = ({
-    endpoint,
+  const sendUnsigned = async (
+    endpoint: string,
     // network,
     // db,
     // ip,
-    auth,
-    headers,
-    body
-  }: FetchOptions) => {
+    // headers,
+    body: Record<string, unknown> | Array<Record<string, unknown>>
+  ) => {
+    if (Array.isArray(body) && body.length > 5000) largeTxWarning()
     const url = parseUrl(endpoint)
-    fetchRequest(url, body, headers, auth)
+    const headers = defaultHeaders
+    if (_db.token) {
+      headers.Authorization = `Bearer ${_db.token}`
+    }
+    const results = await fetch(url, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(body)
+    })
+    processResponse(results)
+    // fetchRequest(url, body, headers, auth)
   }
 
   const sendSignedQuery = async (
