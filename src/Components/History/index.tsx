@@ -33,7 +33,7 @@ export const History: FunctionComponent<HistoryProps> = ({
 
   return (
     <div>
-      <List disablePadding>
+      <List className='history-list' disablePadding>
         {history &&
           history.map((item: HistoryObject, i: number) => (
             <ListItem
