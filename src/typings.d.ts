@@ -43,7 +43,7 @@ type Flake = [number, number, number | string, number, boolean, null]
 
 interface FetchOptions {
   ip: string
-  body: Record<string, unknown>
+  body: Record<string, unknown> | Array<Record<string, unknown>>
   auth?: string | undefined
   network: string
   db: string
