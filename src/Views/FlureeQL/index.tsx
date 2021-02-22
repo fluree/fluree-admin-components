@@ -269,7 +269,7 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
           sendSignedQuery(opts, { dbName, privateKey: signForm.privateKey })
         return
       }
-      sendUnsigned(opts)
+      sendUnsigned(opts.endpoint, opts.body)
     } catch (err) {
       console.log(err)
     }
