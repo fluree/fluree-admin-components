@@ -22,7 +22,7 @@ import {
   // flureeFetch,
   splitDb
 } from '../../../utils/flureeFetch'
-import { useFql } from '../../../utils/hooks'
+import { useFql } from '../../../utils/useFql'
 // import { signQuery } from '@fluree/crypto-utils'
 
 interface SignTxProps {
@@ -62,7 +62,7 @@ export const SignTransaction: FunctionComponent<SignTxProps> = ({
   const classes = useStyles()
   // const hosted = process.env.REACT_APP_ENVIRONMENT === 'hosted'
   const [authOptions, setAuthOptions] = useState<Array<AuthShape> | null>(null)
-  const { results, sendUnsigned } = useFql()
+  const { results, sendUnsigned } = useFql(undefined, _db)
 
   const fetchAuth = async (_db: DB) => {
     try {

@@ -20,7 +20,7 @@ import { generateKeyPair, getSinFromPublicKey } from '@fluree/crypto-utils'
 import { convertArrayOfObjectsToCSV } from '../../utils/convertToCsv'
 import JSON5 from 'json5'
 import { splitDb } from '../../utils/flureeFetch'
-import { useFql } from '../../utils/hooks'
+import { useFql } from '../../utils/useFql'
 
 const useStyles = makeStyles((theme) => ({
   list: {},
@@ -82,7 +82,7 @@ export const GenerateKeys: FunctionComponent<GenerateKeysProps> = ({
     requestError,
     reqErrorOpen,
     setReqErrorOpen
-  } = useFql('// Press "Transact" to create new _auth record')
+  } = useFql('// Press "Transact" to create new _auth record', _db)
 
   useEffect(() => {
     if (pubKey) {
