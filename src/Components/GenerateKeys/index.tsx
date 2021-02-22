@@ -143,7 +143,7 @@ export const GenerateKeys: FunctionComponent<GenerateKeysProps> = ({
 
     console.log({ opts })
     try {
-      sendUnsigned(opts)
+      sendUnsigned(endpoint, parsedParam)
     } catch (err) {
       console.log(err)
     }
