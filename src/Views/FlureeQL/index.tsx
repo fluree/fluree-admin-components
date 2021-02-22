@@ -25,7 +25,8 @@ import { GenerateKeys } from '../../Components/GenerateKeys'
 import { BasicDialog } from '../../Components/General/BasicDialog'
 import { makeStyles } from '@material-ui/core/styles'
 import { splitDb } from '../../utils/flureeFetch'
-import { useLocalHistory, useFql, useSavedState } from '../../utils/hooks'
+import { useLocalHistory, useSavedState } from '../../utils/hooks'
+import { useFql } from '../../utils/useFql'
 import useSignForm from '../../Components/Forms/Sign/hooks'
 import JSON5 from 'json5'
 import YAML from 'yaml'
@@ -166,12 +167,12 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
     metadata,
     sendUnsigned,
     sendSignedQuery,
-    sendSignedQueryHosted,
+    // sendSignedQueryHosted,
     sendSignedTx,
     requestError,
     reqErrorOpen,
     setReqErrorOpen
-  } = useFql('// Results will appear here!')
+  } = useFql('// Results will appear here!', _db)
 
   const {
     signForm,
@@ -259,11 +260,11 @@ export const FlureeQL: FunctionComponent<FQLProps> = ({
             nonce: signForm.nonce,
             privateKey: signForm.privateKey
           })
-        } else if (_db.environment === 'hosted') {
-          sendSignedQueryHosted(opts, {
-            dbName,
-            privateKey: signForm.privateKey
-          })
+          // } else if (_db.environment === 'hosted') {
+          //   sendSignedQueryHosted(opts, {
+          //     dbName,
+          //     privateKey: signForm.privateKey
+          //   })
         } else
           sendSignedQuery(opts, { dbName, privateKey: signForm.privateKey })
         return
