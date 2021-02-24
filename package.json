@@ -1,6 +1,6 @@
 {
   "name": "@fluree/admin-react",
-  "version": "1.0.25",
+  "version": "1.0.28",
   "description": "Fluree Admin UI component library",
   "author": "jdorety",
   "license": "MIT",
@@ -26,12 +26,12 @@
   "peerDependencies": {
     "react": "^16.0.x",
     "react-ace": "^9.2.x",
-    "@material-ui/core": "^4.11.x",
-    "@material-ui/lab": "^4.0.x",
+    "@material-ui/core": "^4.x.x",
+    "@material-ui/lab": "^4.x.x",
     "ace-builds": "^1.4.x",
-    "@material-ui/icons": "^4.9.x",
+    "@material-ui/icons": "^4.x.x",
     "isomorphic-fetch": "^3.0.x",
-    "lodash.get": "^4.17.x"
+    "lodash.get": "^4.x.x"
   },
   "devDependencies": {
     "@material-ui/core": "^4.11.2",
